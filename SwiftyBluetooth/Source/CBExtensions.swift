@@ -10,112 +10,128 @@ import Foundation
 import CoreBluetooth
 
 extension CBPeripheral {
-    public func serviceWithUUID(UUIDConvertible: CBUUIDConvertible) -> CBService? {
+    func serviceWithUUID(uuid: CBUUID) -> CBService? {
         guard let services = self.services else {
             return nil
         }
         
         return services.filter { (CBService) -> Bool in
-            if (CBService.UUID == UUIDConvertible.CBUUIDRepresentation) {
+            if (CBService.UUID == uuid) {
                 return true
             }
             return false
         }.first
     }
     
-    public func servicesWithUUIDs(serviceUUIDs: [CBUUIDConvertible]) -> (foundServices: [CBService], missingServices: [CBUUIDConvertible]) {
-        assert(serviceUUIDs.count > 0)
+    func servicesWithUUIDs(servicesUUIDs: [CBUUID]) -> (foundServices: [CBService], missingServicesUUIDs: [CBUUID]) {
+        assert(servicesUUIDs.count > 0)
         
-        guard let services = self.services where services.count > 0 else {
-            return (foundServices: [], missingServices: serviceUUIDs)
+        guard let currentServices = self.services where currentServices.count > 0 else {
+            return (foundServices: [], missingServicesUUIDs: servicesUUIDs)
         }
         
-        var foundServices: [CBService] = []
-        var missingServices: [CBUUIDConvertible] = []
+        let currentServicesUUIDs = currentServices.map { (CBService) -> CBUUID in
+            return CBService.UUID
+        }
         
-        for serviceUUID in serviceUUIDs.reverse() {
-            if let service = self.serviceWithUUID(serviceUUID) {
-                foundServices.append(service)
-            } else {
-                missingServices.append(serviceUUID)
+        let currentServicesUUIDsSet = Set(currentServicesUUIDs)
+        let requestedServicesUUIDsSet = Set(servicesUUIDs)
+        
+        let foundServicesUUIDsSet = requestedServicesUUIDsSet.intersect(currentServicesUUIDsSet)
+        let missingServicesUUIDsSet = requestedServicesUUIDsSet.subtract(currentServicesUUIDsSet)
+        
+        let foundServices = currentServices.filter { (CBService) -> Bool in
+            if foundServicesUUIDsSet.contains(CBService.UUID) {
+                return true
             }
+            return false
         }
         
-        return (foundServices: foundServices, missingServices: missingServices)
+        return (foundServices: foundServices, missingServicesUUIDs: Array(missingServicesUUIDsSet))
     }
     
 }
 
 extension CBService {
-    public func characteristicWithUUID(UUIDConvertible: CBUUIDConvertible) -> CBCharacteristic? {
+    func characteristicWithUUID(uuid: CBUUID) -> CBCharacteristic? {
         guard let characteristics = self.characteristics else {
             return nil
         }
         
         return characteristics.filter { (CBCharacteristic) -> Bool in
-            if (CBCharacteristic.UUID == UUIDConvertible.CBUUIDRepresentation) {
-                return true
-            }
-            return false
-            }.first
-    }
-    
-    public func characteristicsWithUUIDs(characteristicsUUIDs: [CBUUIDConvertible]) -> (foundCharacteristics: [CBCharacteristic], missingCharacteristics: [CBUUIDConvertible]) {
-        
-        assert(characteristicsUUIDs.count > 0)
-        
-        guard let characteristics = self.characteristics where characteristics.count > 0 else {
-            return (foundCharacteristics: [], missingCharacteristics: characteristicsUUIDs)
-        }
-        
-        var foundCharacteristics: [CBCharacteristic] = []
-        var missingCharacteristics: [CBUUIDConvertible] = []
-        
-        for characteristicUUID in characteristicsUUIDs.reverse() {
-            if let characteristic = self.characteristicWithUUID(characteristicUUID) {
-                foundCharacteristics.append(characteristic)
-            } else {
-                missingCharacteristics.append(characteristicUUID)
-            }
-        }
-        
-        return (foundCharacteristics: foundCharacteristics, missingCharacteristics: missingCharacteristics)
-    }
-}
-
-extension CBCharacteristic {
-    public func descriptorWithUUID(UUIDConvertible: CBUUIDConvertible) -> CBDescriptor? {
-        guard let descriptors = self.descriptors else {
-            return nil
-        }
-        
-        return descriptors.filter { (CBDescriptor) -> Bool in
-            if (CBDescriptor.UUID == UUIDConvertible.CBUUIDRepresentation) {
+            if (CBCharacteristic.UUID == uuid) {
                 return true
             }
             return false
         }.first
     }
     
-    public func descriptorsWithUUIDs(descriptorsUUIDs: [CBUUIDConvertible]) -> (foundDescriptors: [CBDescriptor], missingDescriptors: [CBUUIDConvertible]) {
+    func characteristicsWithUUIDs(characteristicsUUIDs: [CBUUID]) -> (foundCharacteristics: [CBCharacteristic], missingCharacteristicsUUIDs: [CBUUID]) {
+        assert(characteristicsUUIDs.count > 0)
         
+        guard let currentCharacteristics = self.characteristics where currentCharacteristics.count > 0 else {
+            return (foundCharacteristics: [], missingCharacteristicsUUIDs: characteristicsUUIDs)
+        }
+        
+        let currentCharacteristicsUUID = currentCharacteristics.map { (CBCharacteristic) -> CBUUID in
+            return CBCharacteristic.UUID
+        }
+        
+        let currentCharacteristicsUUIDSet = Set(currentCharacteristicsUUID)
+        let requestedCharacteristicsUUIDSet = Set(characteristicsUUIDs)
+        
+        let foundCharacteristicsUUIDSet = requestedCharacteristicsUUIDSet.intersect(currentCharacteristicsUUIDSet)
+        let missingCharacteristicsUUIDSet = requestedCharacteristicsUUIDSet.subtract(currentCharacteristicsUUIDSet)
+        
+        let foundCharacteristics = currentCharacteristics.filter { (CBCharacteristic) -> Bool in
+            if foundCharacteristicsUUIDSet.contains(CBCharacteristic.UUID) {
+                return true
+            }
+            return false
+        }
+        
+        return (foundCharacteristics: foundCharacteristics, missingCharacteristicsUUIDs: Array(missingCharacteristicsUUIDSet))
+    }
+}
+
+extension CBCharacteristic {
+    func descriptorWithUUID(uuid: CBUUID) -> CBDescriptor? {
+        guard let descriptors = self.descriptors else {
+            return nil
+        }
+        
+        return descriptors.filter { (CBDescriptor) -> Bool in
+            if (CBDescriptor.UUID == uuid) {
+                return true
+            }
+            return false
+        }.first
+    }
+    
+    func descriptorsWithUUIDs(descriptorsUUIDs: [CBUUID]) -> (foundDescriptors: [CBDescriptor], missingDescriptorsUUIDs: [CBUUID]) {
         assert(descriptorsUUIDs.count > 0)
         
-        guard let descriptors = self.descriptors where descriptors.count > 0 else {
-            return (foundDescriptors: [], missingDescriptors: descriptorsUUIDs)
+        guard let currentDescriptors = self.descriptors where currentDescriptors.count > 0 else {
+            return (foundDescriptors: [], missingDescriptorsUUIDs: descriptorsUUIDs)
         }
         
-        var foundDescriptors: [CBDescriptor] = []
-        var missingDescriptors: [CBUUIDConvertible] = []
+        let currentDescriptorsUUIDs = currentDescriptors.map { (CBCharacteristic) -> CBUUID in
+            return CBCharacteristic.UUID
+        }
         
-        for descriptorUUID in descriptorsUUIDs.reverse() {
-            if let descriptor = self.descriptorWithUUID(descriptorUUID) {
-                foundDescriptors.append(descriptor)
-            } else {
-                missingDescriptors.append(descriptorUUID)
+        let currentDescriptorsUUIDsSet = Set(currentDescriptorsUUIDs)
+        let requestedDescriptorsUUIDsSet = Set(descriptorsUUIDs)
+        
+        let foundDescriptorsUUIDsSet = requestedDescriptorsUUIDsSet.intersect(currentDescriptorsUUIDsSet)
+        let missingDescriptorsUUIDsSet = requestedDescriptorsUUIDsSet.subtract(currentDescriptorsUUIDsSet)
+        
+        let foundDescriptors = currentDescriptors.filter { (CBDescriptor) -> Bool in
+            if foundDescriptorsUUIDsSet.contains(CBDescriptor.UUID) {
+                return true
             }
+            return false
         }
         
-        return (foundDescriptors: foundDescriptors, missingDescriptors: missingDescriptors)
+        return (foundDescriptors: foundDescriptors, missingDescriptorsUUIDs: Array(missingDescriptorsUUIDsSet))
     }
 }

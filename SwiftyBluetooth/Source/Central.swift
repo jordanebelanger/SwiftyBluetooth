@@ -9,51 +9,112 @@
 import Foundation
 import CoreBluetooth
 
-public let BluetoothStateChangeEvent = "SwiftyBluetoothBluetoothStateChangeEvent"
+public let BluetoothPeripheralsInvalidatedEvent = "BluetoothPeripheralsInvalidatedEvent"
 
-public enum BleScanCallback {
-    case BleScanStarted
-    case BleScanResult(peripheral: Peripheral, advertisementData: [String : AnyObject], RSSI: NSNumber)
-    case BleScanStopped(error: BleError?)
+public enum PeripheralScanResult {
+    case ScanStarted
+    case ScanResult(peripheral: Peripheral, advertisementData: [String : AnyObject], RSSI: NSNumber)
+    case ScanStopped(error: BleError?)
 }
+
+public typealias InitializeBluetoothCallback = (error: BleError?) -> Void
+public typealias PeripheralScanCallback = (result: PeripheralScanResult) -> Void
+public typealias PeripheralConnectCallback = (error: BleError?) -> Void
+public typealias PeripheralDisconnectCallback = (error: BleError?) -> Void
 
 public final class Central {
     public static let sharedInstance = Central()
     
-    private let centralProxy: CentralProxy = CentralProxy()
+    private let centralDelegate: CentralDelegate = CentralDelegate()
     
     private init() {}
     
-    func initializeBluetooth(completion: (error: BleError?) -> Void) {
-        centralProxy.initializeBluetooth(completion)
+    func initializeBluetooth(completion: InitializeBluetoothCallback) {
+        centralDelegate.initializeBluetooth(completion)
     }
     
-    public func scanWithTimeout(timeout: NSTimeInterval, serviceUUIDs: [CBUUIDConvertible]?, _ callback: (result: BleScanCallback) -> Void) {
-        centralProxy.scanWithTimeout(timeout, serviceUUIDs: serviceUUIDs, callback)
+    public func scanWithTimeout(timeout: NSTimeInterval,
+                                serviceUUIDs: [CBUUIDConvertible]?,
+                                completion: PeripheralScanCallback)
+    {
+        // Passing in an empty array will act the same as if you passed nil and discover all peripherals but 
+        // it is recommended to pass in nil for those cases similarly to how the CoreBluetooth scan method works
+        assert(serviceUUIDs == nil || serviceUUIDs?.count > 0)
+        
+        centralDelegate.scanWithTimeout(timeout, serviceUUIDs: ExtractCBUUIDs(serviceUUIDs), completion)
     }
     
     public func stopScan() {
-        centralProxy.stopScan()
+        centralDelegate.stopScan()
     }
     
-    func connectPeripheral(peripheral: Peripheral, timeout: NSTimeInterval = 5, _ callback: (error: BleError?) -> Void) {
-        centralProxy.connectPeripheral(peripheral, timeout: timeout, callback)
+    func connectPeripheral(peripheral: Peripheral,
+                           timeout: NSTimeInterval = 5,
+                           completion: PeripheralConnectCallback)
+    {
+        centralDelegate.connectPeripheral(peripheral, timeout: timeout, completion)
     }
     
-    func disconnectPeripheral(peripheral: Peripheral, timeout: NSTimeInterval = 5, _ callback: (error: BleError?) -> Void) {
-        centralProxy.disconnectPeripheral(peripheral, timeout: timeout, callback)
+    func disconnectPeripheral(peripheral: Peripheral,
+                              timeout: NSTimeInterval = 5,
+                              completion: PeripheralDisconnectCallback)
+    {
+        centralDelegate.disconnectPeripheral(peripheral, timeout: timeout, completion)
     }
 }
 
+private final class PeripheralScanRequest {
+    let callback: PeripheralScanCallback
+    
+    init(callback: PeripheralScanCallback) {
+        self.callback = callback
+    }
+}
 
-private final class CentralProxy: NSObject {
-    var stateCallbacks: [(error: BleError?) -> Void] = []
+private final class ConnectPeripheralRequest {
+    var callbacks: [PeripheralConnectCallback] = []
     
-    var peripherals: [NSUUID: Peripheral] = [:]
-    var scanCallback: Box<(result: BleScanCallback) -> Void>?
+    let peripheral: Peripheral
     
-    var connectCallbacks: [NSUUID: [(error: BleError?) -> Void]] = [:]
-    var disconnectCallbacks: [NSUUID: [(error: BleError?) -> Void]] = [:]
+    init(peripheral: Peripheral, callback: PeripheralConnectCallback) {
+        self.callbacks.append(callback)
+        
+        self.peripheral = peripheral
+    }
+    
+    func invokeCallbacks(error: BleError?) {
+        for callback in callbacks {
+            callback(error: error)
+        }
+    }
+
+}
+
+private final class DisconnectPeripheralRequest {
+    var callbacks: [PeripheralConnectCallback] = []
+    
+    let peripheral: Peripheral
+    
+    init(peripheral: Peripheral, callback: PeripheralDisconnectCallback) {
+        self.callbacks.append(callback)
+        
+        self.peripheral = peripheral
+    }
+    
+    func invokeCallbacks(error: BleError?) {
+        for callback in callbacks {
+            callback(error: error)
+        }
+    }
+}
+
+private final class CentralDelegate: NSObject {
+    lazy var initializeBluetoothCallbacks: [InitializeBluetoothCallback] = []
+    
+    var scanRequest: PeripheralScanRequest?
+    
+    lazy var connectRequests: [NSUUID: ConnectPeripheralRequest] = [:]
+    lazy var disconnectRequests: [NSUUID: DisconnectPeripheralRequest] = [:]
     
     let centralManager: CBCentralManager = CBCentralManager(delegate: nil, queue: nil)
     override init() {
@@ -61,28 +122,15 @@ private final class CentralProxy: NSObject {
         centralManager.delegate = self
     }
     
-    func invalidatePeripherals() {
-        objc_sync_enter(self)
-        for (_, peripheral) in peripherals {
-            peripheral.valid = false
-        }
-        peripherals.removeAll()
-        objc_sync_exit(self)
-    }
-    
-    func initializeBluetooth(completion: (error: BleError?) -> Void) {
+    func initializeBluetooth(completion: InitializeBluetoothCallback) {
         switch centralManager.state {
             case .Unknown:
-                self.invalidatePeripherals()
-                registerStateCallback(completion)
+                self.initializeBluetoothCallbacks.append(completion)
             case .Resetting:
-                self.invalidatePeripherals()
-                registerStateCallback(completion)
+                self.initializeBluetoothCallbacks.append(completion)
             case .Unsupported:
-                self.invalidatePeripherals()
                 completion(error: .BleUnsupported)
             case .Unauthorized:
-                self.invalidatePeripherals()
                 completion(error: .BleUnauthorized)
             case .PoweredOff:
                 completion(error: .BlePoweredOff)
@@ -90,87 +138,66 @@ private final class CentralProxy: NSObject {
                 completion(error: nil)
         }
     }
-    private func registerStateCallback(callback: (error: BleError?) -> Void) {
-        objc_sync_enter(self)
-        stateCallbacks.append(callback)
-        objc_sync_exit(self)
-    }
-    private func callStateCallbacksWithError(error: BleError?) {
-        objc_sync_enter(self)
-        for callback in stateCallbacks {
+    
+    func callInitializeBluetoothCallbacksWithError(error: BleError?) {
+        let callbacks = self.initializeBluetoothCallbacks
+        
+        self.initializeBluetoothCallbacks.removeAll()
+        
+        for callback in callbacks {
             callback(error: error)
         }
-        stateCallbacks.removeAll()
-        objc_sync_exit(self)
     }
     
-    func scanWithTimeout(timeout: NSTimeInterval, serviceUUIDs: [CBUUIDConvertible]?, _ callback: (result: BleScanCallback) -> Void) {
+    func scanWithTimeout(timeout: NSTimeInterval, serviceUUIDs: [CBUUID]?, _ callback: PeripheralScanCallback) {
         initializeBluetooth { [unowned self] (error) in
             if let error = error {
-                callback(result: .BleScanStopped(error: error))
+                callback(result: PeripheralScanResult.ScanStopped(error: error))
             } else {
                 
-                objc_sync_enter(self)
-                if let scanCallback = self.scanCallback?.value {
-                    self.scanCallback = nil
-                    scanCallback(result: .BleScanStopped(error: nil))
+                if let currentScanRequest = self.scanRequest {
+                    self.centralManager.stopScan()
                 }
-                objc_sync_exit(self)
                 
-                let boxedCallback = Box(value: callback)
-                self.scanCallback = boxedCallback
+                let scanRequest = PeripheralScanRequest(callback: callback)
+                self.scanRequest = scanRequest
                 
-                let cbUUIDs: [CBUUID]? = serviceUUIDs?.map({ (serviceUUID) -> CBUUID in
-                    return serviceUUID.CBUUIDRepresentation
-                })
-                
-                callback(result: .BleScanStarted)
-                self.centralManager.scanForPeripheralsWithServices(cbUUIDs, options: nil)
+                scanRequest.callback(result: .ScanStarted)
+                self.centralManager.scanForPeripheralsWithServices(serviceUUIDs, options: nil)
         
                 NSTimer.scheduledTimerWithTimeInterval(
                     timeout,
                     target: self,
                     selector: #selector(self.onScanTimerTick),
-                    userInfo: Weak(value: boxedCallback), 
+                    userInfo: Weak(value: scanRequest),
                     repeats: false)
             }
         }
     }
     
     func stopScan() {
-        objc_sync_enter(self)
         self.centralManager.stopScan()
-        if let scanCallback = self.scanCallback?.value {
-            self.scanCallback = nil
-            scanCallback(result: .BleScanStopped(error: nil))
+        if let scanRequest = self.scanRequest {
+            self.scanRequest = nil
+            scanRequest.callback(result: .ScanStopped(error: nil))
         }
-        objc_sync_exit(self)
     }
     
     @objc private func onScanTimerTick(timer: NSTimer) {
-        objc_sync_enter(self)
         
         defer {
             if timer.valid { timer.invalidate() }
-            objc_sync_exit(self)
         }
         
-        let weakBoxedCallback = timer.userInfo as! Weak<Box<(result: BleScanCallback) -> Void>>
+        let weakRequest = timer.userInfo as! Weak<PeripheralScanRequest>
         
-        guard let scanCallback = weakBoxedCallback.value?.value else {
-            return
+        if let request = weakRequest.value {
+            self.stopScan()
         }
-        
-        self.scanCallback = nil
-        scanCallback(result: .BleScanStopped(error: nil))
     }
     
     func connectPeripheral(peripheral: Peripheral, timeout: NSTimeInterval = 5, _ callback: (error: BleError?) -> Void) {
         initializeBluetooth { [unowned self] (error) in
-            objc_sync_enter(self)
-            defer {
-                objc_sync_exit(self)
-            }
             
             if let error = error {
                 callback(error: error)
@@ -185,52 +212,42 @@ private final class CentralProxy: NSObject {
                 return
             }
             
-            if var callbacks = self.connectCallbacks[uuid] {
-                callbacks.append(callback)
-                self.connectCallbacks[uuid] = callbacks
+            if let request = self.connectRequests[uuid] {
+                request.callbacks.append(callback)
             } else {
-                self.connectCallbacks[uuid] = [callback]
+                let request = ConnectPeripheralRequest(peripheral: peripheral, callback: callback)
+                self.connectRequests[uuid] = request
+                
                 self.centralManager.connectPeripheral(peripheral.cbPeripheral, options: nil)
                 NSTimer.scheduledTimerWithTimeInterval(
                     timeout,
                     target: self,
                     selector: #selector(self.onConnectTimerTick),
-                    userInfo: ["uuid": uuid, "peripheral": peripheral],
+                    userInfo: Weak(value: request),
                     repeats: false)
             }
         }
     }
     
     @objc private func onConnectTimerTick(timer: NSTimer) {
-        objc_sync_enter(self)
-        
         defer {
             if timer.valid { timer.invalidate() }
-            objc_sync_exit(self)
         }
         
-        let uuid = timer.userInfo!["uuid"] as! NSUUID
-        guard let callbacks = self.connectCallbacks[uuid] else {
+        let weakRequest = timer.userInfo as! Weak<ConnectPeripheralRequest>
+        guard let request = weakRequest.value else {
             return
         }
         
-        var bleError: BleError?
-        if let cbPeripheral = self.centralManager.retrievePeripheralsWithIdentifiers([uuid]).first where cbPeripheral.state != .Connected {
-            bleError = .BleTimeoutError
-        }
+        let uuid = request.peripheral.identifier
         
-        self.connectCallbacks[uuid] = nil
-        for callback in callbacks {
-            callback(error: bleError)
-        }
+        self.connectRequests[uuid] = nil
+        
+        request.invokeCallbacks(BleError.BleTimeoutError)
     }
     
     func disconnectPeripheral(peripheral: Peripheral, timeout: NSTimeInterval = 5, _ callback: (error: BleError?) -> Void) {
         initializeBluetooth { [unowned self] (error) in
-            objc_sync_enter(self)
-            defer {
-                objc_sync_exit(self)
-            }
             
             if let error = error {
                 callback(error: error)
@@ -245,148 +262,122 @@ private final class CentralProxy: NSObject {
                 return
             }
             
-            if var callbacks = self.disconnectCallbacks[uuid] {
-                callbacks.append(callback)
-                self.disconnectCallbacks[uuid] = callbacks
+            if let request = self.disconnectRequests[uuid] {
+                request.callbacks.append(callback)
             } else {
-                let callbacks = [callback]
-                self.disconnectCallbacks[uuid] = callbacks
+                let request = DisconnectPeripheralRequest(peripheral: peripheral, callback: callback)
+                self.disconnectRequests[uuid] = request
                 
                 self.centralManager.cancelPeripheralConnection(peripheral.cbPeripheral)
                 NSTimer.scheduledTimerWithTimeInterval(
                     timeout,
                     target: self,
                     selector: #selector(self.onDisconnectTimerTick),
-                    userInfo: ["uuid": uuid, "peripheral": peripheral],
+                    userInfo: Weak(value: request),
                     repeats: false)
             }
         }
     }
-    
+
     @objc private func onDisconnectTimerTick(timer: NSTimer) {
-        objc_sync_enter(self)
-        
         defer {
             if timer.valid { timer.invalidate() }
-            objc_sync_exit(self)
         }
         
-        let uuid = timer.userInfo!["uuid"] as! NSUUID
-        guard let callbacks = self.disconnectCallbacks[uuid] else {
+        let weakRequest = timer.userInfo as! Weak<DisconnectPeripheralRequest>
+        guard let request = weakRequest.value else {
             return
         }
         
-        var bleError: BleError?
-        if let cbPeripheral = self.centralManager.retrievePeripheralsWithIdentifiers([uuid]).first where cbPeripheral.state != .Disconnected {
-            bleError = .BleTimeoutError
-        }
+        let uuid = request.peripheral.identifier
         
-        self.disconnectCallbacks[uuid] = nil
-        for callback in callbacks {
-            callback(error: bleError)
-        }
+        self.disconnectRequests[uuid] = nil
+        
+        request.invokeCallbacks(BleError.BleTimeoutError)
     }
 }
 
-extension CentralProxy: CBCentralManagerDelegate {
+extension CentralDelegate: CBCentralManagerDelegate {
     @objc private func centralManagerDidUpdateState(central: CBCentralManager) {
-        switch centralManager.state {
-        case .Unknown:
-            self.invalidatePeripherals()
-        case .Resetting:
-            self.invalidatePeripherals()
-        case .Unsupported:
-            self.invalidatePeripherals()
-            callStateCallbacksWithError(.BleUnsupported)
-        case .Unauthorized:
-            self.invalidatePeripherals()
-            callStateCallbacksWithError(.BleUnauthorized)
-        case .PoweredOff:
-            callStateCallbacksWithError(.BlePoweredOff)
-        case .PoweredOn:
-            callStateCallbacksWithError(nil)
+        
+        func sendInvalidatePeripheralsEvent() {
+            NSNotificationCenter.defaultCenter().postNotificationName(
+                BluetoothPeripheralsInvalidatedEvent,
+                object: Central.sharedInstance,
+                userInfo: nil)
         }
         
-//        NSNotificationCenter.defaultCenter().postNotificationName(
-//            BluetoothStateChangeEvent,
-//            object: Central.sharedInstance,
-//            userInfo: ["state": centralManager.state])
+        switch centralManager.state {
+            case .Unknown:
+                sendInvalidatePeripheralsEvent()
+            case .Resetting:
+                sendInvalidatePeripheralsEvent()
+            case .Unsupported:
+                sendInvalidatePeripheralsEvent()
+                callInitializeBluetoothCallbacksWithError(.BleUnsupported)
+            case .Unauthorized:
+                sendInvalidatePeripheralsEvent()
+                callInitializeBluetoothCallbacksWithError(.BleUnauthorized)
+            case .PoweredOff:
+                callInitializeBluetoothCallbacksWithError(.BlePoweredOff)
+            case .PoweredOn:
+                callInitializeBluetoothCallbacksWithError(nil)
+        }
     }
     
     @objc private func centralManager(central: CBCentralManager, didConnectPeripheral peripheral: CBPeripheral) {
-        objc_sync_enter(self)
-        defer {
-            objc_sync_exit(self)
-        }
-        
         let uuid = peripheral.identifier
-        guard let callbacks = self.connectCallbacks[uuid] else {
+        guard let request = self.connectRequests[uuid] else {
             return
         }
         
-        self.connectCallbacks[uuid] = nil
-        for callback in callbacks {
-            callback(error: nil)
-        }
+        self.connectRequests[uuid] = nil
+        
+        request.invokeCallbacks(nil)
     }
     
     @objc private func centralManager(central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: NSError?) {
-        objc_sync_enter(self)
-        defer {
-            objc_sync_exit(self)
-        }
-        
         let uuid = peripheral.identifier
-        guard let callbacks = self.disconnectCallbacks[uuid] else {
+        guard let request = self.disconnectRequests[uuid] else {
             return
         }
         
+        self.disconnectRequests[uuid] = nil
+        
         var bleError: BleError?
         if let error = error {
-            bleError = .CoreBluetoothError(error: error)
+            bleError = BleError.CoreBluetoothError(error: error)
         }
         
-        self.disconnectCallbacks[uuid] = nil
-        for callback in callbacks {
-            callback(error: bleError)
-        }
+        request.invokeCallbacks(bleError)
     }
     
     @objc private func centralManager(central: CBCentralManager, didFailToConnectPeripheral peripheral: CBPeripheral, error: NSError?) {
-        objc_sync_enter(self)
-        defer {
-            objc_sync_exit(self)
-        }
-        
         let uuid = peripheral.identifier
-        guard let callbacks = self.connectCallbacks[uuid] else {
+        guard let request = self.connectRequests[uuid] else {
             return
         }
         
         var bleError: BleError?
         if let error = error {
             bleError = .CoreBluetoothError(error: error)
+        } else {
+            bleError = BleError.PeripheralFailedToConnectReasonUnknown
         }
         
-        self.connectCallbacks[uuid] = nil
-        for callback in callbacks {
-            callback(error: bleError)
-        }
+        self.connectRequests[uuid] = nil
+        
+        request.invokeCallbacks(bleError)
     }
     
     @objc private func centralManager(central: CBCentralManager, didDiscoverPeripheral peripheral: CBPeripheral, advertisementData: [String : AnyObject], RSSI: NSNumber) {
-        objc_sync_enter(self)
-        defer {
-            objc_sync_exit(self)
-        }
-        
-        guard let scanCallback = scanCallback?.value else {
+
+        guard let scanRequest = scanRequest else {
             return
         }
         
         let peripheral = Peripheral(peripheral: peripheral)
-        peripherals[peripheral.cbPeripheral.identifier] = peripheral
         
-        scanCallback(result: .BleScanResult(peripheral: peripheral, advertisementData: advertisementData, RSSI: RSSI))
+        scanRequest.callback(result: .ScanResult(peripheral: peripheral, advertisementData: advertisementData, RSSI: RSSI))
     }
 }

@@ -19,7 +19,9 @@ public enum BleError: ErrorType {
     
     case PeripheralNoLongerValid
     
-    case PeripheralServiceNotFound(missingServices: [CBUUIDConvertible])
-    case PeripheralCharacteristicNotFound(missingCharacteristics: [CBUUIDConvertible])
-    case PeripheralDescriptorsNotFound(missingDescriptors: [CBUUIDConvertible])
+    case PeripheralFailedToConnectReasonUnknown
+    
+    case PeripheralServiceNotFound(missingServicesUUIDs: [CBUUID])
+    case PeripheralCharacteristicNotFound(missingCharacteristicsUUIDs: [CBUUID])
+    case PeripheralDescriptorsNotFound(missingDescriptorsUUIDs: [CBUUID])
 }
