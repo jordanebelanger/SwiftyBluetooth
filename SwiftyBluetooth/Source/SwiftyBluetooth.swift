@@ -16,9 +16,9 @@ public func scanWithTimeout(timeout: NSTimeInterval,
     // it is recommended to pass in nil for those cases similarly to how the CoreBluetooth scan method works
     assert(serviceUUIDs == nil || serviceUUIDs?.count > 0)
     
-    centralDelegate.scanWithTimeout(timeout, serviceUUIDs: ExtractCBUUIDs(serviceUUIDs), completion)
+    Central.sharedInstance.scanWithTimeout(timeout, serviceUUIDs: ExtractCBUUIDs(serviceUUIDs), completion: completion)
 }
 
 public func stopScan() {
-    centralDelegate.stopScan()
+    Central.sharedInstance.stopScan()
 }
