@@ -10,7 +10,7 @@ import Foundation
 import CoreBluetooth
 
 extension CBPeripheral {
-    func serviceWithUUID(uuid: CBUUID) -> CBService? {
+    public func serviceWithUUID(uuid: CBUUID) -> CBService? {
         guard let services = self.services else {
             return nil
         }
@@ -23,7 +23,7 @@ extension CBPeripheral {
         }.first
     }
     
-    func servicesWithUUIDs(servicesUUIDs: [CBUUID]) -> (foundServices: [CBService], missingServicesUUIDs: [CBUUID]) {
+    public func servicesWithUUIDs(servicesUUIDs: [CBUUID]) -> (foundServices: [CBService], missingServicesUUIDs: [CBUUID]) {
         assert(servicesUUIDs.count > 0)
         
         guard let currentServices = self.services where currentServices.count > 0 else {
@@ -53,7 +53,7 @@ extension CBPeripheral {
 }
 
 extension CBService {
-    func characteristicWithUUID(uuid: CBUUID) -> CBCharacteristic? {
+    public func characteristicWithUUID(uuid: CBUUID) -> CBCharacteristic? {
         guard let characteristics = self.characteristics else {
             return nil
         }
@@ -66,7 +66,7 @@ extension CBService {
         }.first
     }
     
-    func characteristicsWithUUIDs(characteristicsUUIDs: [CBUUID]) -> (foundCharacteristics: [CBCharacteristic], missingCharacteristicsUUIDs: [CBUUID]) {
+    public func characteristicsWithUUIDs(characteristicsUUIDs: [CBUUID]) -> (foundCharacteristics: [CBCharacteristic], missingCharacteristicsUUIDs: [CBUUID]) {
         assert(characteristicsUUIDs.count > 0)
         
         guard let currentCharacteristics = self.characteristics where currentCharacteristics.count > 0 else {
@@ -95,7 +95,7 @@ extension CBService {
 }
 
 extension CBCharacteristic {
-    func descriptorWithUUID(uuid: CBUUID) -> CBDescriptor? {
+    public func descriptorWithUUID(uuid: CBUUID) -> CBDescriptor? {
         guard let descriptors = self.descriptors else {
             return nil
         }
@@ -108,7 +108,7 @@ extension CBCharacteristic {
         }.first
     }
     
-    func descriptorsWithUUIDs(descriptorsUUIDs: [CBUUID]) -> (foundDescriptors: [CBDescriptor], missingDescriptorsUUIDs: [CBUUID]) {
+    public func descriptorsWithUUIDs(descriptorsUUIDs: [CBUUID]) -> (foundDescriptors: [CBDescriptor], missingDescriptorsUUIDs: [CBUUID]) {
         assert(descriptorsUUIDs.count > 0)
         
         guard let currentDescriptors = self.descriptors where currentDescriptors.count > 0 else {

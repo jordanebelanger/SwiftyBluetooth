@@ -17,7 +17,7 @@ public enum BleError: ErrorType {
     
     case CoreBluetoothError(error: NSError)
     
-    case PeripheralNoLongerValid
+    case PeripheralIsInvalid
     
     case PeripheralFailedToConnectReasonUnknown
     
