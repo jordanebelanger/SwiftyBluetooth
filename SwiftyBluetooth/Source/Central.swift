@@ -19,7 +19,7 @@ public enum PeripheralScanResult {
 
 public typealias InitializeBluetoothCallback = (error: BleError?) -> Void
 public typealias BluetoothStateCallback = (state: CBCentralManagerState) -> Void
-public typealias PeripheralScanCallback = (result: PeripheralScanResult) -> Void
+public typealias PeripheralScanCallback = (scanResult: PeripheralScanResult) -> Void
 public typealias PeripheralConnectCallback = (error: BleError?) -> Void
 public typealias PeripheralDisconnectCallback = (error: BleError?) -> Void
 

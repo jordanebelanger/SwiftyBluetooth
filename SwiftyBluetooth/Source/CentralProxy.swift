@@ -93,7 +93,7 @@ extension CentralProxy {
     func scanWithTimeout(timeout: NSTimeInterval, serviceUUIDs: [CBUUID]?, _ callback: PeripheralScanCallback) {
         initializeBluetooth { [unowned self] (error) in
             if let error = error {
-                callback(result: PeripheralScanResult.ScanStopped(error: error))
+                callback(scanResult: PeripheralScanResult.ScanStopped(error: error))
             } else {
                 if let currentScanRequest = self.scanRequest {
                     self.centralManager.stopScan()
@@ -102,7 +102,7 @@ extension CentralProxy {
                 let scanRequest = PeripheralScanRequest(callback: callback)
                 self.scanRequest = scanRequest
                 
-                scanRequest.callback(result: .ScanStarted)
+                scanRequest.callback(scanResult: .ScanStarted)
                 self.centralManager.scanForPeripheralsWithServices(serviceUUIDs, options: nil)
                 
                 NSTimer.scheduledTimerWithTimeInterval(
@@ -119,7 +119,7 @@ extension CentralProxy {
         self.centralManager.stopScan()
         if let scanRequest = self.scanRequest {
             self.scanRequest = nil
-            scanRequest.callback(result: .ScanStopped(error: nil))
+            scanRequest.callback(scanResult: .ScanStopped(error: nil))
         }
     }
     
@@ -351,6 +351,6 @@ extension CentralProxy: CBCentralManagerDelegate {
         
         let peripheral = Peripheral(peripheral: peripheral)
         
-        scanRequest.callback(result: .ScanResult(peripheral: peripheral, advertisementData: advertisementData, RSSI: RSSI))
+        scanRequest.callback(scanResult: .ScanResult(peripheral: peripheral, advertisementData: advertisementData, RSSI: RSSI))
     }
 }
