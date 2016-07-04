@@ -1,20 +1,11 @@
 //
 //  CentralProxy.swift
-//  SwiftyBluetooth
-//
-//  Created by tehjord on 7/2/16.
-//
-//
-
-//
-//  Central.swift
 //  AcanvasBle
 //
 //  Created by tehjord on 4/15/16.
 //  Copyright © 2016 acanvas. All rights reserved.
 //
 
-import Foundation
 import CoreBluetooth
 
 final class CentralProxy: NSObject {
@@ -43,7 +34,7 @@ final class CentralProxy: NSObject {
         }
     }
     
-    public var isScanning: Bool {
+    var isScanning: Bool {
         get {
             return self.centralManager.isScanning
         }
@@ -141,9 +132,9 @@ extension CentralProxy {
 private final class ConnectPeripheralRequest {
     var callbacks: [PeripheralConnectCallback] = []
     
-    let peripheral: Peripheral
+    let peripheral: CBPeripheral
     
-    init(peripheral: Peripheral, callback: PeripheralConnectCallback) {
+    init(peripheral: CBPeripheral, callback: PeripheralConnectCallback) {
         self.callbacks.append(callback)
         
         self.peripheral = peripheral
@@ -157,17 +148,16 @@ private final class ConnectPeripheralRequest {
 }
 
 extension CentralProxy {
-    func connectPeripheral(peripheral: Peripheral, timeout: NSTimeInterval = 5, _ callback: (error: BleError?) -> Void) {
+    func connectPeripheral(peripheral: CBPeripheral, timeout: NSTimeInterval, _ callback: (error: BleError?) -> Void) {
         initializeBluetooth { [unowned self] (error) in
             if let error = error {
                 callback(error: error)
                 return
             }
             
-            let uuid = peripheral.cbPeripheral.identifier
+            let uuid = peripheral.identifier
             
-            if let cbPeripheral = self.centralManager.retrievePeripheralsWithIdentifiers([uuid]).first
-                where cbPeripheral.state == .Connected {
+            if let cbPeripheral = self.centralManager.retrievePeripheralsWithIdentifiers([uuid]).first where cbPeripheral.state == .Connected {
                 callback(error: nil)
                 return
             }
@@ -178,7 +168,7 @@ extension CentralProxy {
                 let request = ConnectPeripheralRequest(peripheral: peripheral, callback: callback)
                 self.connectRequests[uuid] = request
                 
-                self.centralManager.connectPeripheral(peripheral.cbPeripheral, options: nil)
+                self.centralManager.connectPeripheral(peripheral, options: nil)
                 NSTimer.scheduledTimerWithTimeInterval(
                     timeout,
                     target: self,
@@ -211,9 +201,9 @@ extension CentralProxy {
 private final class DisconnectPeripheralRequest {
     var callbacks: [PeripheralConnectCallback] = []
     
-    let peripheral: Peripheral
+    let peripheral: CBPeripheral
     
-    init(peripheral: Peripheral, callback: PeripheralDisconnectCallback) {
+    init(peripheral: CBPeripheral, callback: PeripheralDisconnectCallback) {
         self.callbacks.append(callback)
         
         self.peripheral = peripheral
@@ -227,7 +217,7 @@ private final class DisconnectPeripheralRequest {
 }
 
 extension CentralProxy {
-    func disconnectPeripheral(peripheral: Peripheral, timeout: NSTimeInterval = 5, _ callback: (error: BleError?) -> Void) {
+    func disconnectPeripheral(peripheral: CBPeripheral, timeout: NSTimeInterval, _ callback: (error: BleError?) -> Void) {
         initializeBluetooth { [unowned self] (error) in
             
             if let error = error {
@@ -235,10 +225,10 @@ extension CentralProxy {
                 return
             }
             
-            let uuid = peripheral.cbPeripheral.identifier
+            let uuid = peripheral.identifier
             
             if let cbPeripheral = self.centralManager.retrievePeripheralsWithIdentifiers([uuid]).first
-                where cbPeripheral.state == .Disconnected || cbPeripheral.state == .Disconnecting {
+                where (cbPeripheral.state == .Disconnected || cbPeripheral.state == .Disconnecting) {
                 callback(error: nil)
                 return
             }
@@ -249,7 +239,7 @@ extension CentralProxy {
                 let request = DisconnectPeripheralRequest(peripheral: peripheral, callback: callback)
                 self.disconnectRequests[uuid] = request
                 
-                self.centralManager.cancelPeripheralConnection(peripheral.cbPeripheral)
+                self.centralManager.cancelPeripheralConnection(peripheral)
                 NSTimer.scheduledTimerWithTimeInterval(
                     timeout,
                     target: self,

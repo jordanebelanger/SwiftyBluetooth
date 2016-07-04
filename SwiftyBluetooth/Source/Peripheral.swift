@@ -18,27 +18,18 @@ public enum PeripheralEvent: String {
 }
 
 public typealias ReadRSSIRequestCallback = (RSSI: Int?, error: BleError?) -> Void
-
 public typealias ServiceRequestCallback = (services: [CBService]?, error: BleError?) -> Void
-
 public typealias CharacteristicRequestCallback = (characteristics: [CBCharacteristic]?, error: BleError?) -> Void
-
 public typealias DescriptorRequestCallback = (descriptors: [CBDescriptor]?, error: BleError?) -> Void
-
 public typealias ReadRequestCallback = (data: NSData?, error: BleError?) -> Void
-
 public typealias WriteRequestCallback = (error: BleError?) -> Void
-
 public typealias UpdateNotificationStateCallback = (isNotifying: Bool?, error: BleError?) -> Void
 
 public final class Peripheral {
-    let cbPeripheral: CBPeripheral
-    
     private var peripheralProxy: PeripheralProxy!
     
     init(peripheral: CBPeripheral) {
-        self.cbPeripheral = peripheral
-        self.peripheralProxy = PeripheralProxy(peripheral: self)
+        self.peripheralProxy = PeripheralProxy(cbPeripheral: peripheral, peripheral: self)
     }
 }
 
@@ -46,40 +37,40 @@ public final class Peripheral {
 extension Peripheral {
     public var identifier: NSUUID {
         get {
-            return self.cbPeripheral.identifier
+            return self.peripheralProxy.identifier
         }
     }
     
     public var name: String? {
         get {
-            return self.cbPeripheral.name
+            return self.peripheralProxy.name
         }
     }
     
     public var state: CBPeripheralState {
         get {
-            return self.cbPeripheral.state
+            return self.peripheralProxy.state
         }
     }
     
     public var services: [CBService]? {
         get {
-            return self.cbPeripheral.services
+            return self.peripheralProxy.services
         }
     }
     
     public var RSSI: Int? {
         get {
-            return self.cbPeripheral.RSSI?.integerValue
+            return self.peripheralProxy.RSSI
         }
     }
     
     public func connect(completion: (error: BleError?) -> Void) {
-        Central.sharedInstance.connectPeripheral(self, completion: completion)
+        self.peripheralProxy.connect(completion)
     }
     
     public func disconnect(completion: (error: BleError?) -> Void) {
-        Central.sharedInstance.disconnectPeripheral(self, completion: completion)
+        self.peripheralProxy.disconnect(completion)
     }
     
     public func readRSSI(completion: ReadRSSIRequestCallback) {

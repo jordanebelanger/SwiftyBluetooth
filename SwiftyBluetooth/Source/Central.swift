@@ -33,6 +33,20 @@ public final class Central {
     func initializeBluetooth(completion: InitializeBluetoothCallback) {
         centralProxy.initializeBluetooth(completion)
     }
+    
+    func connectPeripheral(peripheral: CBPeripheral,
+                           timeout: NSTimeInterval = 10,
+                           completion: PeripheralConnectCallback)
+    {
+        centralProxy.connectPeripheral(peripheral, timeout: timeout, completion)
+    }
+    
+    func disconnectPeripheral(peripheral: CBPeripheral,
+                              timeout: NSTimeInterval = 10,
+                              completion: PeripheralDisconnectCallback)
+    {
+        centralProxy.disconnectPeripheral(peripheral, timeout: timeout, completion)
+    }
 }
 
 extension Central {
@@ -60,19 +74,5 @@ extension Central {
     
     public func stopScan() {
         centralProxy.stopScan()
-    }
-    
-    func connectPeripheral(peripheral: Peripheral,
-                           timeout: NSTimeInterval = 10,
-                           completion: PeripheralConnectCallback)
-    {
-        centralProxy.connectPeripheral(peripheral, timeout: timeout, completion)
-    }
-    
-    func disconnectPeripheral(peripheral: Peripheral,
-                              timeout: NSTimeInterval = 10,
-                              completion: PeripheralDisconnectCallback)
-    {
-        centralProxy.disconnectPeripheral(peripheral, timeout: timeout, completion)
     }
 }

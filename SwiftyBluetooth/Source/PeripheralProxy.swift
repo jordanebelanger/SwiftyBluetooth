@@ -6,16 +6,6 @@
 //
 //
 
-import Foundation
-
-//
-//  Peripheral.swift
-//  AcanvasBle
-//
-//  Created by tehjord on 4/15/16.
-//  Copyright © 2016 acanvas. All rights reserved.
-//
-
 import CoreBluetooth
 
 final class PeripheralProxy: NSObject  {
@@ -31,18 +21,20 @@ final class PeripheralProxy: NSObject  {
     private lazy var writeDescriptorValueRequests: [CBUUIDPath: [WriteDescriptorValueRequest]] = [:]
     private lazy var updateNotificationStateRequests: [CBUUIDPath: [UpdateNotificationStateRequest]] = [:]
     
-    private weak var peripheral: Peripheral!
+    private weak var peripheral: Peripheral?
+    private let cbPeripheral: CBPeripheral
     
     // Peripheral that are no longer valid must be rediscovered again (happens when for example the Bluetooth is turned off
     // from a user's phone and turned back on
     var valid: Bool = true
     
-    init(peripheral: Peripheral) {
+    init(cbPeripheral: CBPeripheral, peripheral: Peripheral) {
+        self.cbPeripheral = cbPeripheral
         self.peripheral = peripheral
         
         super.init()
         
-        peripheral.cbPeripheral.delegate = self
+        cbPeripheral.delegate = self
         
         NSNotificationCenter.defaultCenter().addObserverForName(PeripheralsInvalidatedEvent,
                                                                 object: Central.sharedInstance,
@@ -56,11 +48,48 @@ final class PeripheralProxy: NSObject  {
         NSNotificationCenter.defaultCenter().removeObserver(self)
     }
     
-    func postPeripheralEvent(event: PeripheralEvent, userInfo: [NSObject: AnyObject]?) {
+    private func postPeripheralEvent(event: PeripheralEvent, userInfo: [NSObject: AnyObject]?) {
+        guard let peripheral = self.peripheral else {
+            return
+        }
+        
         NSNotificationCenter.defaultCenter().postNotificationName(
             event.rawValue,
-            object: self.peripheral,
+            object: peripheral,
             userInfo: userInfo)
+    }
+}
+
+// Proxied vars
+extension PeripheralProxy {
+    var identifier: NSUUID {
+        get {
+            return self.cbPeripheral.identifier
+        }
+    }
+    
+    var name: String? {
+        get {
+            return self.cbPeripheral.name
+        }
+    }
+    
+    var state: CBPeripheralState {
+        get {
+            return self.cbPeripheral.state
+        }
+    }
+    
+    var services: [CBService]? {
+        get {
+            return self.cbPeripheral.services
+        }
+    }
+    
+    var RSSI: Int? {
+        get {
+            return self.cbPeripheral.RSSI?.integerValue
+        }
     }
 }
 
@@ -68,14 +97,14 @@ final class PeripheralProxy: NSObject  {
 extension PeripheralProxy {
     func connect(completion: (error: BleError?) -> Void) {
         if self.valid {
-            completion(error: .PeripheralIsInvalid)
+            Central.sharedInstance.connectPeripheral(self.cbPeripheral, completion: completion)
         } else {
-            Central.sharedInstance.connectPeripheral(self.peripheral, completion: completion)
+            completion(error: .PeripheralIsInvalid)            
         }
     }
     
     func disconnect(completion: (error: BleError?) -> Void) {
-        Central.sharedInstance.disconnectPeripheral(self.peripheral, completion: completion)
+        Central.sharedInstance.disconnectPeripheral(self.cbPeripheral, completion: completion)
     }
 }
 
@@ -106,12 +135,12 @@ extension PeripheralProxy {
         }
     }
     
-    func runRSSIRequest() {
+    private func runRSSIRequest() {
         guard let request = self.readRSSIRequests.first else {
             return
         }
         
-        self.peripheral.cbPeripheral.readRSSI()
+        self.cbPeripheral.readRSSI()
         NSTimer.scheduledTimerWithTimeInterval(
             PeripheralProxy.defaultTimeoutInS,
             target: self,
@@ -120,7 +149,7 @@ extension PeripheralProxy {
             repeats: false)
     }
     
-    @objc func onReadRSSIOperationTick(timer: NSTimer) {
+    @objc private func onReadRSSIOperationTick(timer: NSTimer) {
         defer {
             if timer.valid { timer.invalidate() }
         }
@@ -166,7 +195,7 @@ extension PeripheralProxy {
             
             // Checking if the peripheral has already discovered the services requested
             if let serviceUUIDs = serviceUUIDs {
-                let servicesTuple = self.peripheral.cbPeripheral.servicesWithUUIDs(serviceUUIDs)
+                let servicesTuple = self.cbPeripheral.servicesWithUUIDs(serviceUUIDs)
                 
                 if servicesTuple.missingServicesUUIDs.count == 0 {
                     completion(services: servicesTuple.foundServices, error: nil)
@@ -186,12 +215,12 @@ extension PeripheralProxy {
         }
     }
     
-    func runServiceRequest() {
+    private func runServiceRequest() {
         guard let request = self.serviceRequests.first else {
             return
         }
         
-        self.peripheral.cbPeripheral.discoverServices(request.serviceUUIDs)
+        self.cbPeripheral.discoverServices(request.serviceUUIDs)
         
         let userInfo = Weak(value: request)
         NSTimer.scheduledTimerWithTimeInterval(
@@ -202,7 +231,7 @@ extension PeripheralProxy {
             repeats: false)
     }
     
-    @objc func onServiceRequestTimerTick(timer: NSTimer) {
+    @objc private func onServiceRequestTimerTick(timer: NSTimer) {
         defer {
             if timer.valid { timer.invalidate() }
         }
@@ -286,12 +315,12 @@ extension PeripheralProxy {
         }
     }
     
-    func runCharacteristicRequest() {
+    private func runCharacteristicRequest() {
         guard let request = self.characteristicRequests.first else {
             return
         }
         
-        self.peripheral.cbPeripheral.discoverCharacteristics(request.characteristicUUIDs, forService: request.service)
+        self.cbPeripheral.discoverCharacteristics(request.characteristicUUIDs, forService: request.service)
         
         let userInfo = Weak(value: request)
         NSTimer.scheduledTimerWithTimeInterval(
@@ -302,7 +331,7 @@ extension PeripheralProxy {
             repeats: false)
     }
     
-    @objc func onCharacteristicRequestTimerTick(timer: NSTimer) {
+    @objc private func onCharacteristicRequestTimerTick(timer: NSTimer) {
         defer {
             if timer.valid { timer.invalidate() }
         }
@@ -364,12 +393,12 @@ extension PeripheralProxy {
         }
     }
     
-    func runDescriptorRequest() {
+    private func runDescriptorRequest() {
         guard let request = self.descriptorRequests.first else {
             return
         }
         
-        self.peripheral.cbPeripheral.discoverDescriptorsForCharacteristic(request.characteristic)
+        self.cbPeripheral.discoverDescriptorsForCharacteristic(request.characteristic)
         
         let userInfo = Weak(value: request)
         NSTimer.scheduledTimerWithTimeInterval(
@@ -380,7 +409,7 @@ extension PeripheralProxy {
             repeats: false)
     }
     
-    @objc func onDescriptorRequestTimerTick(timer: NSTimer) {
+    @objc private func onDescriptorRequestTimerTick(timer: NSTimer) {
         defer {
             if timer.valid { timer.invalidate() }
         }
@@ -449,12 +478,12 @@ extension PeripheralProxy {
         }
     }
     
-    func runReadCharacteristicRequest(readPath: CBUUIDPath) {
+    private func runReadCharacteristicRequest(readPath: CBUUIDPath) {
         guard let request = self.readCharacteristicRequests[readPath]?.first else {
             return
         }
         
-        self.peripheral.cbPeripheral.readValueForCharacteristic(request.characteristic)
+        self.cbPeripheral.readValueForCharacteristic(request.characteristic)
         
         let userInfo = Weak(value: request)
         NSTimer.scheduledTimerWithTimeInterval(
@@ -465,7 +494,7 @@ extension PeripheralProxy {
             repeats: false)
     }
     
-    @objc func onReadCharacteristicTimerTick(timer: NSTimer) {
+    @objc private func onReadCharacteristicTimerTick(timer: NSTimer) {
         defer {
             if timer.valid { timer.invalidate() }
         }
@@ -543,12 +572,12 @@ extension PeripheralProxy {
         }
     }
     
-    func runReadDescriptorRequest(readPath: CBUUIDPath) {
+    private func runReadDescriptorRequest(readPath: CBUUIDPath) {
         guard let request = self.readDescriptorRequests[readPath]?.first else {
             return
         }
         
-        self.peripheral.cbPeripheral.readValueForDescriptor(request.descriptor)
+        self.cbPeripheral.readValueForDescriptor(request.descriptor)
         
         let userInfo = Weak(value: request)
         NSTimer.scheduledTimerWithTimeInterval(
@@ -559,7 +588,7 @@ extension PeripheralProxy {
             repeats: false)
     }
     
-    @objc func onReadDescriptorTimerTick(timer: NSTimer) {
+    @objc private func onReadDescriptorTimerTick(timer: NSTimer) {
         defer {
             if timer.valid { timer.invalidate() }
         }
@@ -638,12 +667,12 @@ extension PeripheralProxy {
         }
     }
     
-    func runWriteCharacteristicValueRequest(writePath: CBUUIDPath) {
+    private func runWriteCharacteristicValueRequest(writePath: CBUUIDPath) {
         guard let request = self.writeCharacteristicValueRequests[writePath]?.first else {
             return
         }
         
-        self.peripheral.cbPeripheral.writeValue(request.value, forCharacteristic: request.characteristic, type: request.type)
+        self.cbPeripheral.writeValue(request.value, forCharacteristic: request.characteristic, type: request.type)
         
         if request.type == CBCharacteristicWriteType.WithResponse {
             
@@ -668,7 +697,7 @@ extension PeripheralProxy {
         
     }
     
-    @objc func onWriteCharacteristicValueRequestTimerTick(timer: NSTimer) {
+    @objc private func onWriteCharacteristicValueRequestTimerTick(timer: NSTimer) {
         defer {
             if timer.valid { timer.invalidate() }
         }
@@ -747,12 +776,12 @@ extension PeripheralProxy {
         }
     }
     
-    func runWriteDescriptorValueRequest(writePath: CBUUIDPath) {
+    private func runWriteDescriptorValueRequest(writePath: CBUUIDPath) {
         guard let request = self.writeDescriptorValueRequests[writePath]?.first else {
             return
         }
         
-        self.peripheral.cbPeripheral.writeValue(request.value, forDescriptor: request.descriptor)
+        self.cbPeripheral.writeValue(request.value, forDescriptor: request.descriptor)
         
         let userInfo = Weak(value: request)
         NSTimer.scheduledTimerWithTimeInterval(
@@ -763,7 +792,7 @@ extension PeripheralProxy {
             repeats: false)
     }
     
-    @objc func onWriteDescriptorValueRequestTimerTick(timer: NSTimer) {
+    @objc private func onWriteDescriptorValueRequestTimerTick(timer: NSTimer) {
         defer {
             if timer.valid { timer.invalidate() }
         }
@@ -835,12 +864,12 @@ extension PeripheralProxy {
         }
     }
     
-    func runUpdateNotificationStateRequest(path: CBUUIDPath) {
+    private func runUpdateNotificationStateRequest(path: CBUUIDPath) {
         guard let request = self.updateNotificationStateRequests[path]?.first else {
             return
         }
         
-        self.peripheral.cbPeripheral.setNotifyValue(request.enabled, forCharacteristic: request.characteristic)
+        self.cbPeripheral.setNotifyValue(request.enabled, forCharacteristic: request.characteristic)
         
         let userInfo = Weak(value: request)
         NSTimer.scheduledTimerWithTimeInterval(
@@ -851,7 +880,7 @@ extension PeripheralProxy {
             repeats: false)
     }
     
-    @objc func onUpdateNotificationStateRequest(timer: NSTimer) {
+    @objc private func onUpdateNotificationStateRequest(timer: NSTimer) {
         defer {
             if timer.valid { timer.invalidate() }
         }

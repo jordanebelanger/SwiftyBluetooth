@@ -12,7 +12,6 @@ public typealias ReadRequestAsJSONCallback = (json: [String: AnyObject]?, error:
 public typealias ReadRequestAsStringCallback = (string: String?, error: BleError?) -> Void
 
 public extension Peripheral {
-
     public func readCharacteristicValueAsJSON(characteristicUUID: CBUUIDConvertible,
                                               serviceUUID: CBUUIDConvertible,
                                               completion: ReadRequestAsJSONCallback)
@@ -29,13 +28,11 @@ public extension Peripheral {
             }
             
             do {
-                
                 let json: [String: AnyObject] = try NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions()) as! [String : AnyObject]
                 completion(json: json, error: nil)
             } catch {
                 completion(json: nil, error: nil)
             }
-            
         }
     }
     
@@ -59,5 +56,4 @@ public extension Peripheral {
             completion(string: string, error: nil)
         }
     }
-    
 }
