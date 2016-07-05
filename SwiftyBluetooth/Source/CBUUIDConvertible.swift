@@ -6,7 +6,6 @@
 //
 //
 
-import Foundation
 import CoreBluetooth
 
 public protocol CBUUIDConvertible {

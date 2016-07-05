@@ -543,32 +543,31 @@ extension PeripheralProxy {
                         completion: ReadRequestCallback)
     {
         
-        self.discoverDescriptorsForCharacteristic(characteristicUUID,
-                                                  serviceUUID: serviceUUID) { (descriptors, error) in
-                                                    let filteredDescriptors = descriptors?.filter { (descriptor) -> Bool in
-                                                        if (descriptor.UUID == descriptorUUID) {
-                                                            return true
-                                                        }
-                                                        return false
-                                                    }
-                                                    
-                                                    guard let descriptor = descriptors?.first else {
-                                                        completion(data: nil, error: BleError.PeripheralDescriptorsNotFound(missingDescriptorsUUIDs: [descriptorUUID]))
-                                                        return
-                                                    }
-                                                    
-                                                    let request = ReadDescriptorRequest(descriptor: descriptor, callback: completion)
-                                                    
-                                                    let readPath = descriptor.uuidPath
-                                                    
-                                                    if var currentPathRequests = self.readDescriptorRequests[readPath] {
-                                                        currentPathRequests.append(request)
-                                                        self.readDescriptorRequests[readPath] = currentPathRequests
-                                                    } else {
-                                                        self.readDescriptorRequests[readPath] = [request]
-                                                        
-                                                        self.runReadDescriptorRequest(readPath)
-                                                    }
+        self.discoverDescriptorsForCharacteristic(characteristicUUID, serviceUUID: serviceUUID) { (descriptors, error) in
+            let filteredDescriptors = descriptors?.filter { (descriptor) -> Bool in
+                if (descriptor.UUID == descriptorUUID) {
+                    return true
+                }
+                return false
+            }
+            
+            guard let descriptor = descriptors?.first else {
+                completion(data: nil, error: BleError.PeripheralDescriptorsNotFound(missingDescriptorsUUIDs: [descriptorUUID]))
+                return
+            }
+            
+            let request = ReadDescriptorRequest(descriptor: descriptor, callback: completion)
+            
+            let readPath = descriptor.uuidPath
+            
+            if var currentPathRequests = self.readDescriptorRequests[readPath] {
+                currentPathRequests.append(request)
+                self.readDescriptorRequests[readPath] = currentPathRequests
+            } else {
+                self.readDescriptorRequests[readPath] = [request]
+                
+                self.runReadDescriptorRequest(readPath)
+            }
         }
     }
     

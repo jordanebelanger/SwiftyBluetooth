@@ -8,6 +8,7 @@
 
 import Foundation
 
+/// A short hand for calling the central
 public func scanWithTimeout(timeout: NSTimeInterval,
                             serviceUUIDs: [CBUUIDConvertible]?,
                             completion: PeripheralScanCallback)

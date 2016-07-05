@@ -6,7 +6,6 @@
 //
 //
 
-import Foundation
 import CoreBluetooth
 
 struct CBUUIDPath: Hashable {

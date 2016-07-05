@@ -6,7 +6,6 @@
 //  Copyright © 2016 acanvas. All rights reserved.
 //
 
-import Foundation
 import CoreBluetooth
 
 public let PeripheralsInvalidatedEvent = "PeripheralsInvalidatedEvent"
@@ -15,6 +14,15 @@ public enum PeripheralScanResult {
     case ScanStarted
     case ScanResult(peripheral: Peripheral, advertisementData: [String : AnyObject], RSSI: NSNumber)
     case ScanStopped(error: BleError?)
+}
+
+/// An enum type mirroring CBCentralManagerState Int values but without the ".Resetting" and ".Unknown" temporary values
+public enum AsyncBluetoothState: Int {
+    // Raw values match to the equivalent Int value of the CBCentralManagerState enum type
+    case Unsupported = 2 // CBCentralManagerState.Unsupported
+    case Unauthorized = 3 // CBCentralManagerState.Unauthorized
+    case PoweredOff = 4 // CBCentralManagerState.PoweredOff
+    case PoweredOn = 5 // CBCentralManagerState.PoweredOn
 }
 
 public typealias InitializeBluetoothCallback = (error: BleError?) -> Void
@@ -74,5 +82,12 @@ extension Central {
     
     public func stopScan() {
         centralProxy.stopScan()
+    }
+    
+    /// Sometime, the bluetooth state of your iOS Device/CBCentralManagerState is in an inbetween state of either
+    /// ".Unknown" or ".Reseting". This function will wait until the bluetooth state is stable and return a subset
+    /// of the CBCentralManager state value which does not includes these values
+    public func asyncBluetoothState(completion: (state: AsyncBluetoothState) -> Void) {
+        
     }
 }

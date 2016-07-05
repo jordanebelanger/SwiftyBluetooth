@@ -41,7 +41,7 @@ final class CentralProxy: NSObject {
     }
 }
 
-// Initialize Bluetooth requests
+/// Mark: Initialize Bluetooth requests
 extension CentralProxy {
     func initializeBluetooth(completion: InitializeBluetoothCallback) {
         switch centralManager.state {
@@ -71,7 +71,7 @@ extension CentralProxy {
     }
 }
 
-// Scan requests
+/// Mark: Scan requests
 private final class PeripheralScanRequest {
     let callback: PeripheralScanCallback
     
@@ -128,7 +128,7 @@ extension CentralProxy {
     }
 }
 
-// Connect Peripheral requests
+/// Mark: Connect Peripheral requests
 private final class ConnectPeripheralRequest {
     var callbacks: [PeripheralConnectCallback] = []
     
@@ -197,7 +197,7 @@ extension CentralProxy {
     }
 }
 
-// Disconnect Peripheral requests
+/// Mark: Disconnect Peripheral requests
 private final class DisconnectPeripheralRequest {
     var callbacks: [PeripheralConnectCallback] = []
     
