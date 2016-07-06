@@ -22,11 +22,11 @@ public enum CentralEvent: String {
 }
 
 /**
- The different results returned in the closure of the Central scanWithTimeout(...) function.
- 
- - ScanStarted: The scan just started.
- - ScanResult: A Peripheral found result.
- - ScanStopped: The scan ended.
+    The different results returned in the closure of the Central scanWithTimeout(...) function.
+
+    - ScanStarted: The scan just started.
+    - ScanResult: A Peripheral found result.
+    - ScanStopped: The scan ended.
  
 */
 public enum PeripheralScanResult {
@@ -36,12 +36,12 @@ public enum PeripheralScanResult {
 }
 
 /**
- An enum type whoses rawValues mirror the CBCentralManagerState enum owns Integer values but without the ".Resetting" and ".Unknown" temporary values.
- 
- - Unsupported: CBCentralManagerState.Unsupported
- - Unauthorized: CBCentralManagerState.Unauthorized
- - PoweredOff: CBCentralManagerState.PoweredOff
- - PoweredOn: CBCentralManagerState.PoweredOn
+    An enum type whoses rawValues mirror the CBCentralManagerState enum owns Integer values but without the ".Resetting" and ".Unknown" temporary values.
+
+    - Unsupported: CBCentralManagerState.Unsupported
+    - Unauthorized: CBCentralManagerState.Unauthorized
+    - PoweredOff: CBCentralManagerState.PoweredOff
+    - PoweredOn: CBCentralManagerState.PoweredOn
 
 */
 public enum AsyncCentralState: Int {
