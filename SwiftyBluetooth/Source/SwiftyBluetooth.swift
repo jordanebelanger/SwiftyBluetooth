@@ -12,9 +12,9 @@ import CoreBluetooth
 
 /// Scans for Peripherals through a CBCentralManager scanForPeripheralsWithServices(...) function call.
 ///
-/// Parameter timeout: The scanning time in seconds before the scan is stopped and the completion closure is called with a scanStopped result.
-/// Parameter serviceUUIDs: The service UUIDs to search peripherals for or nil if looking for all peripherals.
-/// Parameter completion: The closures, called multiple times throughout a scan.
+/// - Parameter timeout: The scanning time in seconds before the scan is stopped and the completion closure is called with a scanStopped result.
+/// - Parameter serviceUUIDs: The service UUIDs to search peripherals for or nil if looking for all peripherals.
+/// - Parameter completion: The closures, called multiple times throughout a scan.
 public func scanWithTimeout(timeout: NSTimeInterval,
                             serviceUUIDs: [CBUUIDConvertible]?,
                             completion: PeripheralScanCallback)
