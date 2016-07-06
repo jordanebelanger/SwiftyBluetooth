@@ -9,7 +9,7 @@
 import CoreBluetooth
 
 final class CentralProxy: NSObject {
-    private lazy var initializeBluetoothCallbacks: [InitializeBluetoothCallback] = []
+    private lazy var asyncCentralStateCallbacks: [AsyncCentralStateCallback] = []
     
     private var scanRequest: PeripheralScanRequest?
     
@@ -23,12 +23,11 @@ final class CentralProxy: NSObject {
         super.init()
         self.centralManager.delegate = self
     }
-    
-    func postPeripheralsInvalidatedEvent() {
-        NSNotificationCenter.defaultCenter().postNotificationName(PeripheralsInvalidatedEvent, object: Central.sharedInstance)
-    }
-    
-    var bluetoothState: CBCentralManagerState {
+}
+
+/// Mark: Internal
+extension CentralProxy {
+    var state: CBCentralManagerState {
         get {
             return self.centralManager.state
         }
@@ -39,16 +38,36 @@ final class CentralProxy: NSObject {
             return self.centralManager.isScanning
         }
     }
+    
+    private func postPeripheralEvent(event: CentralEvent, userInfo: [NSObject: AnyObject]? = nil) {
+        NSNotificationCenter.defaultCenter().postNotificationName(
+            event.rawValue,
+            object: Central.sharedInstance,
+            userInfo: userInfo)
+    }
 }
-
 /// Mark: Initialize Bluetooth requests
 extension CentralProxy {
-    func initializeBluetooth(completion: InitializeBluetoothCallback) {
+    func asyncCentralState(completion: AsyncCentralStateCallback) {
         switch centralManager.state {
-            case .Unknown:
-                self.initializeBluetoothCallbacks.append(completion)
-            case .Resetting:
-                self.initializeBluetoothCallbacks.append(completion)
+        case .Unknown:
+            self.asyncCentralStateCallbacks.append(completion)
+        case .Resetting:
+            self.asyncCentralStateCallbacks.append(completion)
+        case .Unsupported:
+            completion(state: .Unsupported)
+        case .Unauthorized:
+            completion(state: .Unauthorized)
+        case .PoweredOff:
+            completion(state: .PoweredOff)
+        case .PoweredOn:
+            completion(state: .PoweredOn)
+        }
+    }
+    
+    func initializeBluetooth(completion: InitializeBluetoothCallback) {
+        self.asyncCentralState { (state) in
+            switch state {
             case .Unsupported:
                 completion(error: .BleUnsupported)
             case .Unauthorized:
@@ -57,16 +76,17 @@ extension CentralProxy {
                 completion(error: .BlePoweredOff)
             case .PoweredOn:
                 completion(error: nil)
+            }
         }
     }
     
-    func callInitializeBluetoothCallbacksWithError(error: BleError?) {
-        let callbacks = self.initializeBluetoothCallbacks
+    func callAsyncCentralStateCallback(state: AsyncCentralState) {
+        let callbacks = self.asyncCentralStateCallbacks
         
-        self.initializeBluetoothCallbacks.removeAll()
+        self.asyncCentralStateCallbacks.removeAll()
         
         for callback in callbacks {
-            callback(error: error)
+            callback(state: state)
         }
     }
 }
@@ -272,19 +292,19 @@ extension CentralProxy: CBCentralManagerDelegate {
     @objc func centralManagerDidUpdateState(central: CBCentralManager) {
         switch centralManager.state {
             case .Unknown:
-                self.postPeripheralsInvalidatedEvent()
+                self.postPeripheralEvent(.PeripheralsInvalidated)
             case .Resetting:
-                self.postPeripheralsInvalidatedEvent()
+                self.postPeripheralEvent(.PeripheralsInvalidated)
             case .Unsupported:
-                self.postPeripheralsInvalidatedEvent()
-                callInitializeBluetoothCallbacksWithError(.BleUnsupported)
+                self.postPeripheralEvent(.PeripheralsInvalidated)
+                self.callAsyncCentralStateCallback(.Unsupported)
             case .Unauthorized:
-                self.postPeripheralsInvalidatedEvent()
-                callInitializeBluetoothCallbacksWithError(.BleUnauthorized)
+                self.postPeripheralEvent(.PeripheralsInvalidated)
+                self.callAsyncCentralStateCallback(.Unauthorized)
             case .PoweredOff:
-                callInitializeBluetoothCallbacksWithError(.BlePoweredOff)
+                self.callAsyncCentralStateCallback(.PoweredOff)
             case .PoweredOn:
-                callInitializeBluetoothCallbacksWithError(nil)
+                self.callAsyncCentralStateCallback(.PoweredOn)
         }
     }
     

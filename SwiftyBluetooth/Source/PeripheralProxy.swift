@@ -36,7 +36,7 @@ final class PeripheralProxy: NSObject  {
         
         cbPeripheral.delegate = self
         
-        NSNotificationCenter.defaultCenter().addObserverForName(PeripheralsInvalidatedEvent,
+        NSNotificationCenter.defaultCenter().addObserverForName(CentralEvent.PeripheralsInvalidated.rawValue,
                                                                 object: Central.sharedInstance,
                                                                 queue: nil)
         { [weak self] (notification) in
