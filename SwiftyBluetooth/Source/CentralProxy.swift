@@ -69,11 +69,11 @@ extension CentralProxy {
         self.asyncCentralState { (state) in
             switch state {
             case .Unsupported:
-                completion(error: .BleUnsupported)
+                completion(error: .BluetoothUnsupported)
             case .Unauthorized:
-                completion(error: .BleUnauthorized)
+                completion(error: .BluetoothUnauthorized)
             case .PoweredOff:
-                completion(error: .BlePoweredOff)
+                completion(error: .BluetoothPoweredOff)
             case .PoweredOn:
                 completion(error: nil)
             }
@@ -160,7 +160,7 @@ private final class ConnectPeripheralRequest {
         self.peripheral = peripheral
     }
     
-    func invokeCallbacks(error: BleError?) {
+    func invokeCallbacks(error: Error?) {
         for callback in callbacks {
             callback(error: error)
         }
@@ -168,7 +168,7 @@ private final class ConnectPeripheralRequest {
 }
 
 extension CentralProxy {
-    func connectPeripheral(peripheral: CBPeripheral, timeout: NSTimeInterval, _ callback: (error: BleError?) -> Void) {
+    func connectPeripheral(peripheral: CBPeripheral, timeout: NSTimeInterval, _ callback: (error: Error?) -> Void) {
         initializeBluetooth { [unowned self] (error) in
             if let error = error {
                 callback(error: error)
@@ -213,7 +213,7 @@ extension CentralProxy {
         
         self.connectRequests[uuid] = nil
         
-        request.invokeCallbacks(BleError.BleTimeoutError)
+        request.invokeCallbacks(Error.OperationTimeoutError(operationName: "connect peripheral"))
     }
 }
 
@@ -229,7 +229,7 @@ private final class DisconnectPeripheralRequest {
         self.peripheral = peripheral
     }
     
-    func invokeCallbacks(error: BleError?) {
+    func invokeCallbacks(error: Error?) {
         for callback in callbacks {
             callback(error: error)
         }
@@ -237,7 +237,7 @@ private final class DisconnectPeripheralRequest {
 }
 
 extension CentralProxy {
-    func disconnectPeripheral(peripheral: CBPeripheral, timeout: NSTimeInterval, _ callback: (error: BleError?) -> Void) {
+    func disconnectPeripheral(peripheral: CBPeripheral, timeout: NSTimeInterval, _ callback: (error: Error?) -> Void) {
         initializeBluetooth { [unowned self] (error) in
             
             if let error = error {
@@ -284,7 +284,7 @@ extension CentralProxy {
         
         self.disconnectRequests[uuid] = nil
         
-        request.invokeCallbacks(BleError.BleTimeoutError)
+        request.invokeCallbacks(Error.OperationTimeoutError(operationName: "disconnect peripheral"))
     }
 }
 
@@ -327,12 +327,12 @@ extension CentralProxy: CBCentralManagerDelegate {
         
         self.disconnectRequests[uuid] = nil
         
-        var bleError: BleError?
+        var swiftyError: Error?
         if let error = error {
-            bleError = BleError.CoreBluetoothError(error: error)
+            swiftyError = Error.CoreBluetoothError(operationName: "disconnect peripheral", error: error)
         }
         
-        request.invokeCallbacks(bleError)
+        request.invokeCallbacks(swiftyError)
     }
     
     @objc func centralManager(central: CBCentralManager, didFailToConnectPeripheral peripheral: CBPeripheral, error: NSError?) {
@@ -341,16 +341,16 @@ extension CentralProxy: CBCentralManagerDelegate {
             return
         }
         
-        var bleError: BleError?
+        var swiftyError: Error?
         if let error = error {
-            bleError = .CoreBluetoothError(error: error)
+            swiftyError = .CoreBluetoothError(operationName: "connect peripheral", error: error)
         } else {
-            bleError = BleError.PeripheralFailedToConnectReasonUnknown
+            swiftyError = Error.PeripheralFailedToConnectReasonUnknown
         }
         
         self.connectRequests[uuid] = nil
         
-        request.invokeCallbacks(bleError)
+        request.invokeCallbacks(swiftyError)
     }
     
     @objc func centralManager(central: CBCentralManager, didDiscoverPeripheral peripheral: CBPeripheral, advertisementData: [String : AnyObject], RSSI: NSNumber) {

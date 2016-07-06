@@ -95,15 +95,15 @@ extension PeripheralProxy {
 
 // Connect/Disconnect Requests
 extension PeripheralProxy {
-    func connect(completion: (error: BleError?) -> Void) {
+    func connect(completion: (error: Error?) -> Void) {
         if self.valid {
             Central.sharedInstance.connectPeripheral(self.cbPeripheral, completion: completion)
         } else {
-            completion(error: .PeripheralIsInvalid)            
+            completion(error: .InvalidPeripheral)            
         }
     }
     
-    func disconnect(completion: (error: BleError?) -> Void) {
+    func disconnect(completion: (error: Error?) -> Void) {
         Central.sharedInstance.disconnectPeripheral(self.cbPeripheral, completion: completion)
     }
 }
@@ -162,7 +162,7 @@ extension PeripheralProxy {
         
         self.readRSSIRequests.removeFirst()
         
-        request.callback(RSSI: nil, error: BleError.BleTimeoutError)
+        request.callback(RSSI: nil, error: Error.OperationTimeoutError(operationName: "read RSSI"))
         
         self.runRSSIRequest()
     }
@@ -246,7 +246,7 @@ extension PeripheralProxy {
         
         self.serviceRequests.removeFirst()
         
-        request.callback(services: nil, error: BleError.BleTimeoutError)
+        request.callback(services: nil, error: Error.OperationTimeoutError(operationName: "discover services"))
         
         self.runServiceRequest()
     }
@@ -346,7 +346,7 @@ extension PeripheralProxy {
         
         self.characteristicRequests.removeFirst()
         
-        request.callback(characteristics: nil, error: BleError.BleTimeoutError)
+        request.callback(characteristics: nil, error: Error.OperationTimeoutError(operationName: "discover characteristics"))
         
         self.runCharacteristicRequest()
     }
@@ -422,7 +422,7 @@ extension PeripheralProxy {
         
         self.descriptorRequests.removeFirst()
         
-        request.callback(descriptors: nil, error: BleError.BleTimeoutError)
+        request.callback(descriptors: nil, error: Error.OperationTimeoutError(operationName: "discover descriptors"))
         
         self.runDescriptorRequest()
     }
@@ -512,7 +512,7 @@ extension PeripheralProxy {
             self.readCharacteristicRequests[readPath] = nil
         }
         
-        request.callback(data: nil, error: BleError.BleTimeoutError)
+        request.callback(data: nil, error: Error.OperationTimeoutError(operationName: "read characteristic"))
         
         self.runReadCharacteristicRequest(readPath)
     }
@@ -552,7 +552,7 @@ extension PeripheralProxy {
             }
             
             guard let descriptor = descriptors?.first else {
-                completion(data: nil, error: BleError.PeripheralDescriptorsNotFound(missingDescriptorsUUIDs: [descriptorUUID]))
+                completion(data: nil, error: Error.PeripheralDescriptorsNotFound(missingDescriptorsUUIDs: [descriptorUUID]))
                 return
             }
             
@@ -605,7 +605,7 @@ extension PeripheralProxy {
             self.readDescriptorRequests[readPath] = nil
         }
         
-        request.callback(data: nil, error: BleError.BleTimeoutError)
+        request.callback(data: nil, error: Error.OperationTimeoutError(operationName: "read descriptor"))
         
         self.runReadDescriptorRequest(readPath)
     }
@@ -714,7 +714,7 @@ extension PeripheralProxy {
             self.writeCharacteristicValueRequests[writePath] = nil
         }
         
-        request.callback(error: BleError.BleTimeoutError)
+        request.callback(error: Error.OperationTimeoutError(operationName: "write characteristic value"))
         
         self.runWriteCharacteristicValueRequest(writePath)
     }
@@ -753,7 +753,7 @@ extension PeripheralProxy {
             }
             
             guard let descriptor = descriptors?.filter({ $0.UUID == descriptorUUID }).first else {
-                completion(error: BleError.PeripheralDescriptorsNotFound(missingDescriptorsUUIDs: [descriptorUUID]))
+                completion(error: Error.PeripheralDescriptorsNotFound(missingDescriptorsUUIDs: [descriptorUUID]))
                 return
             }
             
@@ -809,7 +809,7 @@ extension PeripheralProxy {
             self.writeDescriptorValueRequests[writePath] = nil
         }
         
-        request.callback(error: BleError.BleTimeoutError)
+        request.callback(error: Error.OperationTimeoutError(operationName: "write to decriptor"))
         
         self.runWriteDescriptorValueRequest(writePath)
     }
@@ -897,7 +897,7 @@ extension PeripheralProxy {
             self.updateNotificationStateRequests[path] = nil
         }
         
-        request.callback(isNotifying: nil, error: BleError.BleTimeoutError)
+        request.callback(isNotifying: nil, error: Error.OperationTimeoutError(operationName: "update notification status"))
         
         self.runUpdateNotificationStateRequest(path)
     }
@@ -913,15 +913,15 @@ extension PeripheralProxy: CBPeripheralDelegate {
         self.readRSSIRequests.removeFirst()
         
         var rssi: Int?
-        var bleError: BleError?
+        var swiftyError: Error?
         
         if let error = error {
-            bleError = .CoreBluetoothError(error: error)
+            swiftyError = .CoreBluetoothError(operationName: "read RSSI", error: error)
         } else {
             rssi = RSSI.integerValue
         }
         
-        readRSSIRequest.callback(RSSI: rssi, error: bleError)
+        readRSSIRequest.callback(RSSI: rssi, error: swiftyError)
         
         self.runRSSIRequest()
     }
@@ -955,14 +955,14 @@ extension PeripheralProxy: CBPeripheralDelegate {
         self.serviceRequests.removeFirst()
         
         if let error = error {
-            serviceRequest.callback(services: nil, error: BleError.CoreBluetoothError(error: error))
+            serviceRequest.callback(services: nil, error: Error.CoreBluetoothError(operationName: "discover services", error: error))
             return
         }
         
         if let serviceUUIDs = serviceRequest.serviceUUIDs {
             let servicesTuple = peripheral.servicesWithUUIDs(serviceUUIDs)
             if servicesTuple.missingServicesUUIDs.count > 0 {
-                serviceRequest.callback(services: nil, error: BleError.PeripheralServiceNotFound(missingServicesUUIDs: servicesTuple.missingServicesUUIDs))
+                serviceRequest.callback(services: nil, error: Error.PeripheralServiceNotFound(missingServicesUUIDs: servicesTuple.missingServicesUUIDs))
             } else { // This implies that all the services we're found through Set logic in the servicesWithUUIDs function
                 serviceRequest.callback(services: servicesTuple.foundServices, error: nil)
             }
@@ -983,7 +983,7 @@ extension PeripheralProxy: CBPeripheralDelegate {
         self.characteristicRequests.removeFirst()
         
         if let error = error {
-            characteristicRequest.callback(characteristics: nil, error: BleError.CoreBluetoothError(error: error))
+            characteristicRequest.callback(characteristics: nil, error: Error.CoreBluetoothError(operationName: "discover characteristics", error: error))
             return
         }
         
@@ -991,7 +991,7 @@ extension PeripheralProxy: CBPeripheralDelegate {
             let characteristicsTuple = service.characteristicsWithUUIDs(characteristicUUIDs)
             
             if characteristicsTuple.missingCharacteristicsUUIDs.count > 0 {
-                characteristicRequest.callback(characteristics: nil, error: BleError.PeripheralCharacteristicNotFound(missingCharacteristicsUUIDs: characteristicsTuple.missingCharacteristicsUUIDs))
+                characteristicRequest.callback(characteristics: nil, error: Error.PeripheralCharacteristicNotFound(missingCharacteristicsUUIDs: characteristicsTuple.missingCharacteristicsUUIDs))
             } else {
                 characteristicRequest.callback(characteristics: characteristicsTuple.foundCharacteristics, error: nil)
             }
@@ -1013,7 +1013,7 @@ extension PeripheralProxy: CBPeripheralDelegate {
         self.descriptorRequests.removeFirst()
         
         if let error = error {
-            descriptorRequest.callback(descriptors: nil, error: BleError.CoreBluetoothError(error: error))
+            descriptorRequest.callback(descriptors: nil, error: Error.CoreBluetoothError(operationName: "discover descriptors", error: error))
         } else {
             descriptorRequest.callback(descriptors: characteristic.descriptors, error: nil)
         }
@@ -1044,7 +1044,7 @@ extension PeripheralProxy: CBPeripheralDelegate {
         }
         
         if let error = error {
-            request.callback(data: nil, error: BleError.CoreBluetoothError(error: error))
+            request.callback(data: nil, error: Error.CoreBluetoothError(operationName: "read characteristic", error: error))
         } else {
             request.callback(data: characteristic.value, error: nil)
         }
@@ -1067,7 +1067,7 @@ extension PeripheralProxy: CBPeripheralDelegate {
         }
         
         if let error = error {
-            request.callback(error: BleError.CoreBluetoothError(error: error))
+            request.callback(error: Error.CoreBluetoothError(operationName: "write characteristic value", error: error))
         } else {
             request.callback(error: nil)
         }
@@ -1090,7 +1090,7 @@ extension PeripheralProxy: CBPeripheralDelegate {
         }
         
         if let error = error {
-            request.callback(isNotifying: nil, error: BleError.CoreBluetoothError(error: error))
+            request.callback(isNotifying: nil, error: Error.CoreBluetoothError(operationName: "update characteristic notification state", error: error))
         } else {
             request.callback(isNotifying: characteristic.isNotifying, error: nil)
         }
@@ -1113,7 +1113,7 @@ extension PeripheralProxy: CBPeripheralDelegate {
         }
         
         if let error = error {
-            request.callback(data: nil, error: BleError.CoreBluetoothError(error: error))
+            request.callback(data: nil, error: Error.CoreBluetoothError(operationName: "read descriptor", error: error))
         } else {
             request.callback(data: nil, error: nil)
         }
@@ -1136,7 +1136,7 @@ extension PeripheralProxy: CBPeripheralDelegate {
         }
         
         if let error = error {
-            request.callback(error: BleError.CoreBluetoothError(error: error))
+            request.callback(error: Error.CoreBluetoothError(operationName: "write descriptor value", error: error))
         } else {
             request.callback(error: nil)
         }

@@ -15,7 +15,7 @@ import CoreBluetooth
  
     - PeripheralNameUpdate: Updates to a Peripheral's CBPeripheral name value, userInfo: ["name": String?]
     - PeripheralModifedServices: Update to a peripheral's CBPeripheral services, userInfo: ["invalidatedServices": [CBService]]
-    - CharacteristicValueUpdate: An update to the value of a characteristic you're peripherals is subscribed for updates from, userInfo: ["characteristic": CBCharacteristic, "error": BleError?]
+    - CharacteristicValueUpdate: An update to the value of a characteristic you're peripherals is subscribed for updates from, userInfo: ["characteristic": CBCharacteristic, "error": Error?]
 */
 public enum PeripheralEvent: String {
     case PeripheralNameUpdate
@@ -23,13 +23,13 @@ public enum PeripheralEvent: String {
     case CharacteristicValueUpdate
 }
 
-public typealias ReadRSSIRequestCallback = (RSSI: Int?, error: BleError?) -> Void
-public typealias ServiceRequestCallback = (services: [CBService]?, error: BleError?) -> Void
-public typealias CharacteristicRequestCallback = (characteristics: [CBCharacteristic]?, error: BleError?) -> Void
-public typealias DescriptorRequestCallback = (descriptors: [CBDescriptor]?, error: BleError?) -> Void
-public typealias ReadRequestCallback = (data: NSData?, error: BleError?) -> Void
-public typealias WriteRequestCallback = (error: BleError?) -> Void
-public typealias UpdateNotificationStateCallback = (isNotifying: Bool?, error: BleError?) -> Void
+public typealias ReadRSSIRequestCallback = (RSSI: Int?, error: Error?) -> Void
+public typealias ServiceRequestCallback = (services: [CBService]?, error: Error?) -> Void
+public typealias CharacteristicRequestCallback = (characteristics: [CBCharacteristic]?, error: Error?) -> Void
+public typealias DescriptorRequestCallback = (descriptors: [CBDescriptor]?, error: Error?) -> Void
+public typealias ReadRequestCallback = (data: NSData?, error: Error?) -> Void
+public typealias WriteRequestCallback = (error: Error?) -> Void
+public typealias UpdateNotificationStateCallback = (isNotifying: Bool?, error: Error?) -> Void
 
 /// An interface on top of a CBPeripheral instance used to run CBPeripheral related functions with closures based callbacks instead of the usual CBPeripheralDelegate interface.
 public final class Peripheral {
@@ -78,12 +78,12 @@ extension Peripheral {
     }
     
     /// Connect to the peripheral through Ble to our Central sharedInstance
-    public func connect(completion: (error: BleError?) -> Void) {
+    public func connect(completion: (error: Error?) -> Void) {
         self.peripheralProxy.connect(completion)
     }
     
     /// Disconnect the peripheral from our Central sharedInstance
-    public func disconnect(completion: (error: BleError?) -> Void) {
+    public func disconnect(completion: (error: Error?) -> Void) {
         self.peripheralProxy.disconnect(completion)
     }
     

@@ -32,7 +32,7 @@ public enum CentralEvent: String {
 public enum PeripheralScanResult {
     case ScanStarted
     case ScanResult(peripheral: Peripheral, advertisementData: [String : AnyObject], RSSI: NSNumber)
-    case ScanStopped(error: BleError?)
+    case ScanStopped(error: Error?)
 }
 
 /**
@@ -45,17 +45,17 @@ public enum PeripheralScanResult {
 
 */
 public enum AsyncCentralState: Int {
-    case Unsupported = 2 // CBCentralManagerState.Unsupported
-    case Unauthorized = 3 // CBCentralManagerState.Unauthorized
-    case PoweredOff = 4 // CBCentralManagerState.PoweredOff
-    case PoweredOn = 5 // CBCentralManagerState.PoweredOn
+    case Unsupported = 2
+    case Unauthorized = 3
+    case PoweredOff = 4
+    case PoweredOn = 5
 }
 
 public typealias AsyncCentralStateCallback = (state: AsyncCentralState) -> Void
 public typealias BluetoothStateCallback = (state: CBCentralManagerState) -> Void
 public typealias PeripheralScanCallback = (scanResult: PeripheralScanResult) -> Void
-public typealias PeripheralConnectCallback = (error: BleError?) -> Void
-public typealias PeripheralDisconnectCallback = (error: BleError?) -> Void
+public typealias PeripheralConnectCallback = (error: Error?) -> Void
+public typealias PeripheralDisconnectCallback = (error: Error?) -> Void
 
 /// A singleton wrapping a CBCentralManager instance to run CBCentralManager related functions with closures based callbacks instead of the usual CBCentralManagerDelegate interface.
 public final class Central {
@@ -67,7 +67,7 @@ public final class Central {
 }
 
 /// Mark: Internal
-typealias InitializeBluetoothCallback = (error: BleError?) -> Void
+typealias InitializeBluetoothCallback = (error: Error?) -> Void
 
 extension Central {
     func initializeBluetooth(completion: InitializeBluetoothCallback) {
