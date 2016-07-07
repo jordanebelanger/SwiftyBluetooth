@@ -23,6 +23,14 @@
 
 import Foundation
 
+public final class Box<T> {
+    let value: T
+    
+    init(value: T) {
+        self.value = value
+    }
+}
+
 final class Weak<T: AnyObject> {
     weak var value : T?
     

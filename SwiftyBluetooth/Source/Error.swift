@@ -34,6 +34,7 @@ public enum Error: ErrorType {
     case PeripheralServiceNotFound(missingServicesUUIDs: [CBUUID])
     case PeripheralCharacteristicNotFound(missingCharacteristicsUUIDs: [CBUUID])
     case PeripheralDescriptorsNotFound(missingDescriptorsUUIDs: [CBUUID])
+    case ScanTerminatedUnexpectedly(invalidState: CBCentralManagerState)
     
     public var _domain: String {
         get {
@@ -64,6 +65,8 @@ public enum Error: ErrorType {
                 return 108
             case .PeripheralFailedToConnectReasonUnknown:
                 return 109
+            case .ScanTerminatedUnexpectedly:
+                return 110
             }
         }
     }
@@ -102,6 +105,8 @@ public enum Error: ErrorType {
         
         case .PeripheralFailedToConnectReasonUnknown:
             return self.errorWithDescription("Failed to connect your Peripheral", failureReason: "Unknown reason")
+        case .ScanTerminatedUnexpectedly:
+            return self.errorWithDescription("Scan terminated unexpectedly", failureReason: "You're iOS device bluetooth was desactivated", recoverySuggestion: "Restart bluetooth and try scanning again")
         }
     }
     

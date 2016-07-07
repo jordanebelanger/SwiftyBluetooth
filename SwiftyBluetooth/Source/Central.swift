@@ -28,15 +28,18 @@ import CoreBluetooth
  
     Use the CentralEvent enum rawValue as the notification string when registering for notifications.
  
-    - PeripheralsInvalidated: The underlying CBCentralManager went into a state invalidating all your Peripherals.
-        This means they must be rediscovered through a Peripheral scanWithTimeout(...) function call.
     - CentralManagerWillRestoreState: Posted when the app comes back from the background and restores the 
         underlying CBCentralManager state after the centralManager:willRestoreState: delegate method is called.
         The userInfo of this notification is the same as was passed in the delegate method, userInfo: [String : AnyObject]
- */
+     - CentralStateChange: The underlying CBCentralManager state changed, take note that if the central state 
+        goes from poweredOn to something lower, all the Peripherals are invalidated and need to be discovered again.
+        The userInfo is a box containing the CBCentralManagerState enum value, you can cast it to a constant like this
+        "let boxedState = notification.userInfo!["state"] as! Box<CBCentralManagerState>"
+        userInfo: ["state": Box<CBCentralState>]
+*/
 public enum CentralEvent: String {
-    case PeripheralsInvalidated
     case CentralManagerWillRestoreState
+    case CentralStateChange
 }
 
 /**

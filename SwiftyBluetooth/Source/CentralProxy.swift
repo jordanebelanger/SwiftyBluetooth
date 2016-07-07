@@ -141,11 +141,11 @@ extension CentralProxy {
         }
     }
     
-    func stopScan() {
+    func stopScan(error: Error? = nil) {
         self.centralManager.stopScan()
         if let scanRequest = self.scanRequest {
             self.scanRequest = nil
-            scanRequest.callback(scanResult: .ScanStopped(error: nil))
+            scanRequest.callback(scanResult: .ScanStopped(error: error))
         }
     }
     
@@ -305,19 +305,21 @@ extension CentralProxy {
 
 extension CentralProxy: CBCentralManagerDelegate {
     @objc func centralManagerDidUpdateState(central: CBCentralManager) {
+        self.postCentralEvent(.CentralStateChange, userInfo: ["state": Box(value: central.state)])
         switch centralManager.state {
             case .Unknown:
-                self.postCentralEvent(.PeripheralsInvalidated)
+                self.stopScan(Error.ScanTerminatedUnexpectedly(invalidState: centralManager.state))
             case .Resetting:
-                self.postCentralEvent(.PeripheralsInvalidated)
+                self.stopScan(Error.ScanTerminatedUnexpectedly(invalidState: centralManager.state))
             case .Unsupported:
-                self.postCentralEvent(.PeripheralsInvalidated)
                 self.callAsyncCentralStateCallback(.Unsupported)
+                self.stopScan(Error.ScanTerminatedUnexpectedly(invalidState: centralManager.state))
             case .Unauthorized:
-                self.postCentralEvent(.PeripheralsInvalidated)
                 self.callAsyncCentralStateCallback(.Unauthorized)
+                self.stopScan(Error.ScanTerminatedUnexpectedly(invalidState: centralManager.state))
             case .PoweredOff:
                 self.callAsyncCentralStateCallback(.PoweredOff)
+                self.stopScan(Error.ScanTerminatedUnexpectedly(invalidState: centralManager.state))
             case .PoweredOn:
                 self.callAsyncCentralStateCallback(.PoweredOn)
         }

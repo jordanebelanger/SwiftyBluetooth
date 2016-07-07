@@ -85,20 +85,20 @@ extension Peripheral {
         }
     }
     
-    /// Returns the service requested if it has been discovered
+    /// Returns the service requested if it exists and has been discovered
     public func serviceWithUUID(serviceUUID: CBUUIDConvertible) -> CBService? {
         return self.peripheralProxy.cbPeripheral
             .serviceWithUUID(serviceUUID.CBUUIDRepresentation)
     }
     
-    /// Returns the characteristic requested if it has been discovered
+    /// Returns the characteristic requested if it exists and has been discovered
     public func characteristicWithUUID(characUUID: CBUUIDConvertible, serviceUUID: CBUUIDConvertible) -> CBCharacteristic? {
         return self.peripheralProxy.cbPeripheral
             .serviceWithUUID(serviceUUID.CBUUIDRepresentation)?
             .characteristicWithUUID(characUUID.CBUUIDRepresentation)
     }
     
-    /// Returns the descriptor requested if it has been discovered
+    /// Returns the descriptor requested if it exists and has been discovered
     public func descriptorWithUUID(descriptorUUID: CBUUIDConvertible, characUUID: CBUUIDConvertible, serviceUUID: CBUUIDConvertible) -> CBDescriptor? {
         return self.peripheralProxy.cbPeripheral
             .serviceWithUUID(serviceUUID.CBUUIDRepresentation)?

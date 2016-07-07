@@ -26,6 +26,7 @@ import CoreBluetooth
 public typealias ReadRequestAsJSONCallback = (json: [String: AnyObject]?, error: Error?) -> Void
 public typealias ReadRequestAsStringCallback = (string: String?, error: Error?) -> Void
 
+/// Mark: Custom read functions with included serialization
 public extension Peripheral {
     public func readCharacteristicValueAsJSON(characteristicUUID: CBUUIDConvertible,
                                               serviceUUID: CBUUIDConvertible,

@@ -51,11 +51,14 @@ final class PeripheralProxy: NSObject  {
         
         cbPeripheral.delegate = self
         
-        NSNotificationCenter.defaultCenter().addObserverForName(CentralEvent.PeripheralsInvalidated.rawValue,
+        NSNotificationCenter.defaultCenter().addObserverForName(CentralEvent.CentralStateChange.rawValue,
                                                                 object: Central.sharedInstance,
                                                                 queue: nil)
         { [weak self] (notification) in
-            self?.valid = false
+            let boxedState = notification.userInfo!["state"] as! Box<CBCentralManagerState>
+            if boxedState.value.rawValue < CBCentralManagerState.PoweredOff.rawValue {
+                self?.valid = false
+            }
         }
     }
     
