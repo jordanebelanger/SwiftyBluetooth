@@ -1,10 +1,25 @@
 //
 //  PeripheralProxy.swift
-//  SwiftyBluetooth
 //
-//  Created by tehjord on 7/2/16.
+//  Copyright (c) 2016 Jordane Belanger
 //
+//  Permission is hereby granted, free of charge, to any person obtaining a copy
+//  of this software and associated documentation files (the "Software"), to deal
+//  in the Software without restriction, including without limitation the rights
+//  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//  copies of the Software, and to permit persons to whom the Software is
+//  furnished to do so, subject to the following conditions:
 //
+//  The above copyright notice and this permission notice shall be included in all
+//  copies or substantial portions of the Software.
+//
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//  SOFTWARE.
 
 import CoreBluetooth
 
@@ -22,7 +37,7 @@ final class PeripheralProxy: NSObject  {
     private lazy var updateNotificationStateRequests: [CBUUIDPath: [UpdateNotificationStateRequest]] = [:]
     
     private weak var peripheral: Peripheral?
-    private let cbPeripheral: CBPeripheral
+    let cbPeripheral: CBPeripheral
     
     // Peripheral that are no longer valid must be rediscovered again (happens when for example the Bluetooth is turned off
     // from a user's phone and turned back on
@@ -57,39 +72,6 @@ final class PeripheralProxy: NSObject  {
             event.rawValue,
             object: peripheral,
             userInfo: userInfo)
-    }
-}
-
-// Proxied vars
-extension PeripheralProxy {
-    var identifier: NSUUID {
-        get {
-            return self.cbPeripheral.identifier
-        }
-    }
-    
-    var name: String? {
-        get {
-            return self.cbPeripheral.name
-        }
-    }
-    
-    var state: CBPeripheralState {
-        get {
-            return self.cbPeripheral.state
-        }
-    }
-    
-    var services: [CBService]? {
-        get {
-            return self.cbPeripheral.services
-        }
-    }
-    
-    var RSSI: Int? {
-        get {
-            return self.cbPeripheral.RSSI?.integerValue
-        }
     }
 }
 
@@ -222,12 +204,11 @@ extension PeripheralProxy {
         
         self.cbPeripheral.discoverServices(request.serviceUUIDs)
         
-        let userInfo = Weak(value: request)
         NSTimer.scheduledTimerWithTimeInterval(
             PeripheralProxy.defaultTimeoutInS,
             target: self,
             selector: #selector(self.onServiceRequestTimerTick),
-            userInfo: userInfo,
+            userInfo: Weak(value: request),
             repeats: false)
     }
     
@@ -322,12 +303,11 @@ extension PeripheralProxy {
         
         self.cbPeripheral.discoverCharacteristics(request.characteristicUUIDs, forService: request.service)
         
-        let userInfo = Weak(value: request)
         NSTimer.scheduledTimerWithTimeInterval(
             PeripheralProxy.defaultTimeoutInS,
             target: self,
             selector: #selector(self.onCharacteristicRequestTimerTick),
-            userInfo: userInfo,
+            userInfo: Weak(value: request),
             repeats: false)
     }
     
@@ -400,12 +380,11 @@ extension PeripheralProxy {
         
         self.cbPeripheral.discoverDescriptorsForCharacteristic(request.characteristic)
         
-        let userInfo = Weak(value: request)
         NSTimer.scheduledTimerWithTimeInterval(
             PeripheralProxy.defaultTimeoutInS,
             target: self,
             selector: #selector(self.onDescriptorRequestTimerTick),
-            userInfo: userInfo,
+            userInfo: Weak(value: request),
             repeats: false)
     }
     
@@ -470,8 +449,7 @@ extension PeripheralProxy {
                 currentPathRequests.append(request)
                 self.readCharacteristicRequests[readPath] = currentPathRequests
             } else {
-                var currentPathRequests = [request]
-                self.readCharacteristicRequests[readPath] = currentPathRequests
+                self.readCharacteristicRequests[readPath] = [request]
                 
                 self.runReadCharacteristicRequest(readPath)
             }
@@ -485,12 +463,11 @@ extension PeripheralProxy {
         
         self.cbPeripheral.readValueForCharacteristic(request.characteristic)
         
-        let userInfo = Weak(value: request)
         NSTimer.scheduledTimerWithTimeInterval(
             PeripheralProxy.defaultTimeoutInS,
             target: self,
             selector: #selector(self.onReadCharacteristicTimerTick),
-            userInfo: userInfo,
+            userInfo: Weak(value: request),
             repeats: false)
     }
     
@@ -544,11 +521,9 @@ extension PeripheralProxy {
     {
         
         self.discoverDescriptorsForCharacteristic(characteristicUUID, serviceUUID: serviceUUID) { (descriptors, error) in
-            let filteredDescriptors = descriptors?.filter { (descriptor) -> Bool in
-                if (descriptor.UUID == descriptorUUID) {
-                    return true
-                }
-                return false
+            if let error = error {
+                completion(data: nil, error: error)
+                return
             }
             
             guard let descriptor = descriptors?.first else {
@@ -578,12 +553,11 @@ extension PeripheralProxy {
         
         self.cbPeripheral.readValueForDescriptor(request.descriptor)
         
-        let userInfo = Weak(value: request)
         NSTimer.scheduledTimerWithTimeInterval(
             PeripheralProxy.defaultTimeoutInS,
             target: self,
             selector: #selector(self.onReadDescriptorTimerTick),
-            userInfo: userInfo,
+            userInfo: Weak(value: request),
             repeats: false)
     }
     
@@ -658,8 +632,7 @@ extension PeripheralProxy {
                 currentPathRequests.append(request)
                 self.writeCharacteristicValueRequests[writePath] = currentPathRequests
             } else {
-                var currentPathRequests: [WriteCharacteristicValueRequest] = [request]
-                self.writeCharacteristicValueRequests[writePath] = currentPathRequests
+                self.writeCharacteristicValueRequests[writePath] = [request]
                 
                 self.runWriteCharacteristicValueRequest(writePath)
             }
@@ -674,13 +647,11 @@ extension PeripheralProxy {
         self.cbPeripheral.writeValue(request.value, forCharacteristic: request.characteristic, type: request.type)
         
         if request.type == CBCharacteristicWriteType.WithResponse {
-            
-            let userInfo = Weak(value: request)
             NSTimer.scheduledTimerWithTimeInterval(
                 PeripheralProxy.defaultTimeoutInS,
                 target: self,
                 selector: #selector(self.onWriteCharacteristicValueRequestTimerTick),
-                userInfo: userInfo,
+                userInfo: Weak(value: request),
                 repeats: false)
         } else {
             // If no response is expected, we execute the callback and clear the request right away
@@ -767,8 +738,7 @@ extension PeripheralProxy {
                 currentPathRequests.append(request)
                 self.writeDescriptorValueRequests[writePath] = currentPathRequests
             } else {
-                var currentPathRequests: [WriteDescriptorValueRequest] = [request]
-                self.writeDescriptorValueRequests[writePath] = currentPathRequests
+                self.writeDescriptorValueRequests[writePath] = [request]
                 
                 self.runWriteDescriptorValueRequest(writePath)
             }
@@ -782,12 +752,11 @@ extension PeripheralProxy {
         
         self.cbPeripheral.writeValue(request.value, forDescriptor: request.descriptor)
         
-        let userInfo = Weak(value: request)
         NSTimer.scheduledTimerWithTimeInterval(
             PeripheralProxy.defaultTimeoutInS,
             target: self,
             selector: #selector(self.onWriteDescriptorValueRequestTimerTick),
-            userInfo: userInfo,
+            userInfo: Weak(value: request),
             repeats: false)
     }
     
@@ -855,8 +824,7 @@ extension PeripheralProxy {
                 currentPathRequests.append(request)
                 self.updateNotificationStateRequests[path] = currentPathRequests
             } else {
-                var currentPathRequests: [UpdateNotificationStateRequest] = [request]
-                self.updateNotificationStateRequests[path] = currentPathRequests
+                self.updateNotificationStateRequests[path] = [request]
                 
                 self.runUpdateNotificationStateRequest(path)
             }
@@ -870,12 +838,11 @@ extension PeripheralProxy {
         
         self.cbPeripheral.setNotifyValue(request.enabled, forCharacteristic: request.characteristic)
         
-        let userInfo = Weak(value: request)
         NSTimer.scheduledTimerWithTimeInterval(
             PeripheralProxy.defaultTimeoutInS,
             target: self,
             selector: #selector(self.onUpdateNotificationStateRequest),
-            userInfo: userInfo,
+            userInfo: Weak(value: request),
             repeats: false)
     }
     

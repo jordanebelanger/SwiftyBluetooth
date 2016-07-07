@@ -1,10 +1,25 @@
 //
 //  Error.swift
-//  AcanvasBle
 //
-//  Created by tehjord on 4/15/16.
-//  Copyright © 2016 acanvas. All rights reserved.
+//  Copyright (c) 2016 Jordane Belanger
 //
+//  Permission is hereby granted, free of charge, to any person obtaining a copy
+//  of this software and associated documentation files (the "Software"), to deal
+//  in the Software without restriction, including without limitation the rights
+//  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//  copies of the Software, and to permit persons to whom the Software is
+//  furnished to do so, subject to the following conditions:
+//
+//  The above copyright notice and this permission notice shall be included in all
+//  copies or substantial portions of the Software.
+//
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//  SOFTWARE.
 
 import CoreBluetooth
 
@@ -19,7 +34,40 @@ public enum Error: ErrorType {
     case PeripheralServiceNotFound(missingServicesUUIDs: [CBUUID])
     case PeripheralCharacteristicNotFound(missingCharacteristicsUUIDs: [CBUUID])
     case PeripheralDescriptorsNotFound(missingDescriptorsUUIDs: [CBUUID])
-
+    
+    public var _domain: String {
+        get {
+            return "com.swiftybluetooth.error"
+        }
+    }
+    
+    public var _code: Int {
+        get {
+            switch self {
+            case .OperationTimeoutError:
+                return 100
+            case .CoreBluetoothError:
+                return 101
+            case .PeripheralServiceNotFound:
+                return 102
+            case .PeripheralCharacteristicNotFound:
+                return 103
+            case .PeripheralDescriptorsNotFound:
+                return 104
+            case .BluetoothUnsupported:
+                return 105
+            case .BluetoothUnauthorized:
+                return 106
+            case .BluetoothPoweredOff:
+                return 107
+            case .InvalidPeripheral:
+                return 108
+            case .PeripheralFailedToConnectReasonUnknown:
+                return 109
+            }
+        }
+    }
+    
     public func NSErrorRepresentation() -> NSError {
         switch self {
         case .OperationTimeoutError(let operationName):
@@ -67,38 +115,5 @@ public enum Error: ErrorType {
         }
         
         return NSError(domain: self._domain, code: self._code, userInfo: userInfo)
-    }
-    
-    public var _domain: String {
-        get {
-            return "com.swiftybluetooth.error"
-        }
-    }
-    
-    public var _code: Int {
-        get {
-            switch self {
-            case .OperationTimeoutError:
-                return 100
-            case .CoreBluetoothError:
-                return 101
-            case .PeripheralServiceNotFound:
-                return 102
-            case .PeripheralCharacteristicNotFound:
-                return 103
-            case .PeripheralDescriptorsNotFound:
-                return 104
-            case .BluetoothUnsupported:
-                return 105
-            case .BluetoothUnauthorized:
-                return 106
-            case .BluetoothPoweredOff:
-                return 107
-            case .InvalidPeripheral:
-                return 108
-            case .PeripheralFailedToConnectReasonUnknown:
-                return 109
-            }
-        }
     }
 }

@@ -1,14 +1,29 @@
 //
 //  SwiftyBluetooth.swift
-//  SwiftyBluetooth
 //
-//  Created by tehjord on 6/26/16.
+//  Copyright (c) 2016 Jordane Belanger
 //
+//  Permission is hereby granted, free of charge, to any person obtaining a copy
+//  of this software and associated documentation files (the "Software"), to deal
+//  in the Software without restriction, including without limitation the rights
+//  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//  copies of the Software, and to permit persons to whom the Software is
+//  furnished to do so, subject to the following conditions:
 //
+//  The above copyright notice and this permission notice shall be included in all
+//  copies or substantial portions of the Software.
+//
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//  SOFTWARE.
 
 import CoreBluetooth
 
-/// Mark: Shorthands for the Central singleton instance content
+/// Mark: Shorthands for the Central singleton instance interface
 
 /// Scans for Peripherals through a CBCentralManager scanForPeripheralsWithServices(...) function call.
 ///
@@ -32,7 +47,7 @@ public func stopScan() {
     Central.sharedInstance.stopScan()
 }
 
-/// Sometime, the bluetooth state of your iOS Device/CBCentralManagerState is in an inbetween state of either
+/// Sometimes, the bluetooth state of your iOS Device/CBCentralManagerState is in an inbetween state of either
 /// ".Unknown" or ".Reseting". This function will wait until the bluetooth state is stable and return a subset
 /// of the CBCentralManager state value which does not includes these values in its completion closure.
 public func asyncCentralState(completion: AsyncCentralStateCallback) {
