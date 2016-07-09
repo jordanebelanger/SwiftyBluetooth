@@ -38,3 +38,13 @@ final class Weak<T: AnyObject> {
         self.value = value
     }
 }
+
+extension UInt16 {
+    init?(uncastedUnWrappedNSNumber: AnyObject?) {
+        guard let numberValue = uncastedUnWrappedNSNumber as? NSNumber else {
+            return nil
+        }
+        
+        self = UInt16(truncatingBitPattern: numberValue.integerValue)
+    }
+}

@@ -415,9 +415,9 @@ private final class ReadCharacteristicRequest {
     let service: CBService
     let characteristic: CBCharacteristic
     
-    let callback: ReadRequestCallback
+    let callback: ReadCharacRequestCallback
     
-    init(characteristic: CBCharacteristic, callback: ReadRequestCallback) {
+    init(characteristic: CBCharacteristic, callback: ReadCharacRequestCallback) {
         self.callback = callback
         
         self.service = characteristic.service
@@ -429,7 +429,7 @@ private final class ReadCharacteristicRequest {
 extension PeripheralProxy {
     func readCharacteristic(characteristicUUID: CBUUID,
                             serviceUUID: CBUUID,
-                            completion: ReadRequestCallback) {
+                            completion: ReadCharacRequestCallback) {
         
         self.discoverCharacteristics([characteristicUUID], forService: serviceUUID) { (characteristics, error) in
             
@@ -504,9 +504,9 @@ private final class ReadDescriptorRequest {
     let characteristic: CBCharacteristic
     let descriptor: CBDescriptor
     
-    let callback: ReadRequestCallback
+    let callback: ReadDescriptorRequestCallback
     
-    init(descriptor: CBDescriptor, callback: ReadRequestCallback) {
+    init(descriptor: CBDescriptor, callback: ReadDescriptorRequestCallback) {
         self.callback = callback
         
         self.descriptor = descriptor
@@ -520,17 +520,17 @@ extension PeripheralProxy {
     func readDescriptor(descriptorUUID: CBUUID,
                         characteristicUUID: CBUUID,
                         serviceUUID: CBUUID,
-                        completion: ReadRequestCallback)
+                        completion: ReadDescriptorRequestCallback)
     {
         
         self.discoverDescriptorsForCharacteristic(characteristicUUID, serviceUUID: serviceUUID) { (descriptors, error) in
             if let error = error {
-                completion(data: nil, error: error)
+                completion(value: nil, error: error)
                 return
             }
             
             guard let descriptor = descriptors?.first else {
-                completion(data: nil, error: Error.PeripheralDescriptorsNotFound(missingDescriptorsUUIDs: [descriptorUUID]))
+                completion(value: nil, error: Error.PeripheralDescriptorsNotFound(missingDescriptorsUUIDs: [descriptorUUID]))
                 return
             }
             
@@ -582,7 +582,7 @@ extension PeripheralProxy {
             self.readDescriptorRequests[readPath] = nil
         }
         
-        request.callback(data: nil, error: Error.OperationTimeoutError(operationName: "read descriptor"))
+        request.callback(value: nil, error: Error.OperationTimeoutError(operationName: "read descriptor"))
         
         self.runReadDescriptorRequest(readPath)
     }
@@ -1083,9 +1083,16 @@ extension PeripheralProxy: CBPeripheralDelegate {
         }
         
         if let error = error {
-            request.callback(data: nil, error: Error.CoreBluetoothError(operationName: "read descriptor", error: error))
+            request.callback(value: nil, error: Error.CoreBluetoothError(operationName: "read descriptor", error: error))
         } else {
-            request.callback(data: nil, error: nil)
+            do {
+                let value = try DescriptorValue(descriptor: descriptor)
+                request.callback(value: value, error: nil)
+            } catch let error as Error {
+                request.callback(value: nil, error: error)
+            } catch {
+                request.callback(value: nil, error: Error.InvalidDescriptorValue(descriptor: descriptor))
+            }
         }
     }
     

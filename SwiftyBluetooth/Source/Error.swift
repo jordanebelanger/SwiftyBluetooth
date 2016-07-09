@@ -35,6 +35,7 @@ public enum Error: ErrorType {
     case PeripheralCharacteristicNotFound(missingCharacteristicsUUIDs: [CBUUID])
     case PeripheralDescriptorsNotFound(missingDescriptorsUUIDs: [CBUUID])
     case ScanTerminatedUnexpectedly(invalidState: CBCentralManagerState)
+    case InvalidDescriptorValue(descriptor: CBDescriptor)
     
     public var _domain: String {
         get {
@@ -67,6 +68,8 @@ public enum Error: ErrorType {
                 return 109
             case .ScanTerminatedUnexpectedly:
                 return 110
+            case .InvalidDescriptorValue:
+                return 111
             }
         }
     }
@@ -107,6 +110,8 @@ public enum Error: ErrorType {
             return self.errorWithDescription("Failed to connect your Peripheral", failureReason: "Unknown reason")
         case .ScanTerminatedUnexpectedly:
             return self.errorWithDescription("Scan terminated unexpectedly", failureReason: "You're iOS device bluetooth was desactivated", recoverySuggestion: "Restart bluetooth and try scanning again")
+        case .InvalidDescriptorValue(let descriptor):
+            return self.errorWithDescription("Invalid descriptor value", failureReason: "Unparsable value for descriptor: \(descriptor.description)")
         }
     }
     

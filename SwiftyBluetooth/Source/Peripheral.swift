@@ -42,7 +42,8 @@ public typealias ReadRSSIRequestCallback = (RSSI: Int?, error: Error?) -> Void
 public typealias ServiceRequestCallback = (services: [CBService]?, error: Error?) -> Void
 public typealias CharacteristicRequestCallback = (characteristics: [CBCharacteristic]?, error: Error?) -> Void
 public typealias DescriptorRequestCallback = (descriptors: [CBDescriptor]?, error: Error?) -> Void
-public typealias ReadRequestCallback = (data: NSData?, error: Error?) -> Void
+public typealias ReadCharacRequestCallback = (data: NSData?, error: Error?) -> Void
+public typealias ReadDescriptorRequestCallback = (value: DescriptorValue?, error: Error?) -> Void
 public typealias WriteRequestCallback = (error: Error?) -> Void
 public typealias UpdateNotificationStateCallback = (isNotifying: Bool?, error: Error?) -> Void
 
@@ -165,6 +166,18 @@ extension Peripheral {
         self.peripheralProxy.discoverDescriptorsForCharacteristic(characteristicUUID.CBUUIDRepresentation, serviceUUID: serviceUUID.CBUUIDRepresentation, completion: completion)
     }
     
+    /// Connects to the peripheral and discover the requested descriptors through a 'CBPeripheral' discoverDescriptorsForCharacteristic(...) function call.
+    /// Will first discover the service and characteristic for which you want to discover descriptors from.
+    ///
+    /// - Parameter characteristicUUID: The UUID of the characteristic you want to discover descriptors from.
+    /// - Parameter serviceUUID: The UUID of the service of the characteristic above.
+    /// - Parameter completion: A closures containing an array of the descriptors found or an error.
+    public func discoverDescriptorsForCharacteristic(characteristic: CBCharacteristic,
+                                                     completion: DescriptorRequestCallback)
+    {
+        self.discoverDescriptorsForCharacteristic(characteristic, serviceUUID: characteristic.service, completion: completion)
+    }
+    
     /// Connect to the peripheral and read the value of the characteristic requested through a 'CBPeripheral' readValueForCharacteristic(...) function call.
     /// Will first discover the service and characteristic you want to read from if necessary.
     ///
@@ -173,7 +186,7 @@ extension Peripheral {
     /// - Parameter completion: A closures containing the data read or an error.
     public func readCharacteristicValue(characteristicUUID: CBUUIDConvertible,
                                         serviceUUID: CBUUIDConvertible,
-                                        completion: ReadRequestCallback)
+                                        completion: ReadCharacRequestCallback)
     {
         self.peripheralProxy.readCharacteristic(characteristicUUID.CBUUIDRepresentation,
                                                 serviceUUID: serviceUUID.CBUUIDRepresentation,
@@ -185,7 +198,7 @@ extension Peripheral {
     /// - Parameter characteristic: The characteristic you want to read from.
     /// - Parameter completion: A closures containing the data read or an error.
     public func readCharacteristicValue(characteristic: CBCharacteristic,
-                                        completion: ReadRequestCallback)
+                                        completion: ReadCharacRequestCallback)
     {
         self.readCharacteristicValue(characteristic,
                                      serviceUUID: characteristic.service,
@@ -202,7 +215,7 @@ extension Peripheral {
     public func readDescriptorValue(descriptorUUID: CBUUIDConvertible,
                                     characteristicUUID: CBUUIDConvertible,
                                     serviceUUID: CBUUIDConvertible,
-                                    completion: ReadRequestCallback)
+                                    completion: ReadDescriptorRequestCallback)
     {
         self.peripheralProxy.readDescriptor(descriptorUUID.CBUUIDRepresentation,
                                             characteristicUUID: characteristicUUID.CBUUIDRepresentation,
@@ -217,7 +230,7 @@ extension Peripheral {
     /// - Parameter serviceUUID: The UUID of the service of the characteristic above.
     /// - Parameter completion: A closures containing the data read or an error.
     public func readDescriptorValue(descriptor: CBDescriptor,
-                                    completion: ReadRequestCallback)
+                                    completion: ReadDescriptorRequestCallback)
     {
         self.readDescriptorValue(descriptor,
                                  characteristicUUID: descriptor.characteristic,
