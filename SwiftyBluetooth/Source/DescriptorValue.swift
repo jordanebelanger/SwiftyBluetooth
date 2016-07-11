@@ -8,6 +8,18 @@
 
 import CoreBluetooth
 
+/**
+    Wrapper around common GATT descriptor values. Automatically unwrap and cast your descriptor values for
+    standard GATT descriptor UUIDs.
+
+    - CharacteristicExtendedProperties: Case for Descriptor with UUID CBUUIDCharacteristicExtendedPropertiesString
+    - CharacteristicUserDescription: Case for Descriptor with UUID CBUUIDCharacteristicUserDescriptionString
+    - ClientCharacteristicConfigurationString: Case for Descriptor with UUID CBUUIDClientCharacteristicConfigurationString
+    - ServerCharacteristicConfigurationString: Case for Descriptor with UUID CBUUIDServerCharacteristicConfigurationString
+    - CharacteristicFormatString: Case for Descriptor with UUID CBUUIDCharacteristicFormatString
+    - CharacteristicAggregateFormatString: Case for Descriptor with UUID CBUUIDCharacteristicAggregateFormatString
+    - CustomValue: Case for descriptor with a non standard UUID
+*/
 public enum DescriptorValue {
     case CharacteristicExtendedProperties(value: UInt16)
     case CharacteristicUserDescription(value: String)
@@ -24,7 +36,7 @@ public enum DescriptorValue {
         
         switch descriptor.CBUUIDRepresentation.UUIDString {
         case CBUUIDCharacteristicExtendedPropertiesString:
-            guard let value = UInt16(uncastedUnWrappedNSNumber: descriptor.value) else {
+            guard let value = UInt16(uncastedUnwrappedNSNumber: descriptor.value) else {
                 throw Error.InvalidDescriptorValue(descriptor: descriptor)
             }
             self = .CharacteristicExtendedProperties(value: value)
@@ -36,13 +48,13 @@ public enum DescriptorValue {
             self = .CharacteristicUserDescription(value: value)
             
         case CBUUIDClientCharacteristicConfigurationString:
-            guard let value = UInt16(uncastedUnWrappedNSNumber: descriptor.value) else {
+            guard let value = UInt16(uncastedUnwrappedNSNumber: descriptor.value) else {
                 throw Error.InvalidDescriptorValue(descriptor: descriptor)
             }
             self = .ClientCharacteristicConfigurationString(value: value)
             
         case CBUUIDServerCharacteristicConfigurationString:
-            guard let value = UInt16(uncastedUnWrappedNSNumber: descriptor.value) else {
+            guard let value = UInt16(uncastedUnwrappedNSNumber: descriptor.value) else {
                 throw Error.InvalidDescriptorValue(descriptor: descriptor)
             }
             self = .ServerCharacteristicConfigurationString(value: value)
@@ -54,7 +66,7 @@ public enum DescriptorValue {
             self = .CharacteristicFormatString(value: value)
             
         case CBUUIDCharacteristicAggregateFormatString:
-            guard let value = UInt16(uncastedUnWrappedNSNumber: descriptor.value) else {
+            guard let value = UInt16(uncastedUnwrappedNSNumber: descriptor.value) else {
                 throw Error.InvalidDescriptorValue(descriptor: descriptor)
             }
             self = .CharacteristicAggregateFormatString(value: value)

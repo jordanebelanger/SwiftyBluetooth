@@ -56,7 +56,7 @@ public final class Peripheral {
     }
 }
 
-/// Mark: Public
+// MARK: Public
 extension Peripheral {
     /// The underlying CBPeripheral identifier
     public var identifier: NSUUID {
@@ -136,6 +136,37 @@ extension Peripheral {
         assert(serviceUUIDs == nil || serviceUUIDs?.count > 0)
         self.peripheralProxy.discoverServices(ExtractCBUUIDs(serviceUUIDs), completion: completion)
     }
+    
+    /// Connects to the peripheral and discover the requested included services of a service through a 'CBPeripheral' discoverIncludedServices(...) function call
+    ///
+    /// - Parameter serviceUUIDs: The UUIDs of the included services you want to discover or nil if you want to discover all included services.
+    /// - Parameter serviceUUID: The service to request included services from.
+    /// - Parameter completion: A closures containing an array of the services found or an error.
+    public func discoverIncludedServices(serviceUUIDs: [CBUUIDConvertible]?,
+                                         forService serviceUUID: CBUUIDConvertible,
+                                                    completion: ServiceRequestCallback)
+    {
+        // Passing in an empty array will act the same as if you passed nil and discover all the services.
+        // But it is recommended to pass in nil for those cases similarly to how the CoreBluetooth discoverServices method works
+        assert(serviceUUIDs == nil || serviceUUIDs?.count > 0)
+        self.peripheralProxy.discoverIncludedServices(ExtractCBUUIDs(serviceUUIDs), forService: serviceUUID.CBUUIDRepresentation, completion: completion)
+    }
+    
+    /// Connects to the peripheral and discover the requested included services of a service through a 'CBPeripheral' discoverIncludedServices(...) function call
+    ///
+    /// - Parameter serviceUUIDs: The UUIDs of the included services you want to discover or nil if you want to discover all included services.
+    /// - Parameter service: The service to request included services from.
+    /// - Parameter completion: A closures containing an array of the services found or an error.
+    public func discoverIncludedServices(serviceUUIDs: [CBUUIDConvertible]?,
+                                         forService service: CBService,
+                                                    completion: ServiceRequestCallback)
+    {
+        // Passing in an empty array will act the same as if you passed nil and discover all the services.
+        // But it is recommended to pass in nil for those cases similarly to how the CoreBluetooth discoverServices method works
+        assert(serviceUUIDs == nil || serviceUUIDs?.count > 0)
+        self.discoverIncludedServices(serviceUUIDs, forService: service, completion: completion)
+    }
+    
     
     /// Connects to the peripheral and discover the requested characteristics through a 'CBPeripheral' discoverCharacteristics(...) function call.
     /// Will first discover the service of the requested characteristics if necessary.
@@ -335,8 +366,9 @@ extension Peripheral {
     
     /// Connect to the peripheral and set the notification value of the passed characteristic through a 'CBPeripheral' setNotifyValueForCharacteristic function call.
     ///
-    /// - Parameter enabled: If enabled is true, this peripherals will register for change notifcations to the characteristic
-    ///      and notify listeners through the default 'NSNotificationCenter' with a 'PeripheralEvent.CharacteristicValueUpdate' notification.
+    /// If set to true, this peripheral will emit characteristic change updates through the default NSNotificationCenter using the "CharacteristicValueUpdate" notification.
+    ///
+    /// - Parameter enabled: The notify state of the charac, set enabled to true to receive change notifications through the default NSNotification center
     /// - Parameter characteristic: The characteristic you want set the notify value of.
     /// - Parameter completion: A closures containing the updated notification value of the characteristic or an error if something went wrong.
     public func setNotifyValueForCharacteristic(enabled: Bool,

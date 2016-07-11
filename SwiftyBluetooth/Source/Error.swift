@@ -108,8 +108,10 @@ public enum Error: ErrorType {
         
         case .PeripheralFailedToConnectReasonUnknown:
             return self.errorWithDescription("Failed to connect your Peripheral", failureReason: "Unknown reason")
+            
         case .ScanTerminatedUnexpectedly:
             return self.errorWithDescription("Scan terminated unexpectedly", failureReason: "You're iOS device bluetooth was desactivated", recoverySuggestion: "Restart bluetooth and try scanning again")
+            
         case .InvalidDescriptorValue(let descriptor):
             return self.errorWithDescription("Invalid descriptor value", failureReason: "Unparsable value for descriptor: \(descriptor.description)")
         }

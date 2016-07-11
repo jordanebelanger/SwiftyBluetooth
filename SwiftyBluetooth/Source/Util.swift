@@ -40,8 +40,8 @@ final class Weak<T: AnyObject> {
 }
 
 extension UInt16 {
-    init?(uncastedUnWrappedNSNumber: AnyObject?) {
-        guard let numberValue = uncastedUnWrappedNSNumber as? NSNumber else {
+    init?(uncastedUnwrappedNSNumber: AnyObject?) {
+        guard let numberValue = uncastedUnwrappedNSNumber as? NSNumber else {
             return nil
         }
         

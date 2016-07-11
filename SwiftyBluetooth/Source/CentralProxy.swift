@@ -31,27 +31,12 @@ final class CentralProxy: NSObject {
     private lazy var connectRequests: [NSUUID: ConnectPeripheralRequest] = [:]
     private lazy var disconnectRequests: [NSUUID: DisconnectPeripheralRequest] = [:]
     
-    private let centralManager: CBCentralManager
+    let centralManager: CBCentralManager
     
     override init() {
         self.centralManager = CBCentralManager(delegate: nil, queue: nil)
         super.init()
         self.centralManager.delegate = self
-    }
-}
-
-/// Mark: Internal
-extension CentralProxy {
-    var state: CBCentralManagerState {
-        get {
-            return self.centralManager.state
-        }
-    }
-    
-    var isScanning: Bool {
-        get {
-            return self.centralManager.isScanning
-        }
     }
     
     private func postCentralEvent(event: CentralEvent, userInfo: [NSObject: AnyObject]? = nil) {
@@ -61,7 +46,8 @@ extension CentralProxy {
             userInfo: userInfo)
     }
 }
-/// Mark: Initialize Bluetooth requests
+
+// MARK: Initialize Bluetooth requests
 extension CentralProxy {
     func asyncCentralState(completion: AsyncCentralStateCallback) {
         switch centralManager.state {
@@ -106,7 +92,7 @@ extension CentralProxy {
     }
 }
 
-/// Mark: Scan requests
+// MARK: Scan requests
 private final class PeripheralScanRequest {
     let callback: PeripheralScanCallback
     
@@ -163,7 +149,7 @@ extension CentralProxy {
     }
 }
 
-/// Mark: Connect Peripheral requests
+// MARK: Connect Peripheral requests
 private final class ConnectPeripheralRequest {
     var callbacks: [PeripheralConnectCallback] = []
     
@@ -232,7 +218,7 @@ extension CentralProxy {
     }
 }
 
-/// Mark: Disconnect Peripheral requests
+// MARK: Disconnect Peripheral requests
 private final class DisconnectPeripheralRequest {
     var callbacks: [PeripheralConnectCallback] = []
     

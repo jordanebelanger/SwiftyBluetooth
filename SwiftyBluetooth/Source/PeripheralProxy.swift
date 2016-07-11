@@ -28,6 +28,7 @@ final class PeripheralProxy: NSObject  {
     
     private lazy var readRSSIRequests: [ReadRSSIRequest] = []
     private lazy var serviceRequests: [ServiceRequest] = []
+    private lazy var includedServicesRequests: [IncludedServicesRequest] = []
     private lazy var characteristicRequests: [CharacteristicRequest] = []
     private lazy var descriptorRequests: [DescriptorRequest] = []
     private lazy var readCharacteristicRequests: [CBUUIDPath: [ReadCharacteristicRequest]] = [:]
@@ -78,7 +79,7 @@ final class PeripheralProxy: NSObject  {
     }
 }
 
-// Connect/Disconnect Requests
+// MARK: Connect/Disconnect Requests
 extension PeripheralProxy {
     func connect(completion: (error: Error?) -> Void) {
         if self.valid {
@@ -93,7 +94,7 @@ extension PeripheralProxy {
     }
 }
 
-// RSSI Requests
+// MARK: RSSI Requests
 private final class ReadRSSIRequest {
     let callback: ReadRSSIRequestCallback
     
@@ -153,7 +154,7 @@ extension PeripheralProxy {
     }
 }
 
-// Service requests
+// MARK: Service requests
 private final class ServiceRequest {
     let serviceUUIDs: [CBUUID]?
     
@@ -236,7 +237,85 @@ extension PeripheralProxy {
     }
 }
 
-// Discover Characteristic requests
+// MARK: Included services Request
+private final class IncludedServicesRequest {
+    let serviceUUIDs: [CBUUID]?
+    let parentService: CBService
+    
+    let callback: ServiceRequestCallback
+    
+    init(serviceUUIDs: [CBUUID]?, forService service: CBService, callback: ServiceRequestCallback) {
+        self.callback = callback
+        
+        if let serviceUUIDs = serviceUUIDs {
+            self.serviceUUIDs = serviceUUIDs
+        } else {
+            self.serviceUUIDs = nil
+        }
+        
+        self.parentService = service
+    }
+}
+
+extension PeripheralProxy {
+    func discoverIncludedServices(serviceUUIDs: [CBUUID]?, forService serviceUUID: CBUUID, completion: ServiceRequestCallback) {
+        self.discoverIncludedServices(serviceUUIDs, forService: serviceUUID) { (services, error) in
+            if let error = error {
+                completion(services: nil, error: error)
+                return
+            }
+            
+            let parentService = services!.first!
+            
+            let request = IncludedServicesRequest(serviceUUIDs: serviceUUIDs, forService: parentService) { (services, error) in
+                completion(services: services, error: error)
+            }
+            
+            self.includedServicesRequests.append(request)
+            
+            if self.includedServicesRequests.count == 1 {
+                self.runIncludedServicesRequest()
+            }
+        }
+    }
+    
+    private func runIncludedServicesRequest() {
+        guard let request = self.includedServicesRequests.first else {
+            return
+        }
+        
+        self.cbPeripheral.discoverIncludedServices(request.serviceUUIDs, forService: request.parentService)
+        
+        NSTimer.scheduledTimerWithTimeInterval(
+            PeripheralProxy.defaultTimeoutInS,
+            target: self,
+            selector: #selector(self.onIncludedServicesRequestTimerTick),
+            userInfo: Weak(value: request),
+            repeats: false)
+    }
+    
+    @objc private func onIncludedServicesRequestTimerTick(timer: NSTimer) {
+        defer {
+            if timer.valid { timer.invalidate() }
+        }
+        
+        let weakRequest = timer.userInfo as! Weak<IncludedServicesRequest>
+        
+        // If the original discover included services callback is still there, this means the operation went
+        // through and this timer can be ignored
+        guard let request = weakRequest.value else {
+            return
+        }
+        
+        self.includedServicesRequests.removeFirst()
+        
+        request.callback(services: nil, error: Error.OperationTimeoutError(operationName: "discover included services"))
+        
+        self.runIncludedServicesRequest()
+    }
+}
+
+// MARK: Discover Characteristic requests
 private final class CharacteristicRequest{
     let service: CBService
     let characteristicUUIDs: [CBUUID]?
@@ -335,7 +414,7 @@ extension PeripheralProxy {
     }
 }
 
-// Discover Descriptors requets
+// MARK: Discover Descriptors requets
 private final class DescriptorRequest {
     let service: CBService
     let characteristic: CBCharacteristic
@@ -410,7 +489,7 @@ extension PeripheralProxy {
     }
 }
 
-// Read Characteristic value requests
+// MARK: Read Characteristic value requests
 private final class ReadCharacteristicRequest {
     let service: CBService
     let characteristic: CBCharacteristic
@@ -498,7 +577,7 @@ extension PeripheralProxy {
     }
 }
 
-// Read Descriptor value requests
+// MARK: Read Descriptor value requests
 private final class ReadDescriptorRequest {
     let service: CBService
     let characteristic: CBCharacteristic
@@ -588,7 +667,7 @@ extension PeripheralProxy {
     }
 }
 
-// Write Characteristic value requests
+// MARK: Write Characteristic value requests
 private final class WriteCharacteristicValueRequest {
     let service: CBService
     let characteristic: CBCharacteristic
@@ -694,7 +773,7 @@ extension PeripheralProxy {
     }
 }
 
-// Write Descriptor value requests
+// MARK: Write Descriptor value requests
 private final class WriteDescriptorValueRequest {
     let service: CBService
     let characteristic: CBCharacteristic
@@ -787,7 +866,7 @@ extension PeripheralProxy {
     }
 }
 
-// Update Characteristic Notification State requests
+// MARK: Update Characteristic Notification State requests
 private final class UpdateNotificationStateRequest {
     let service: CBService
     let characteristic: CBCharacteristic
@@ -873,7 +952,7 @@ extension PeripheralProxy {
     }
 }
 
-// CBPeripheralProxy
+// MARK: CBPeripheralDelegate
 extension PeripheralProxy: CBPeripheralDelegate {
     @objc func peripheral(peripheral: CBPeripheral, didReadRSSI RSSI: NSNumber, error: NSError?) {
         guard let readRSSIRequest = self.readRSSIRequests.first else {
@@ -909,9 +988,33 @@ extension PeripheralProxy: CBPeripheralDelegate {
         self.postPeripheralEvent(.PeripheralModifedServices, userInfo: ["invalidatedServices": invalidatedServices])
     }
     
-    //    @objc private func peripheral(peripheral: CBPeripheral, didDiscoverIncludedServicesForService service: CBService, error: NSError?) {
-    //
-    //    }
+    @objc func peripheral(peripheral: CBPeripheral, didDiscoverIncludedServicesForService service: CBService, error: NSError?) {
+        guard let includedServicesRequest = self.includedServicesRequests.first else {
+            return
+        }
+        
+        defer {
+            self.runIncludedServicesRequest()
+        }
+        
+        self.includedServicesRequests.removeFirst()
+        
+        if let error = error {
+            includedServicesRequest.callback(services: nil, error: Error.CoreBluetoothError(operationName: "discover included services", error: error))
+            return
+        }
+        
+        if let serviceUUIDs = includedServicesRequest.serviceUUIDs {
+            let servicesTuple = peripheral.servicesWithUUIDs(serviceUUIDs)
+            if servicesTuple.missingServicesUUIDs.count > 0 {
+                includedServicesRequest.callback(services: nil, error: Error.PeripheralServiceNotFound(missingServicesUUIDs: servicesTuple.missingServicesUUIDs))
+            } else { // This implies that all the services we're found through Set logic in the servicesWithUUIDs function
+                includedServicesRequest.callback(services: servicesTuple.foundServices, error: nil)
+            }
+        } else {
+            includedServicesRequest.callback(services: service.includedServices, error: nil)
+        }
+    }
     
     @objc func peripheral(peripheral: CBPeripheral, didDiscoverServices error: NSError?) {
         guard let serviceRequest = self.serviceRequests.first else {

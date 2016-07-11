@@ -31,9 +31,9 @@ import CoreBluetooth
     - CentralManagerWillRestoreState: Posted when the app comes back from the background and restores the 
         underlying CBCentralManager state after the centralManager:willRestoreState: delegate method is called.
         The userInfo of this notification is the same as was passed in the delegate method, userInfo: [String : AnyObject]
-     - CentralStateChange: The underlying CBCentralManager state changed, take note that if the central state 
+    - CentralStateChange: The underlying CBCentralManager state changed, take note that if the central state
         goes from poweredOn to something lower, all the Peripherals are invalidated and need to be discovered again.
-        The userInfo is a box containing the CBCentralManagerState enum value, you can cast it to a constant like this
+        The userInfo is a Box containing the CBCentralManagerState enum value, you can cast it to a constant like this
         "let boxedState = notification.userInfo!["state"] as! Box<CBCentralManagerState>"
         userInfo: ["state": Box<CBCentralState>]
 */
@@ -87,7 +87,7 @@ public final class Central {
     private init() {}
 }
 
-/// Mark: Internal
+// MARK: Internal
 typealias InitializeBluetoothCallback = (error: Error?) -> Void
 
 extension Central {
@@ -110,19 +110,19 @@ extension Central {
     }
 }
 
-/// Mark: Public
+// MARK: Public
 extension Central {
     /// The underlying CBCentralManager state
     public var state: CBCentralManagerState {
         get {
-            return self.centralProxy.state
+            return self.centralProxy.centralManager.state
         }
     }
     
     /// The underlying CBCentralManager isScanning value
     public var isScanning: Bool {
         get {
-            return self.centralProxy.isScanning
+            return self.centralProxy.centralManager.isScanning
         }
     }
     

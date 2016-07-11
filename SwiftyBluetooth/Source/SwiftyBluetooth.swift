@@ -23,7 +23,7 @@
 
 import CoreBluetooth
 
-/// Mark: Shorthands for the Central singleton instance interface
+// MARK: Shorthands for the Central singleton instance interface
 
 /// Scans for Peripherals through a CBCentralManager scanForPeripheralsWithServices(...) function call.
 ///
