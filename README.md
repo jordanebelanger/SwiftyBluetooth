@@ -71,7 +71,7 @@ peripheral.writeCharacteristicValue(characteristicUUID: "1d5bc11d-e28c-4157-a7be
 }
 ```
 ### Listening to and receiving Characteristic update notifications
-Receiving characteristic value updates is done through notifications on the default `NSNotificationCenter`. All supported 'Peripheral' notifications are part of the 'PeripheralEvent' enum. Use this enum's raw values as the notification string when registering for notifications:
+Receiving characteristic value updates is done through notifications on the default `NSNotificationCenter`. All supported `Peripheral` notifications are part of the `PeripheralEvent` enum. Use this enum's raw values as the notification string when registering for notifications:
 ```swift
 // First we prepare ourselves to receive update notifications 
 let peripheral = somePeripheral
