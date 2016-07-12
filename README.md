@@ -48,7 +48,7 @@ If you already know the characteristic and service UUIDs you want to read from, 
 
 ```swift
 peripheral.readCharacteristicValue(characteristicUUID: "2A29", serviceUUID: "180A") { (data, error) in
-
+    // The read data is returned or an error if something went wrong
 }
 ```
 This will connect to the Peripheral if necessary and ensure the characteristic and service needed are discovered before reading from the characteristic matching characteristicUUID.
