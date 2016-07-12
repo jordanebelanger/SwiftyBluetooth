@@ -92,6 +92,7 @@ peripheral.setNotifyValueForCharacteristic(true, characteristicUUID: "2A29", ser
 Discover services using the discoverServices(...) function:
 ```swift
 peripheral.discoverServices(serviceUUIDs: nil) { (services, error) in
+    // The services discovered or an error if something went wrong.
     // Like the CBPeripheral discoverServices(...) function, passing nil instead of an array
     // of service UUIDs will discover all of this Peripheral's services.
 }
