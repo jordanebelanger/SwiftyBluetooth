@@ -4,13 +4,9 @@ Fully featured Swift closure based library for CoreBluetooth Central operations 
 
 ## Background 
 
-CoreBluetooth and its delegate based API can be difficult to use at time. Often times you already know the specifications of the peripheral you're about to use and simply want to read or write predetermined Characteristics. 
+CoreBluetooth and its delegate based API can be difficult to use at time. Often times you already know the specifications of the peripheral you're about to use and simply want to read or write predetermined Characteristics.  
 
-Corebluetooth read or write operations on a peripheral first require you to connect to a peripheral and discover the required services/characteristics/descriptors. This can get cubbersome at time because the delegate based API of CoreBluetooth makes it difficult to follow the flow of operations and delegate callbacks, especially when accounting for all the different errors that might arise in the process.  
-
-SwiftyBluetooth addresses these concerns by providing a clear, closure based, API for every CBCentralManager and CBPeripheral calls. If required, SwiftyBluetooth will also take care of connecting to peripherals and discovering the required attributes when executing read or write operations saving you from potential headaches and lowering the amount of work you need to do. 
-
-All done in modern Swift. 
+SwiftyBluetooth tries to address these concerns by providing a clear, closure based, API for every CBCentralManager and CBPeripheral calls that are guaranteed to timeout in case of untraceable errors. If required, SwiftyBluetooth will also take care of connecting to peripherals and discovering the required attributes when executing read or write operations saving you from potential headaches and lowering the amount of work you need to do. 
 
 ## Features
 
