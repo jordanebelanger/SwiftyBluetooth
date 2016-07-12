@@ -118,29 +118,35 @@ peripheral.discoverServices(serviceUUIDs: nil) { (services, error) in
 
 Discover characteristics using the discoverCharacteristics(...) function. If the service on which you are attempting to discover characteristics from has not been discovered, an attempt will first be made to discover that service for you. 
 
+```swift
 peripheral.discoverCharacteristics(characteristicUUIDs: nil, forService: "180A") { (characteristics, error) in
     // The characteristics discovered or an error if something went wrong.
     // Like the CBPeripheral discoverCharacteristics(...) function, passing nil instead of an array of service 
     // UUIDs will discover all of this service's characteristics.
 }
+```
 
 ### Connecting / Disconnecting from a peripheral
 
 Connecting to a peripheral is very simple, just call:
 
+```swift
 peripheral.connect { (error) in 
     if let error = error {
         // an error happened during the connection or the connect call timed out
     }
 }
+```
 
 Disconnecting from a peripheral is also very simple, simply call:
 
+```swift
 peripheral.disconnect { (error) in 
     if let error = error {
         // an error happened during the disconnection, but your peripheral is guaranteed to be disconnected 
     }
 }
+```
 
 ## Installation
 
