@@ -59,7 +59,7 @@ peripheral.readCharacteristicValue(characteristicUUID: "2A29", serviceUUID: "180
 
 This will connect to the Peripheral if necessary and ensure the characteristic and service needed are discovered before reading from the characteristic matching characteristicUUID.
 
-If instead you have a reference to a CBCharacteristic, instead you can read using the characteristic directly:
+If you have a reference to a CBCharacteristic, you can read using the characteristic directly:
 
 ```swift
 peripheral.readCharacteristicValue(characteristic) { (data, error) in
@@ -96,9 +96,9 @@ NSNotificationCenter.defaultCenter().addObserverForName(PeripheralEvent.Characte
     var newValue = updatedCharacteristic.value 
 }
 
-// We can then set a characteristic notification value to true and start receiving updates to that characteristic
+// We can then set a characteristic's notification value to true and start receiving updates to that characteristic
 peripheral.setNotifyValueForCharacteristic(true, characteristicUUID: "2A29", serviceUUID: "180A") { (isNotifying, error) in
-    // If there were no errors, you will now receive update notification to that characteristic
+    // If there were no errors, you will now receive update NSNotification to that characteristic
 }
 
 ```
@@ -109,17 +109,19 @@ Discovering services is again very simple:
 
 ```swift
 peripheral.discoverServices(serviceUUIDs: nil) { (services, error) in
-    // Like the CBPeripheral discoverServices(...) functions, passing nil instead of an array
+    // Like the CBPeripheral discoverServices(...) function, passing nil instead of an array
     // of service UUIDs will discover all of this Peripheral's services.
 }
 ```
 
 ### Discovering characteristics
 
-You can discover characteristics of a services like using the discoverCharacteristics(...) function. If the service on which you are attempting to discover characteristics has not been discoverd, an attempt will first be made to discover that service. 
+Discover characteristics using the discoverCharacteristics(...) function. If the service on which you are attempting to discover characteristics from has not been discovered, an attempt will first be made to discover that service for you. 
 
 peripheral.discoverCharacteristics(characteristicUUIDs: nil, forService: "180A") { (characteristics, error) in
-    // my characs or an error if something went wrong
+    // The characteristics discovered or an error if something went wrong.
+    // Like the CBPeripheral discoverCharacteristics(...) function, passing nil instead of an array of service 
+    // UUIDs will discover all of this service's characteristics.
 }
 
 ### Connecting / Disconnecting from a peripheral
