@@ -31,7 +31,8 @@ Below are a couple examples of operations that might be of interest to you.
 You can scan for Peripherals by calling scanWithTimeout(...) while passing a timeout in seconds and a callback closure to receive Peripheral result callbacks as well as update on the status of your scan:
 
 ```swift
-SwiftyBluetooth.scanWithTimeout(15, serviceUUIDs: ["0011"]) { (scanResult) in
+// You can pass in nil if you want to discover all Peripherals
+SwiftyBluetooth.scanWithTimeout(15, serviceUUIDs: ["180D"]) { (scanResult) in
     switch scanResult {
         case .ScanStarted:
             // The scan started meaning CBCentralManager scanForPeripherals(...) was called 
@@ -174,5 +175,5 @@ Add this to your Cartfile
 github "tehjord/SwiftyBluetooth" "head"
 ```
 
-##License
+## License
 SwiftyBluetooth is released under the MIT License.
