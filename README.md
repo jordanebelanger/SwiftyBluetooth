@@ -2,9 +2,9 @@
 Fully featured Swift closure based library for CoreBluetooth Central operations on iOS devices.  
 
 ## Background 
-CoreBluetooth and its delegate based API can be difficult to use at time. Often times you already know the specifications of the peripheral you're about to use and simply want to read or write predetermined Characteristics.  
+CoreBluetooth and its delegate based API can be difficult to use at time. Often times you already know the specifications of the peripheral you're about to use and simply want to read or write to predetermined characteristics.  
 
-SwiftyBluetooth tries to address these concerns by providing a clear, closure based, API for every CBCentralManager and CBPeripheral calls. Furthermore, all your calls are guaranteed to timeout in case of untraceable errors. If required, SwiftyBluetooth will also take care of connecting to peripherals and discovering the required attributes when executing read or write operations lowering the amount of work you need to do. 
+SwiftyBluetooth tries to address these concerns by providing a clear, closure based, API for every `CBCentralManager` and `CBPeripheral` calls. Furthermore, all your calls are guaranteed to timeout in case of untraceable errors. If required, SwiftyBluetooth will also take care of connecting to peripherals and discovering the required attributes when executing read or write operations lowering the amount of work you need to do. 
 
 ## Features
 - Synthaxic sugar and helper functions for common CoreBluetooth tasks 
@@ -17,15 +17,15 @@ SwiftyBluetooth tries to address these concerns by providing a clear, closure ba
 ## Usage
 The Library has 2 important class: 
 
-- The Central class, a Singleton wrapper around CBCentralManager mostly used to scan for peripherals with a closure callback. 
-- The Peripheral class, a wrapper around CBPeripheral used to call CBPeripheral functions with closure callbacks. 
+- The `Central` class, a Singleton wrapper around `CBCentralManager` mostly used to scan for peripherals with a closure callback. 
+- The `Peripheral` class, a wrapper around `CBPeripheral` used to call `CBPeripheral` functions with closure callbacks. 
 
-Note: The library is currently not thread safe, make sure to run your Central and Peripheral operations on the main thread. 
+Note: The library is currently not thread safe, make sure to run your `Central` and `Peripheral` operations on the main thread. 
 
 Below are a couple examples of operations that might be of interest to you.
 
 ### Scanning for Peripherals
-You can scan for Peripherals by calling scanWithTimeout(...) while passing a timeout in seconds and a callback closure to receive Peripheral result callbacks as well as update on the status of your scan:
+You can scan for peripherals by calling `scanWithTimeout(...)` while passing a `timeout` in seconds and a `callback` closure to receive `Peripheral` result callbacks as well as update on the status of your scan:
 ```swift
 // You can pass in nil if you want to discover all Peripherals
 SwiftyBluetooth.scanWithTimeout(15, serviceUUIDs: ["180D"]) { (scanResult) in
@@ -41,26 +41,26 @@ SwiftyBluetooth.scanWithTimeout(15, serviceUUIDs: ["180D"]) { (scanResult) in
 }
         
 ```
-Note that the callback closure can be called multiple times, but always start and finish with a callback containing a .ScanStarted and .ScanStopped result respectively. Your callback will be called with a .ScanResult for every unique peripheral found during the scan.  
+Note that the callback closure can be called multiple times, but always start and finish with a callback containing a `.ScanStarted` and `.ScanStopped` result respectively. Your callback will be called with a `.ScanResult` for every unique peripheral found during the scan.  
 
-### Reading from a Peripheral's service's characteristic
-If you already know the characteristic and service UUIDs you want to read from, once you've found a Peripheral you can read from it right away like this: 
+### Reading from a peripheral's service's characteristic
+If you already know the characteristic and service UUIDs you want to read from, once you've found a peripheral you can read from it right away like this: 
 
 ```swift
 peripheral.readCharacteristicValue(characteristicUUID: "2A29", serviceUUID: "180A") { (data, error) in
     // The read data is returned or an error if something went wrong
 }
 ```
-This will connect to the Peripheral if necessary and ensure the characteristic and service needed are discovered before reading from the characteristic matching characteristicUUID.
+This will connect to the peripheral if necessary and ensure the characteristic and service needed are discovered before reading from the characteristic matching `characteristicUUID`.
 
-If you have a reference to a CBCharacteristic, you can read using the characteristic directly:
+If you have a reference to a `CBCharacteristic`, you can read using the characteristic directly:
 ```swift
 peripheral.readCharacteristicValue(characteristic) { (data, error) in
     // The read data is returned or an error if something went wrong
 }
 ```
 ### Writing to a Peripheral's service's characteristic
-If you already know the characteristic and service UUIDs you want to write to, once you've found a Peripheral, you can write to its characteristics right away like this: 
+If you already know the characteristic and service UUID you want to write to, once you've found a peripheral, you can write to that characteristic right away like this: 
 ```swift
 let exampleBinaryData = String(0b1010).dataUsingEncoding(NSUTF8StringEncoding)!
 
@@ -71,7 +71,7 @@ peripheral.writeCharacteristicValue(characteristicUUID: "1d5bc11d-e28c-4157-a7be
 }
 ```
 ### Listening to and receiving Characteristic update notifications
-Receiving Characteristic value updates is done through notifications on the default NSNotificationCenter. All supported Peripherals notifications are part of the PeripheralEvent enum. Use this enum's raw values as the notification string:
+Receiving characteristic value updates is done through notifications on the default `NSNotificationCenter`. All supported 'Peripheral' notifications are part of the 'PeripheralEvent' enum. Use this enum's raw values as the notification string when registering for notifications:
 ```swift
 // First we prepare ourselves to receive update notifications 
 let peripheral = somePeripheral
@@ -89,7 +89,7 @@ peripheral.setNotifyValueForCharacteristic(true, characteristicUUID: "2A29", ser
 }
 ```
 ### Discovering services 
-Discover services using the discoverServices(...) function:
+Discover services using the `discoverServices(...)` function:
 ```swift
 peripheral.discoverServices(serviceUUIDs: nil) { (services, error) in
     // The services discovered or an error if something went wrong.
@@ -98,7 +98,7 @@ peripheral.discoverServices(serviceUUIDs: nil) { (services, error) in
 }
 ```
 ### Discovering characteristics
-Discover characteristics using the discoverCharacteristics(...) function. If the service on which you are attempting to discover characteristics from has not been discovered, an attempt will first be made to discover that service for you:
+Discover characteristics using the `discoverCharacteristics(...)` function. If the service on which you are attempting to discover characteristics from has not been discovered, an attempt will first be made to discover that service for you:
 ```swift
 peripheral.discoverCharacteristics(characteristicUUIDs: nil, forService: "180A") { (characteristics, error) in
     // The characteristics discovered or an error if something went wrong.
