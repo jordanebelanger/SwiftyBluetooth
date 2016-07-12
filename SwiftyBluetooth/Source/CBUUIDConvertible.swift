@@ -23,6 +23,17 @@
 
 import CoreBluetooth
 
+/// Instead of directly using CBUUIDs in the Central and Peripheral class function parameters, you can use class/struct
+/// implementing the CBUUIDConvertible protocol. The protocol is used to give any object a way of converting itself to a CBUUID object.
+/// An implementation of the protocol is already provided for the following class: String, NSUUID, CBUUID, CBAttribute
+///
+/// Using this, you could call discoverServices(...) using multiple different kind of parameters for the "servicesUUIDs" array:
+///
+/// - discoverServices(["01AF"], ...)
+/// - discoverServices(["CBUUID(string: 01AF)"], ...)
+/// - discoverServices([CBService], ...)
+///
+/// See also the list of object already implementing the protocol
 public protocol CBUUIDConvertible {
     var CBUUIDRepresentation: CBUUID { get }
 }

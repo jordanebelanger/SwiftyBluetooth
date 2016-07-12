@@ -56,7 +56,7 @@ Note that the callback closure can be called multiple times, but always start an
 If you already know the characteristic and service UUIDs you want to read from, once you've found a Peripheral you can read from it right away like this: 
 
 ```swift
-peripheral.readCharacteristicValue(characteristicUUID: "", serviceUUID: "") { (data, error) in
+peripheral.readCharacteristicValue(characteristicUUID: "2A29", serviceUUID: "180A") { (data, error) in
 
 }
 ```
@@ -169,3 +169,6 @@ Add this to your Cartfile
 ```ogdl
 github "tehjord/SwiftyBluetooth" "head"
 ```
+
+##License
+SwiftyBluetooth is released under the MIT License.
