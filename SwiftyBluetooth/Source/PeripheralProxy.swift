@@ -259,7 +259,7 @@ private final class IncludedServicesRequest {
 
 extension PeripheralProxy {
     func discoverIncludedServices(serviceUUIDs: [CBUUID]?, forService serviceUUID: CBUUID, completion: ServiceRequestCallback) {
-        self.discoverIncludedServices(serviceUUIDs, forService: serviceUUID) { (services, error) in
+        self.discoverServices([serviceUUID]) { (services, error) in
             if let error = error {
                 completion(services: nil, error: error)
                 return
