@@ -128,7 +128,7 @@ extension Peripheral {
     ///
     /// - Parameter serviceUUIDs: The UUIDs of the services you want to discover or nil if you want to discover all services.
     /// - Parameter completion: A closures containing an array of the services found or an error.
-    public func discoverServices(serviceUUIDs: [CBUUIDConvertible]?,
+    public func discoverServices(serviceUUIDs serviceUUIDs: [CBUUIDConvertible]?,
                                  completion: ServiceRequestCallback)
     {
         // Passing in an empty array will act the same as if you passed nil and discover all the services.
@@ -142,7 +142,7 @@ extension Peripheral {
     /// - Parameter serviceUUIDs: The UUIDs of the included services you want to discover or nil if you want to discover all included services.
     /// - Parameter serviceUUID: The service to request included services from.
     /// - Parameter completion: A closures containing an array of the services found or an error.
-    public func discoverIncludedServices(serviceUUIDs: [CBUUIDConvertible]?,
+    public func discoverIncludedServices(serviceUUIDs serviceUUIDs: [CBUUIDConvertible]?,
                                          forService serviceUUID: CBUUIDConvertible,
                                                     completion: ServiceRequestCallback)
     {
@@ -157,14 +157,14 @@ extension Peripheral {
     /// - Parameter serviceUUIDs: The UUIDs of the included services you want to discover or nil if you want to discover all included services.
     /// - Parameter service: The service to request included services from.
     /// - Parameter completion: A closures containing an array of the services found or an error.
-    public func discoverIncludedServices(serviceUUIDs: [CBUUIDConvertible]?,
+    public func discoverIncludedServices(serviceUUIDs serviceUUIDs: [CBUUIDConvertible]?,
                                          forService service: CBService,
                                                     completion: ServiceRequestCallback)
     {
         // Passing in an empty array will act the same as if you passed nil and discover all the services.
         // But it is recommended to pass in nil for those cases similarly to how the CoreBluetooth discoverServices method works
         assert(serviceUUIDs == nil || serviceUUIDs?.count > 0)
-        self.discoverIncludedServices(serviceUUIDs, forService: service, completion: completion)
+        self.discoverIncludedServices(serviceUUIDs: serviceUUIDs, forService: service, completion: completion)
     }
     
     
@@ -174,7 +174,7 @@ extension Peripheral {
     /// - Parameter serviceUUID: The UUID of the service of the characteristics requested.
     /// - Parameter characteristicUUIDs: The UUIDs of the characteristics you want to discover or nil if you want to discover all characteristics.
     /// - Parameter completion: A closures containing an array of the characteristics found or an error.
-    public func discoverCharacteristics(characteristicUUIDs: [CBUUIDConvertible]?,
+    public func discoverCharacteristics(characteristicUUIDs characteristicUUIDs: [CBUUIDConvertible]?,
                                         forService serviceUUID: CBUUIDConvertible,
                                                    completion: CharacteristicRequestCallback)
     {
@@ -190,7 +190,7 @@ extension Peripheral {
     /// - Parameter characteristicUUID: The UUID of the characteristic you want to discover descriptors from.
     /// - Parameter serviceUUID: The UUID of the service of the characteristic above.
     /// - Parameter completion: A closures containing an array of the descriptors found or an error.
-    public func discoverDescriptorsForCharacteristic(characteristicUUID: CBUUIDConvertible,
+    public func discoverDescriptorsForCharacteristic(characteristicUUID characteristicUUID: CBUUIDConvertible,
                                                      serviceUUID: CBUUIDConvertible,
                                                      completion: DescriptorRequestCallback)
     {
@@ -206,7 +206,7 @@ extension Peripheral {
     public func discoverDescriptorsForCharacteristic(characteristic: CBCharacteristic,
                                                      completion: DescriptorRequestCallback)
     {
-        self.discoverDescriptorsForCharacteristic(characteristic, serviceUUID: characteristic.service, completion: completion)
+        self.discoverDescriptorsForCharacteristic(characteristicUUID: characteristic, serviceUUID: characteristic.service, completion: completion)
     }
     
     /// Connect to the peripheral and read the value of the characteristic requested through a 'CBPeripheral' readValueForCharacteristic(...) function call.
@@ -215,7 +215,7 @@ extension Peripheral {
     /// - Parameter characteristicUUID: The UUID of the characteristic you want to read from.
     /// - Parameter serviceUUID: The UUID of the service of the characteristic above.
     /// - Parameter completion: A closures containing the data read or an error.
-    public func readCharacteristicValue(characteristicUUID: CBUUIDConvertible,
+    public func readCharacteristicValue(characteristicUUID characteristicUUID: CBUUIDConvertible,
                                         serviceUUID: CBUUIDConvertible,
                                         completion: ReadCharacRequestCallback)
     {
@@ -231,7 +231,7 @@ extension Peripheral {
     public func readCharacteristicValue(characteristic: CBCharacteristic,
                                         completion: ReadCharacRequestCallback)
     {
-        self.readCharacteristicValue(characteristic,
+        self.readCharacteristicValue(characteristicUUID: characteristic,
                                      serviceUUID: characteristic.service,
                                      completion: completion)
     }
@@ -243,7 +243,7 @@ extension Peripheral {
     /// - Parameter characteristicUUID: The UUID of the descriptor above.
     /// - Parameter serviceUUID: The UUID of the service of the characteristic above.
     /// - Parameter completion: A closures containing the data read or an error.
-    public func readDescriptorValue(descriptorUUID: CBUUIDConvertible,
+    public func readDescriptorValue(descriptorUUID descriptorUUID: CBUUIDConvertible,
                                     characteristicUUID: CBUUIDConvertible,
                                     serviceUUID: CBUUIDConvertible,
                                     completion: ReadDescriptorRequestCallback)
@@ -263,7 +263,7 @@ extension Peripheral {
     public func readDescriptorValue(descriptor: CBDescriptor,
                                     completion: ReadDescriptorRequestCallback)
     {
-        self.readDescriptorValue(descriptor,
+        self.readDescriptorValue(descriptorUUID: descriptor,
                                  characteristicUUID: descriptor.characteristic,
                                  serviceUUID: descriptor.characteristic.service,
                                  completion: completion)
@@ -277,7 +277,7 @@ extension Peripheral {
     /// - Parameter value: The data being written to the characteristic
     /// - Parameter type: The type of the CBPeripheral write, wither with or without response in which case the closure is called right away
     /// - Parameter completion: A closures containing an error if something went wrong
-    public func writeCharacteristicValue(characteristicUUID: CBUUIDConvertible,
+    public func writeCharacteristicValue(characteristicUUID characteristicUUID: CBUUIDConvertible,
                                          serviceUUID: CBUUIDConvertible,
                                          value: NSData,
                                          type: CBCharacteristicWriteType = .WithResponse,
@@ -301,7 +301,7 @@ extension Peripheral {
                                          type: CBCharacteristicWriteType = .WithResponse,
                                          completion: WriteRequestCallback)
     {
-        self.writeCharacteristicValue(characteristic.UUID,
+        self.writeCharacteristicValue(characteristicUUID: characteristic.UUID,
                                       serviceUUID: characteristic.service.UUID,
                                       value: value,
                                       type: type,
@@ -316,7 +316,7 @@ extension Peripheral {
     /// - Parameter serviceUUID: The UUID of the service of the characteristic above.
     /// - Parameter value: The data being written to the characteristic.
     /// - Parameter completion: A closures containing an error if something went wrong.
-    public func writeDescriptorValue(descriptorUUID: CBUUIDConvertible,
+    public func writeDescriptorValue(descriptorUUID descriptorUUID: CBUUIDConvertible,
                                      characteristicUUID: CBUUIDConvertible,
                                      serviceUUID: CBUUIDConvertible,
                                      value: NSData,
@@ -338,7 +338,7 @@ extension Peripheral {
                                      value: NSData,
                                      completion: WriteRequestCallback)
     {
-        self.writeDescriptorValue(descriptor.UUID,
+        self.writeDescriptorValue(descriptorUUID: descriptor.UUID,
                                   characteristicUUID: descriptor.characteristic.UUID,
                                   serviceUUID: descriptor.characteristic.service.UUID,
                                   value: value,
