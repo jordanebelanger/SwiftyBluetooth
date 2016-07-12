@@ -13,9 +13,10 @@ SwiftyBluetooth tries to address these concerns by providing a clear, closure ba
 - Closure based calls for every CBPeripheral operations
 - NSNotification based event for CBPeripheral name updates, characteristic value updates and services updates
 - Precise errors and guaranteed timeout for every Bluetooth operation
- 
+- [Full documentation for all public interfaces](http://cocoadocs.org/docsets/SwiftyBluetooth/)
+
 ## Usage
-The Library has 2 important class: 
+The Library has 2 important class:  
 
 - The `Central` class, a Singleton wrapper around `CBCentralManager` mostly used to scan for peripherals with a closure callback. 
 - The `Peripheral` class, a wrapper around `CBPeripheral` used to call `CBPeripheral` functions with closure callbacks. 
