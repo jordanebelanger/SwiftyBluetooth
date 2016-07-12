@@ -28,7 +28,7 @@ Below are a couple examples of operations that might be of interest to you.
 
 ### Scanning for Peripherals
 
-You can scan for Peripherals by calling scanWithTimeout(...) while passing a timeout in seconds and a callback closure to receive Peripheral result callbacks as well as update on the status of your scan.
+You can scan for Peripherals by calling scanWithTimeout(...) while passing a timeout in seconds and a callback closure to receive Peripheral result callbacks as well as update on the status of your scan:
 
 ```swift
 SwiftyBluetooth.scanWithTimeout(15, serviceUUIDs: ["0011"]) { (scanResult) in
@@ -83,7 +83,7 @@ peripheral.writeCharacteristicValue(characteristicUUID: "1d5bc11d-e28c-4157-a7be
 
 ### Listening to and receiving Characteristic update notifications
 
-Receiving Characteristic value updates is done through notifications on the default NSNotificationCenter. All supported Peripherals notifications are part of the PeripheralEvent enum. Use this enum's raw value as the notification string. 
+Receiving Characteristic value updates is done through notifications on the default NSNotificationCenter. All supported Peripherals notifications are part of the PeripheralEvent enum. Use this enum's raw values as the notification string:
 
 ```swift
 // First we prepare ourselves to receive update notifications 
@@ -105,7 +105,7 @@ peripheral.setNotifyValueForCharacteristic(true, characteristicUUID: "2A29", ser
 
 ### Discovering services 
 
-Discovering services is again very simple: 
+Discover services using the discoverServices(...) function:
 
 ```swift
 peripheral.discoverServices(serviceUUIDs: nil) { (services, error) in
@@ -116,7 +116,7 @@ peripheral.discoverServices(serviceUUIDs: nil) { (services, error) in
 
 ### Discovering characteristics
 
-Discover characteristics using the discoverCharacteristics(...) function. If the service on which you are attempting to discover characteristics from has not been discovered, an attempt will first be made to discover that service for you. 
+Discover characteristics using the discoverCharacteristics(...) function. If the service on which you are attempting to discover characteristics from has not been discovered, an attempt will first be made to discover that service for you:
 
 ```swift
 peripheral.discoverCharacteristics(characteristicUUIDs: nil, forService: "180A") { (characteristics, error) in
