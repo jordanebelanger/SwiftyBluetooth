@@ -344,7 +344,7 @@ extension Peripheral {
     {
         self.peripheralProxy.setNotifyValueForCharacteristic(enabled,
                                                              characteristicUUID: characteristicUUID.CBUUIDRepresentation,
-                                                             serviceUUID: characteristicUUID.CBUUIDRepresentation,
+                                                             serviceUUID: serviceUUID.CBUUIDRepresentation,
                                                              completion: completion)
     }
     
