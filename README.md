@@ -133,7 +133,7 @@ Add this to your Podfile:
 platform :ios, '9.0'
 use_frameworks!
 
-pod 'SwiftyBluetooth', '~> 0.1.0'
+pod 'SwiftyBluetooth'
 ```
 
 Then run:
@@ -146,7 +146,7 @@ $ pod install
 Add this to your Cartfile 
 
 ```ogdl
-github "tehjord/SwiftyBluetooth" == 0.1.0
+github "tehjord/SwiftyBluetooth"
 ```
 
 ## Requirements
