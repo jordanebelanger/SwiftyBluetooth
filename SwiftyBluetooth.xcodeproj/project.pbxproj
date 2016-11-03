@@ -16,7 +16,7 @@
 		0974ABA41D28C176008B1B4F /* CentralProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0974ABA31D28C176008B1B4F /* CentralProxy.swift */; };
 		0974ABA81D28C19C008B1B4F /* PeripheralProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0974ABA71D28C19C008B1B4F /* PeripheralProxy.swift */; };
 		09C576A91CC626C70001EFF7 /* Central.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09C576A51CC626C70001EFF7 /* Central.swift */; };
-		09C576AA1CC626C70001EFF7 /* Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09C576A61CC626C70001EFF7 /* Error.swift */; };
+		09C576AA1CC626C70001EFF7 /* SBError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09C576A61CC626C70001EFF7 /* SBError.swift */; };
 		09C576AB1CC626C70001EFF7 /* Peripheral.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09C576A71CC626C70001EFF7 /* Peripheral.swift */; };
 		09C576AC1CC626C70001EFF7 /* Util.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09C576A81CC626C70001EFF7 /* Util.swift */; };
 		09DEF3B11CC839DE00F9B4EE /* CBUUIDConvertible.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09DEF3B01CC839DE00F9B4EE /* CBUUIDConvertible.swift */; };
@@ -34,7 +34,7 @@
 		0974ABA31D28C176008B1B4F /* CentralProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CentralProxy.swift; path = Source/CentralProxy.swift; sourceTree = "<group>"; };
 		0974ABA71D28C19C008B1B4F /* PeripheralProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = PeripheralProxy.swift; path = Source/PeripheralProxy.swift; sourceTree = "<group>"; };
 		09C576A51CC626C70001EFF7 /* Central.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Central.swift; path = Source/Central.swift; sourceTree = "<group>"; };
-		09C576A61CC626C70001EFF7 /* Error.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Error.swift; path = Source/Error.swift; sourceTree = "<group>"; };
+		09C576A61CC626C70001EFF7 /* SBError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SBError.swift; path = Source/SBError.swift; sourceTree = "<group>"; };
 		09C576A71CC626C70001EFF7 /* Peripheral.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Peripheral.swift; path = Source/Peripheral.swift; sourceTree = "<group>"; };
 		09C576A81CC626C70001EFF7 /* Util.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Util.swift; path = Source/Util.swift; sourceTree = "<group>"; };
 		09D5152E1D2DA8F900049B59 /* SwiftyBluetooth.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SwiftyBluetooth.podspec; sourceTree = "<group>"; };
@@ -105,7 +105,7 @@
 			isa = PBXGroup;
 			children = (
 				0950A66A1D2101DE00512F59 /* SwiftyBluetooth.swift */,
-				09C576A61CC626C70001EFF7 /* Error.swift */,
+				09C576A61CC626C70001EFF7 /* SBError.swift */,
 				09C576A51CC626C70001EFF7 /* Central.swift */,
 				0974ABA31D28C176008B1B4F /* CentralProxy.swift */,
 				09C576A71CC626C70001EFF7 /* Peripheral.swift */,
@@ -157,10 +157,11 @@
 		096409A51CC6103D00ADD4D9 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0730;
+				LastUpgradeCheck = 0810;
 				TargetAttributes = {
 					096409AD1CC6103D00ADD4D9 = {
 						CreatedOnToolsVersion = 7.3;
+						LastSwiftMigration = 0800;
 					};
 				};
 			};
@@ -196,7 +197,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				09C576AA1CC626C70001EFF7 /* Error.swift in Sources */,
+				09C576AA1CC626C70001EFF7 /* SBError.swift in Sources */,
 				0974ABA41D28C176008B1B4F /* CentralProxy.swift in Sources */,
 				09C576AB1CC626C70001EFF7 /* Peripheral.swift in Sources */,
 				09C576A91CC626C70001EFF7 /* Central.swift in Sources */,
@@ -227,8 +228,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -276,8 +279,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -297,6 +302,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -308,6 +314,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -319,6 +326,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -326,6 +334,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -336,6 +345,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.tehjord.SwiftyBluetooth;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};

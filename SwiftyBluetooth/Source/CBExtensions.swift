@@ -24,30 +24,30 @@
 import CoreBluetooth
 
 extension CBPeripheral {
-    public func serviceWithUUID(uuid: CBUUID) -> CBService? {
+    public func serviceWithUUID(_ uuid: CBUUID) -> CBService? {
         guard let services = self.services else {
             return nil
         }
         
-        return services.filter { $0.UUID == uuid }.first
+        return services.filter { $0.uuid == uuid }.first
     }
     
-    public func servicesWithUUIDs(servicesUUIDs: [CBUUID]) -> (foundServices: [CBService], missingServicesUUIDs: [CBUUID]) {
+    public func servicesWithUUIDs(_ servicesUUIDs: [CBUUID]) -> (foundServices: [CBService], missingServicesUUIDs: [CBUUID]) {
         assert(servicesUUIDs.count > 0)
         
-        guard let currentServices = self.services where currentServices.count > 0 else {
+        guard let currentServices = self.services , currentServices.count > 0 else {
             return (foundServices: [], missingServicesUUIDs: servicesUUIDs)
         }
         
-        let currentServicesUUIDs = currentServices.map { $0.UUID }
+        let currentServicesUUIDs = currentServices.map { $0.uuid }
         
         let currentServicesUUIDsSet = Set(currentServicesUUIDs)
         let requestedServicesUUIDsSet = Set(servicesUUIDs)
         
-        let foundServicesUUIDsSet = requestedServicesUUIDsSet.intersect(currentServicesUUIDsSet)
-        let missingServicesUUIDsSet = requestedServicesUUIDsSet.subtract(currentServicesUUIDsSet)
+        let foundServicesUUIDsSet = requestedServicesUUIDsSet.intersection(currentServicesUUIDsSet)
+        let missingServicesUUIDsSet = requestedServicesUUIDsSet.subtracting(currentServicesUUIDsSet)
         
-        let foundServices = currentServices.filter { foundServicesUUIDsSet.contains($0.UUID) }
+        let foundServices = currentServices.filter { foundServicesUUIDsSet.contains($0.uuid) }
         
         return (foundServices: foundServices, missingServicesUUIDs: Array(missingServicesUUIDsSet))
     }
@@ -55,60 +55,60 @@ extension CBPeripheral {
 }
 
 extension CBService {
-    public func characteristicWithUUID(uuid: CBUUID) -> CBCharacteristic? {
+    public func characteristicWithUUID(_ uuid: CBUUID) -> CBCharacteristic? {
         guard let characteristics = self.characteristics else {
             return nil
         }
         
-        return characteristics.filter { $0.UUID == uuid }.first
+        return characteristics.filter { $0.uuid == uuid }.first
     }
     
-    public func characteristicsWithUUIDs(characteristicsUUIDs: [CBUUID]) -> (foundCharacteristics: [CBCharacteristic], missingCharacteristicsUUIDs: [CBUUID]) {
+    public func characteristicsWithUUIDs(_ characteristicsUUIDs: [CBUUID]) -> (foundCharacteristics: [CBCharacteristic], missingCharacteristicsUUIDs: [CBUUID]) {
         assert(characteristicsUUIDs.count > 0)
         
-        guard let currentCharacteristics = self.characteristics where currentCharacteristics.count > 0 else {
+        guard let currentCharacteristics = self.characteristics , currentCharacteristics.count > 0 else {
             return (foundCharacteristics: [], missingCharacteristicsUUIDs: characteristicsUUIDs)
         }
         
-        let currentCharacteristicsUUID = currentCharacteristics.map { $0.UUID }
+        let currentCharacteristicsUUID = currentCharacteristics.map { $0.uuid }
         
         let currentCharacteristicsUUIDSet = Set(currentCharacteristicsUUID)
         let requestedCharacteristicsUUIDSet = Set(characteristicsUUIDs)
         
-        let foundCharacteristicsUUIDSet = requestedCharacteristicsUUIDSet.intersect(currentCharacteristicsUUIDSet)
-        let missingCharacteristicsUUIDSet = requestedCharacteristicsUUIDSet.subtract(currentCharacteristicsUUIDSet)
+        let foundCharacteristicsUUIDSet = requestedCharacteristicsUUIDSet.intersection(currentCharacteristicsUUIDSet)
+        let missingCharacteristicsUUIDSet = requestedCharacteristicsUUIDSet.subtracting(currentCharacteristicsUUIDSet)
         
-        let foundCharacteristics = currentCharacteristics.filter { foundCharacteristicsUUIDSet.contains($0.UUID) }
+        let foundCharacteristics = currentCharacteristics.filter { foundCharacteristicsUUIDSet.contains($0.uuid) }
         
         return (foundCharacteristics: foundCharacteristics, missingCharacteristicsUUIDs: Array(missingCharacteristicsUUIDSet))
     }
 }
 
 extension CBCharacteristic {
-    public func descriptorWithUUID(uuid: CBUUID) -> CBDescriptor? {
+    public func descriptorWithUUID(_ uuid: CBUUID) -> CBDescriptor? {
         guard let descriptors = self.descriptors else {
             return nil
         }
         
-        return descriptors.filter { $0.UUID == uuid }.first
+        return descriptors.filter { $0.uuid == uuid }.first
     }
     
-    public func descriptorsWithUUIDs(descriptorsUUIDs: [CBUUID]) -> (foundDescriptors: [CBDescriptor], missingDescriptorsUUIDs: [CBUUID]) {
+    public func descriptorsWithUUIDs(_ descriptorsUUIDs: [CBUUID]) -> (foundDescriptors: [CBDescriptor], missingDescriptorsUUIDs: [CBUUID]) {
         assert(descriptorsUUIDs.count > 0)
         
-        guard let currentDescriptors = self.descriptors where currentDescriptors.count > 0 else {
+        guard let currentDescriptors = self.descriptors , currentDescriptors.count > 0 else {
             return (foundDescriptors: [], missingDescriptorsUUIDs: descriptorsUUIDs)
         }
         
-        let currentDescriptorsUUIDs = currentDescriptors.map { $0.UUID }
+        let currentDescriptorsUUIDs = currentDescriptors.map { $0.uuid }
         
         let currentDescriptorsUUIDsSet = Set(currentDescriptorsUUIDs)
         let requestedDescriptorsUUIDsSet = Set(descriptorsUUIDs)
         
-        let foundDescriptorsUUIDsSet = requestedDescriptorsUUIDsSet.intersect(currentDescriptorsUUIDsSet)
-        let missingDescriptorsUUIDsSet = requestedDescriptorsUUIDsSet.subtract(currentDescriptorsUUIDsSet)
+        let foundDescriptorsUUIDsSet = requestedDescriptorsUUIDsSet.intersection(currentDescriptorsUUIDsSet)
+        let missingDescriptorsUUIDsSet = requestedDescriptorsUUIDsSet.subtracting(currentDescriptorsUUIDsSet)
         
-        let foundDescriptors = currentDescriptors.filter { foundDescriptorsUUIDsSet.contains($0.UUID) }
+        let foundDescriptors = currentDescriptors.filter { foundDescriptorsUUIDsSet.contains($0.uuid) }
         
         return (foundDescriptors: foundDescriptors, missingDescriptorsUUIDs: Array(missingDescriptorsUUIDsSet))
     }

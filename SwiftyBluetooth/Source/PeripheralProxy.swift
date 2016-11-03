@@ -24,20 +24,20 @@
 import CoreBluetooth
 
 final class PeripheralProxy: NSObject  {
-    static let defaultTimeoutInS: NSTimeInterval = 10
+    static let defaultTimeoutInS: TimeInterval = 10
     
-    private lazy var readRSSIRequests: [ReadRSSIRequest] = []
-    private lazy var serviceRequests: [ServiceRequest] = []
-    private lazy var includedServicesRequests: [IncludedServicesRequest] = []
-    private lazy var characteristicRequests: [CharacteristicRequest] = []
-    private lazy var descriptorRequests: [DescriptorRequest] = []
-    private lazy var readCharacteristicRequests: [CBUUIDPath: [ReadCharacteristicRequest]] = [:]
-    private lazy var readDescriptorRequests: [CBUUIDPath: [ReadDescriptorRequest]] = [:]
-    private lazy var writeCharacteristicValueRequests: [CBUUIDPath: [WriteCharacteristicValueRequest]] = [:]
-    private lazy var writeDescriptorValueRequests: [CBUUIDPath: [WriteDescriptorValueRequest]] = [:]
-    private lazy var updateNotificationStateRequests: [CBUUIDPath: [UpdateNotificationStateRequest]] = [:]
+    fileprivate lazy var readRSSIRequests: [ReadRSSIRequest] = []
+    fileprivate lazy var serviceRequests: [ServiceRequest] = []
+    fileprivate lazy var includedServicesRequests: [IncludedServicesRequest] = []
+    fileprivate lazy var characteristicRequests: [CharacteristicRequest] = []
+    fileprivate lazy var descriptorRequests: [DescriptorRequest] = []
+    fileprivate lazy var readCharacteristicRequests: [CBUUIDPath: [ReadCharacteristicRequest]] = [:]
+    fileprivate lazy var readDescriptorRequests: [CBUUIDPath: [ReadDescriptorRequest]] = [:]
+    fileprivate lazy var writeCharacteristicValueRequests: [CBUUIDPath: [WriteCharacteristicValueRequest]] = [:]
+    fileprivate lazy var writeDescriptorValueRequests: [CBUUIDPath: [WriteDescriptorValueRequest]] = [:]
+    fileprivate lazy var updateNotificationStateRequests: [CBUUIDPath: [UpdateNotificationStateRequest]] = [:]
     
-    private weak var peripheral: Peripheral?
+    fileprivate weak var peripheral: Peripheral?
     let cbPeripheral: CBPeripheral
     
     // Peripheral that are no longer valid must be rediscovered again (happens when for example the Bluetooth is turned off
@@ -52,28 +52,28 @@ final class PeripheralProxy: NSObject  {
         
         cbPeripheral.delegate = self
         
-        NSNotificationCenter.defaultCenter().addObserverForName(CentralEvent.CentralStateChange.rawValue,
+        NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: CentralEvent.CentralStateChange.rawValue),
                                                                 object: Central.sharedInstance,
                                                                 queue: nil)
         { [weak self] (notification) in
-            let boxedState = notification.userInfo!["state"] as! Box<CBCentralManagerState>
-            if boxedState.value.rawValue < CBCentralManagerState.PoweredOff.rawValue {
+            let boxedState = (notification as NSNotification).userInfo!["state"] as! Box<CBCentralManagerState>
+            if boxedState.value.rawValue < CBCentralManagerState.poweredOff.rawValue {
                 self?.valid = false
             }
         }
     }
     
     deinit {
-        NSNotificationCenter.defaultCenter().removeObserver(self)
+        NotificationCenter.default.removeObserver(self)
     }
     
-    private func postPeripheralEvent(event: PeripheralEvent, userInfo: [NSObject: AnyObject]?) {
+    fileprivate func postPeripheralEvent(_ event: PeripheralEvent, userInfo: [AnyHashable: Any]?) {
         guard let peripheral = self.peripheral else {
             return
         }
         
-        NSNotificationCenter.defaultCenter().postNotificationName(
-            event.rawValue,
+        NotificationCenter.default.post(
+            name: Notification.Name(rawValue: event.rawValue),
             object: peripheral,
             userInfo: userInfo)
     }
@@ -81,16 +81,16 @@ final class PeripheralProxy: NSObject  {
 
 // MARK: Connect/Disconnect Requests
 extension PeripheralProxy {
-    func connect(completion: (error: Error?) -> Void) {
+    func connect(_ completion: @escaping ConnectPeripheralCallback) {
         if self.valid {
-            Central.sharedInstance.connectPeripheral(self.cbPeripheral, completion: completion)
+            Central.sharedInstance.connect(peripheral: self.cbPeripheral, completion: completion)
         } else {
-            completion(error: .InvalidPeripheral)            
+            completion(SBError.invalidPeripheral)
         }
     }
     
-    func disconnect(completion: (error: Error?) -> Void) {
-        Central.sharedInstance.disconnectPeripheral(self.cbPeripheral, completion: completion)
+    func disconnect(_ completion: @escaping DisconnectPeripheralCallback) {
+        Central.sharedInstance.disconnect(peripheral: self.cbPeripheral, completion: completion)
     }
 }
 
@@ -98,16 +98,16 @@ extension PeripheralProxy {
 private final class ReadRSSIRequest {
     let callback: ReadRSSIRequestCallback
     
-    init(callback: ReadRSSIRequestCallback) {
+    init(callback: @escaping ReadRSSIRequestCallback) {
         self.callback = callback
     }
 }
 
 extension PeripheralProxy {
-    func readRSSI(completion: ReadRSSIRequestCallback) {
+    func readRSSI(_ completion: @escaping ReadRSSIRequestCallback) {
         self.connect { (error) in
             if let error = error {
-                completion(RSSI: nil, error: error)
+                completion(nil, error)
                 return
             }
             
@@ -121,23 +121,23 @@ extension PeripheralProxy {
         }
     }
     
-    private func runRSSIRequest() {
+    fileprivate func runRSSIRequest() {
         guard let request = self.readRSSIRequests.first else {
             return
         }
         
         self.cbPeripheral.readRSSI()
-        NSTimer.scheduledTimerWithTimeInterval(
-            PeripheralProxy.defaultTimeoutInS,
+        Timer.scheduledTimer(
+            timeInterval: PeripheralProxy.defaultTimeoutInS,
             target: self,
             selector: #selector(self.onReadRSSIOperationTick),
             userInfo: Weak(value: request),
             repeats: false)
     }
     
-    @objc private func onReadRSSIOperationTick(timer: NSTimer) {
+    @objc fileprivate func onReadRSSIOperationTick(_ timer: Timer) {
         defer {
-            if timer.valid { timer.invalidate() }
+            if timer.isValid { timer.invalidate() }
         }
         
         let weakRequest = timer.userInfo as! Weak<ReadRSSIRequest>
@@ -148,7 +148,7 @@ extension PeripheralProxy {
         
         self.readRSSIRequests.removeFirst()
         
-        request.callback(RSSI: nil, error: Error.OperationTimeoutError(operationName: "read RSSI"))
+        request.callback(nil, SBError.operationTimedOut(operation: .readRSSI))
         
         self.runRSSIRequest()
     }
@@ -160,7 +160,7 @@ private final class ServiceRequest {
     
     let callback: ServiceRequestCallback
     
-    init(serviceUUIDs: [CBUUID]?, callback: ServiceRequestCallback) {
+    init(serviceUUIDs: [CBUUID]?, callback: @escaping ServiceRequestCallback) {
         self.callback = callback
         
         if let serviceUUIDs = serviceUUIDs {
@@ -172,10 +172,10 @@ private final class ServiceRequest {
 }
 
 extension PeripheralProxy {
-    func discoverServices(serviceUUIDs: [CBUUID]?, completion: ServiceRequestCallback) {
+    func discoverServices(_ serviceUUIDs: [CBUUID]?, completion: @escaping ServiceRequestCallback) {
         self.connect { (error) in
             if let error = error {
-                completion(services: nil, error: error)
+                completion(nil, error)
                 return
             }
             
@@ -184,13 +184,13 @@ extension PeripheralProxy {
                 let servicesTuple = self.cbPeripheral.servicesWithUUIDs(serviceUUIDs)
                 
                 if servicesTuple.missingServicesUUIDs.count == 0 {
-                    completion(services: servicesTuple.foundServices, error: nil)
+                    completion(servicesTuple.foundServices, nil)
                     return
                 }
             }
             
             let request = ServiceRequest(serviceUUIDs: serviceUUIDs) { (services, error) in
-                completion(services: services, error: error)
+                completion(services, error)
             }
             
             self.serviceRequests.append(request)
@@ -201,24 +201,24 @@ extension PeripheralProxy {
         }
     }
     
-    private func runServiceRequest() {
+    fileprivate func runServiceRequest() {
         guard let request = self.serviceRequests.first else {
             return
         }
         
         self.cbPeripheral.discoverServices(request.serviceUUIDs)
         
-        NSTimer.scheduledTimerWithTimeInterval(
-            PeripheralProxy.defaultTimeoutInS,
+        Timer.scheduledTimer(
+            timeInterval: PeripheralProxy.defaultTimeoutInS,
             target: self,
             selector: #selector(self.onServiceRequestTimerTick),
             userInfo: Weak(value: request),
             repeats: false)
     }
     
-    @objc private func onServiceRequestTimerTick(timer: NSTimer) {
+    @objc fileprivate func onServiceRequestTimerTick(_ timer: Timer) {
         defer {
-            if timer.valid { timer.invalidate() }
+            if timer.isValid { timer.invalidate() }
         }
         
         let weakRequest = timer.userInfo as! Weak<ServiceRequest>
@@ -231,7 +231,7 @@ extension PeripheralProxy {
         
         self.serviceRequests.removeFirst()
         
-        request.callback(services: nil, error: Error.OperationTimeoutError(operationName: "discover services"))
+        request.callback(nil, SBError.operationTimedOut(operation: .discoverServices))
         
         self.runServiceRequest()
     }
@@ -244,7 +244,7 @@ private final class IncludedServicesRequest {
     
     let callback: ServiceRequestCallback
     
-    init(serviceUUIDs: [CBUUID]?, forService service: CBService, callback: ServiceRequestCallback) {
+    init(serviceUUIDs: [CBUUID]?, forService service: CBService, callback: @escaping ServiceRequestCallback) {
         self.callback = callback
         
         if let serviceUUIDs = serviceUUIDs {
@@ -258,17 +258,17 @@ private final class IncludedServicesRequest {
 }
 
 extension PeripheralProxy {
-    func discoverIncludedServices(serviceUUIDs: [CBUUID]?, forService serviceUUID: CBUUID, completion: ServiceRequestCallback) {
+    func discoverIncludedServices(_ serviceUUIDs: [CBUUID]?, forService serviceUUID: CBUUID, completion: @escaping ServiceRequestCallback) {
         self.discoverServices([serviceUUID]) { (services, error) in
             if let error = error {
-                completion(services: nil, error: error)
+                completion(nil, error)
                 return
             }
             
             let parentService = services!.first!
             
             let request = IncludedServicesRequest(serviceUUIDs: serviceUUIDs, forService: parentService) { (services, error) in
-                completion(services: services, error: error)
+                completion(services, error)
             }
             
             self.includedServicesRequests.append(request)
@@ -279,24 +279,24 @@ extension PeripheralProxy {
         }
     }
     
-    private func runIncludedServicesRequest() {
+    fileprivate func runIncludedServicesRequest() {
         guard let request = self.includedServicesRequests.first else {
             return
         }
         
-        self.cbPeripheral.discoverIncludedServices(request.serviceUUIDs, forService: request.parentService)
+        self.cbPeripheral.discoverIncludedServices(request.serviceUUIDs, for: request.parentService)
         
-        NSTimer.scheduledTimerWithTimeInterval(
-            PeripheralProxy.defaultTimeoutInS,
+        Timer.scheduledTimer(
+            timeInterval: PeripheralProxy.defaultTimeoutInS,
             target: self,
             selector: #selector(self.onIncludedServicesRequestTimerTick),
             userInfo: Weak(value: request),
             repeats: false)
     }
     
-    @objc private func onIncludedServicesRequestTimerTick(timer: NSTimer) {
+    @objc fileprivate func onIncludedServicesRequestTimerTick(_ timer: Timer) {
         defer {
-            if timer.valid { timer.invalidate() }
+            if timer.isValid { timer.invalidate() }
         }
         
         let weakRequest = timer.userInfo as! Weak<IncludedServicesRequest>
@@ -309,7 +309,7 @@ extension PeripheralProxy {
         
         self.includedServicesRequests.removeFirst()
         
-        request.callback(services: nil, error: Error.OperationTimeoutError(operationName: "discover included services"))
+        request.callback(nil, SBError.operationTimedOut(operation: .discoverIncludedServices))
         
         self.runIncludedServicesRequest()
     }
@@ -324,7 +324,7 @@ private final class CharacteristicRequest{
     
     init(service: CBService,
          characteristicUUIDs: [CBUUID]?,
-         callback: CharacteristicRequestCallback)
+         callback: @escaping CharacteristicRequestCallback)
     {
         self.callback = callback
         
@@ -340,13 +340,13 @@ private final class CharacteristicRequest{
 }
 
 extension PeripheralProxy {
-    func discoverCharacteristics(characteristicUUIDs: [CBUUID]?,
+    func discoverCharacteristics(_ characteristicUUIDs: [CBUUID]?,
                                  forService serviceUUID: CBUUID,
-                                            completion: CharacteristicRequestCallback)
+                                            completion: @escaping CharacteristicRequestCallback)
     {
         self.discoverServices([serviceUUID]) { (services, error) in
             if let error = error {
-                completion(characteristics: nil, error: error)
+                completion(nil, error)
                 return
             }
             
@@ -359,7 +359,7 @@ extension PeripheralProxy {
                 let characTuple = service.characteristicsWithUUIDs(characteristicUUIDs)
                 
                 if (characTuple.missingCharacteristicsUUIDs.count == 0) {
-                    completion(characteristics: characTuple.foundCharacteristics, error: nil)
+                    completion(characTuple.foundCharacteristics, nil)
                     return
                 }
             }
@@ -367,7 +367,7 @@ extension PeripheralProxy {
             let request = CharacteristicRequest(service: service,
                                                 characteristicUUIDs: characteristicUUIDs)
             { (characteristics, error) in
-                completion(characteristics: characteristics, error: error)
+                completion(characteristics, error)
             }
             
             self.characteristicRequests.append(request)
@@ -378,24 +378,24 @@ extension PeripheralProxy {
         }
     }
     
-    private func runCharacteristicRequest() {
+    fileprivate func runCharacteristicRequest() {
         guard let request = self.characteristicRequests.first else {
             return
         }
         
-        self.cbPeripheral.discoverCharacteristics(request.characteristicUUIDs, forService: request.service)
+        self.cbPeripheral.discoverCharacteristics(request.characteristicUUIDs, for: request.service)
         
-        NSTimer.scheduledTimerWithTimeInterval(
-            PeripheralProxy.defaultTimeoutInS,
+        Timer.scheduledTimer(
+            timeInterval: PeripheralProxy.defaultTimeoutInS,
             target: self,
             selector: #selector(self.onCharacteristicRequestTimerTick),
             userInfo: Weak(value: request),
             repeats: false)
     }
     
-    @objc private func onCharacteristicRequestTimerTick(timer: NSTimer) {
+    @objc fileprivate func onCharacteristicRequestTimerTick(_ timer: Timer) {
         defer {
-            if timer.valid { timer.invalidate() }
+            if timer.isValid { timer.invalidate() }
         }
         
         let weakRequest = timer.userInfo as! Weak<CharacteristicRequest>
@@ -408,7 +408,7 @@ extension PeripheralProxy {
         
         self.characteristicRequests.removeFirst()
         
-        request.callback(characteristics: nil, error: Error.OperationTimeoutError(operationName: "discover characteristics"))
+        request.callback(nil, SBError.operationTimedOut(operation: .discoverCharacteristics))
         
         self.runCharacteristicRequest()
     }
@@ -421,7 +421,7 @@ private final class DescriptorRequest {
     
     let callback: DescriptorRequestCallback
     
-    init(characteristic: CBCharacteristic, callback: DescriptorRequestCallback) {
+    init(characteristic: CBCharacteristic, callback: @escaping DescriptorRequestCallback) {
         self.callback = callback
         
         self.service = characteristic.service
@@ -431,11 +431,11 @@ private final class DescriptorRequest {
 }
 
 extension PeripheralProxy {
-    func discoverDescriptorsForCharacteristic(characteristicUUID: CBUUID, serviceUUID: CBUUID, completion: DescriptorRequestCallback) {
+    func discoverDescriptorsForCharacteristic(_ characteristicUUID: CBUUID, serviceUUID: CBUUID, completion: @escaping DescriptorRequestCallback) {
         self.discoverCharacteristics([characteristicUUID], forService: serviceUUID) { (characteristics, error) in
             
             if let error = error {
-                completion(descriptors: nil, error: error)
+                completion(nil, error)
                 return
             }
             
@@ -444,7 +444,7 @@ extension PeripheralProxy {
             let characteristic = characteristics!.first!
             
             let request = DescriptorRequest(characteristic: characteristic) { (descriptors, error) in
-                completion(descriptors: descriptors, error: error)
+                completion(descriptors, error)
             }
             
             self.descriptorRequests.append(request)
@@ -455,24 +455,24 @@ extension PeripheralProxy {
         }
     }
     
-    private func runDescriptorRequest() {
+    fileprivate func runDescriptorRequest() {
         guard let request = self.descriptorRequests.first else {
             return
         }
         
-        self.cbPeripheral.discoverDescriptorsForCharacteristic(request.characteristic)
+        self.cbPeripheral.discoverDescriptors(for: request.characteristic)
         
-        NSTimer.scheduledTimerWithTimeInterval(
-            PeripheralProxy.defaultTimeoutInS,
+        Timer.scheduledTimer(
+            timeInterval: PeripheralProxy.defaultTimeoutInS,
             target: self,
             selector: #selector(self.onDescriptorRequestTimerTick),
             userInfo: Weak(value: request),
             repeats: false)
     }
     
-    @objc private func onDescriptorRequestTimerTick(timer: NSTimer) {
+    @objc fileprivate func onDescriptorRequestTimerTick(_ timer: Timer) {
         defer {
-            if timer.valid { timer.invalidate() }
+            if timer.isValid { timer.invalidate() }
         }
         
         let weakRequest = timer.userInfo as! Weak<DescriptorRequest>
@@ -483,7 +483,7 @@ extension PeripheralProxy {
         
         self.descriptorRequests.removeFirst()
         
-        request.callback(descriptors: nil, error: Error.OperationTimeoutError(operationName: "discover descriptors"))
+        request.callback(nil, SBError.operationTimedOut(operation: .discoverDescriptors))
         
         self.runDescriptorRequest()
     }
@@ -496,7 +496,7 @@ private final class ReadCharacteristicRequest {
     
     let callback: ReadCharacRequestCallback
     
-    init(characteristic: CBCharacteristic, callback: ReadCharacRequestCallback) {
+    init(characteristic: CBCharacteristic, callback: @escaping ReadCharacRequestCallback) {
         self.callback = callback
         
         self.service = characteristic.service
@@ -506,14 +506,14 @@ private final class ReadCharacteristicRequest {
 }
 
 extension PeripheralProxy {
-    func readCharacteristic(characteristicUUID: CBUUID,
+    func readCharacteristic(_ characteristicUUID: CBUUID,
                             serviceUUID: CBUUID,
-                            completion: ReadCharacRequestCallback) {
+                            completion: @escaping ReadCharacRequestCallback) {
         
         self.discoverCharacteristics([characteristicUUID], forService: serviceUUID) { (characteristics, error) in
             
             if let error = error {
-                completion(data: nil, error: error)
+                completion(nil, error)
                 return
             }
             
@@ -522,7 +522,7 @@ extension PeripheralProxy {
             let characteristic = characteristics!.first!
             
             let request = ReadCharacteristicRequest(characteristic: characteristic) { (data, error) in
-                completion(data: data, error: error)
+                completion(data, error)
             }
             
             let readPath = characteristic.uuidPath
@@ -538,24 +538,24 @@ extension PeripheralProxy {
         }
     }
     
-    private func runReadCharacteristicRequest(readPath: CBUUIDPath) {
+    fileprivate func runReadCharacteristicRequest(_ readPath: CBUUIDPath) {
         guard let request = self.readCharacteristicRequests[readPath]?.first else {
             return
         }
         
-        self.cbPeripheral.readValueForCharacteristic(request.characteristic)
+        self.cbPeripheral.readValue(for: request.characteristic)
         
-        NSTimer.scheduledTimerWithTimeInterval(
-            PeripheralProxy.defaultTimeoutInS,
+        Timer.scheduledTimer(
+            timeInterval: PeripheralProxy.defaultTimeoutInS,
             target: self,
             selector: #selector(self.onReadCharacteristicTimerTick),
             userInfo: Weak(value: request),
             repeats: false)
     }
     
-    @objc private func onReadCharacteristicTimerTick(timer: NSTimer) {
+    @objc fileprivate func onReadCharacteristicTimerTick(_ timer: Timer) {
         defer {
-            if timer.valid { timer.invalidate() }
+            if timer.isValid { timer.invalidate() }
         }
         
         let weakRequest = timer.userInfo as! Weak<ReadCharacteristicRequest>
@@ -571,7 +571,7 @@ extension PeripheralProxy {
             self.readCharacteristicRequests[readPath] = nil
         }
         
-        request.callback(data: nil, error: Error.OperationTimeoutError(operationName: "read characteristic"))
+        request.callback(nil, SBError.operationTimedOut(operation: .readCharacteristic))
         
         self.runReadCharacteristicRequest(readPath)
     }
@@ -585,7 +585,7 @@ private final class ReadDescriptorRequest {
     
     let callback: ReadDescriptorRequestCallback
     
-    init(descriptor: CBDescriptor, callback: ReadDescriptorRequestCallback) {
+    init(descriptor: CBDescriptor, callback: @escaping ReadDescriptorRequestCallback) {
         self.callback = callback
         
         self.descriptor = descriptor
@@ -596,20 +596,20 @@ private final class ReadDescriptorRequest {
 }
 
 extension PeripheralProxy {
-    func readDescriptor(descriptorUUID: CBUUID,
+    func readDescriptor(_ descriptorUUID: CBUUID,
                         characteristicUUID: CBUUID,
                         serviceUUID: CBUUID,
-                        completion: ReadDescriptorRequestCallback)
+                        completion: @escaping ReadDescriptorRequestCallback)
     {
         
         self.discoverDescriptorsForCharacteristic(characteristicUUID, serviceUUID: serviceUUID) { (descriptors, error) in
             if let error = error {
-                completion(value: nil, error: error)
+                completion(nil, error)
                 return
             }
             
             guard let descriptor = descriptors?.first else {
-                completion(value: nil, error: Error.PeripheralDescriptorsNotFound(missingDescriptorsUUIDs: [descriptorUUID]))
+                completion(nil, SBError.peripheralDescriptorsNotFound(missingDescriptorsUUIDs: [descriptorUUID]))
                 return
             }
             
@@ -628,24 +628,24 @@ extension PeripheralProxy {
         }
     }
     
-    private func runReadDescriptorRequest(readPath: CBUUIDPath) {
+    fileprivate func runReadDescriptorRequest(_ readPath: CBUUIDPath) {
         guard let request = self.readDescriptorRequests[readPath]?.first else {
             return
         }
         
-        self.cbPeripheral.readValueForDescriptor(request.descriptor)
+        self.cbPeripheral.readValue(for: request.descriptor)
         
-        NSTimer.scheduledTimerWithTimeInterval(
-            PeripheralProxy.defaultTimeoutInS,
+        Timer.scheduledTimer(
+            timeInterval: PeripheralProxy.defaultTimeoutInS,
             target: self,
             selector: #selector(self.onReadDescriptorTimerTick),
             userInfo: Weak(value: request),
             repeats: false)
     }
     
-    @objc private func onReadDescriptorTimerTick(timer: NSTimer) {
+    @objc fileprivate func onReadDescriptorTimerTick(_ timer: Timer) {
         defer {
-            if timer.valid { timer.invalidate() }
+            if timer.isValid { timer.invalidate() }
         }
         
         let weakRequest = timer.userInfo as! Weak<ReadDescriptorRequest>
@@ -661,7 +661,7 @@ extension PeripheralProxy {
             self.readDescriptorRequests[readPath] = nil
         }
         
-        request.callback(value: nil, error: Error.OperationTimeoutError(operationName: "read descriptor"))
+        request.callback(nil, SBError.operationTimedOut(operation: .readDescriptor))
         
         self.runReadDescriptorRequest(readPath)
     }
@@ -671,12 +671,12 @@ extension PeripheralProxy {
 private final class WriteCharacteristicValueRequest {
     let service: CBService
     let characteristic: CBCharacteristic
-    let value: NSData
+    let value: Data
     let type: CBCharacteristicWriteType
     
     let callback: WriteRequestCallback
     
-    init(characteristic: CBCharacteristic, value: NSData, type: CBCharacteristicWriteType, callback: WriteRequestCallback) {
+    init(characteristic: CBCharacteristic, value: Data, type: CBCharacteristicWriteType, callback: @escaping WriteRequestCallback) {
         self.callback = callback
         self.value = value
         self.type = type
@@ -687,16 +687,16 @@ private final class WriteCharacteristicValueRequest {
 }
 
 extension PeripheralProxy {
-    func writeCharacteristicValue(characteristicUUID: CBUUID,
+    func writeCharacteristicValue(_ characteristicUUID: CBUUID,
                                   serviceUUID: CBUUID,
-                                  value: NSData,
+                                  value: Data,
                                   type: CBCharacteristicWriteType,
-                                  completion: WriteRequestCallback)
+                                  completion: @escaping WriteRequestCallback)
     {
         self.discoverCharacteristics([characteristicUUID], forService: serviceUUID) { (characteristics, error) in
             
             if let error = error {
-                completion(error: error)
+                completion(error)
                 return
             }
             
@@ -705,7 +705,7 @@ extension PeripheralProxy {
             let characteristic = characteristics!.first!
             
             let request = WriteCharacteristicValueRequest(characteristic: characteristic, value: value, type: type) { (error) in
-                completion(error: error)
+                completion(error)
             }
             
             let writePath = characteristic.uuidPath
@@ -721,16 +721,16 @@ extension PeripheralProxy {
         }
     }
     
-    private func runWriteCharacteristicValueRequest(writePath: CBUUIDPath) {
+    fileprivate func runWriteCharacteristicValueRequest(_ writePath: CBUUIDPath) {
         guard let request = self.writeCharacteristicValueRequests[writePath]?.first else {
             return
         }
         
-        self.cbPeripheral.writeValue(request.value, forCharacteristic: request.characteristic, type: request.type)
+        self.cbPeripheral.writeValue(request.value, for: request.characteristic, type: request.type)
         
-        if request.type == CBCharacteristicWriteType.WithResponse {
-            NSTimer.scheduledTimerWithTimeInterval(
-                PeripheralProxy.defaultTimeoutInS,
+        if request.type == CBCharacteristicWriteType.withResponse {
+            Timer.scheduledTimer(
+                timeInterval: PeripheralProxy.defaultTimeoutInS,
                 target: self,
                 selector: #selector(self.onWriteCharacteristicValueRequestTimerTick),
                 userInfo: Weak(value: request),
@@ -742,16 +742,16 @@ extension PeripheralProxy {
                 self.writeCharacteristicValueRequests[writePath] = nil
             }
             
-            request.callback(error: nil)
+            request.callback(nil)
             
             self.runWriteCharacteristicValueRequest(writePath)
         }
         
     }
     
-    @objc private func onWriteCharacteristicValueRequestTimerTick(timer: NSTimer) {
+    @objc fileprivate func onWriteCharacteristicValueRequestTimerTick(_ timer: Timer) {
         defer {
-            if timer.valid { timer.invalidate() }
+            if timer.isValid { timer.invalidate() }
         }
         
         let weakRequest = timer.userInfo as! Weak<WriteCharacteristicValueRequest>
@@ -767,7 +767,7 @@ extension PeripheralProxy {
             self.writeCharacteristicValueRequests[writePath] = nil
         }
         
-        request.callback(error: Error.OperationTimeoutError(operationName: "write characteristic value"))
+        request.callback(SBError.operationTimedOut(operation: .writeCharacteristic))
         
         self.runWriteCharacteristicValueRequest(writePath)
     }
@@ -778,11 +778,11 @@ private final class WriteDescriptorValueRequest {
     let service: CBService
     let characteristic: CBCharacteristic
     let descriptor: CBDescriptor
-    let value: NSData
+    let value: Data
     
     let callback: WriteRequestCallback
     
-    init(descriptor: CBDescriptor, value: NSData, callback: WriteRequestCallback) {
+    init(descriptor: CBDescriptor, value: Data, callback: @escaping WriteRequestCallback) {
         self.callback = callback
         self.value = value
         self.descriptor = descriptor
@@ -792,26 +792,26 @@ private final class WriteDescriptorValueRequest {
 }
 
 extension PeripheralProxy {
-    func writeDescriptorValue(descriptorUUID: CBUUID,
+    func writeDescriptorValue(_ descriptorUUID: CBUUID,
                               characteristicUUID: CBUUID,
                               serviceUUID: CBUUID,
-                              value: NSData,
-                              completion: WriteRequestCallback)
+                              value: Data,
+                              completion: @escaping WriteRequestCallback)
     {
         self.discoverDescriptorsForCharacteristic(characteristicUUID, serviceUUID: serviceUUID) { (descriptors, error) in
             
             if let error = error {
-                completion(error: error)
+                completion(error)
                 return
             }
             
-            guard let descriptor = descriptors?.filter({ $0.UUID == descriptorUUID }).first else {
-                completion(error: Error.PeripheralDescriptorsNotFound(missingDescriptorsUUIDs: [descriptorUUID]))
+            guard let descriptor = descriptors?.filter({ $0.uuid == descriptorUUID }).first else {
+                completion(SBError.peripheralDescriptorsNotFound(missingDescriptorsUUIDs: [descriptorUUID]))
                 return
             }
             
             let request = WriteDescriptorValueRequest(descriptor: descriptor, value: value) { (error) in
-                completion(error: error)
+                completion(error)
             }
             
             let writePath = descriptor.uuidPath
@@ -827,24 +827,24 @@ extension PeripheralProxy {
         }
     }
     
-    private func runWriteDescriptorValueRequest(writePath: CBUUIDPath) {
+    fileprivate func runWriteDescriptorValueRequest(_ writePath: CBUUIDPath) {
         guard let request = self.writeDescriptorValueRequests[writePath]?.first else {
             return
         }
         
-        self.cbPeripheral.writeValue(request.value, forDescriptor: request.descriptor)
+        self.cbPeripheral.writeValue(request.value, for: request.descriptor)
         
-        NSTimer.scheduledTimerWithTimeInterval(
-            PeripheralProxy.defaultTimeoutInS,
+        Timer.scheduledTimer(
+            timeInterval: PeripheralProxy.defaultTimeoutInS,
             target: self,
             selector: #selector(self.onWriteDescriptorValueRequestTimerTick),
             userInfo: Weak(value: request),
             repeats: false)
     }
     
-    @objc private func onWriteDescriptorValueRequestTimerTick(timer: NSTimer) {
+    @objc fileprivate func onWriteDescriptorValueRequestTimerTick(_ timer: Timer) {
         defer {
-            if timer.valid { timer.invalidate() }
+            if timer.isValid { timer.invalidate() }
         }
         
         let weakRequest = timer.userInfo as! Weak<WriteDescriptorValueRequest>
@@ -860,7 +860,7 @@ extension PeripheralProxy {
             self.writeDescriptorValueRequests[writePath] = nil
         }
         
-        request.callback(error: Error.OperationTimeoutError(operationName: "write to decriptor"))
+        request.callback(SBError.operationTimedOut(operation: .writeDescriptor))
         
         self.runWriteDescriptorValueRequest(writePath)
     }
@@ -874,7 +874,7 @@ private final class UpdateNotificationStateRequest {
     
     let callback: UpdateNotificationStateCallback
     
-    init(enabled: Bool, characteristic: CBCharacteristic, callback: UpdateNotificationStateCallback) {
+    init(enabled: Bool, characteristic: CBCharacteristic, callback: @escaping UpdateNotificationStateCallback) {
         self.enabled = enabled
         self.characteristic = characteristic
         self.service = characteristic.service
@@ -883,12 +883,12 @@ private final class UpdateNotificationStateRequest {
 }
 
 extension PeripheralProxy {
-    func setNotifyValueForCharacteristic(enabled: Bool, characteristicUUID: CBUUID, serviceUUID: CBUUID, completion: UpdateNotificationStateCallback) {
+    func setNotifyValueForCharacteristic(_ enabled: Bool, characteristicUUID: CBUUID, serviceUUID: CBUUID, completion: @escaping UpdateNotificationStateCallback) {
         
         self.discoverCharacteristics([characteristicUUID], forService: serviceUUID) { (characteristics, error) in
             
             if let error = error {
-                completion(isNotifying: nil, error: error)
+                completion(nil, error)
                 return
             }
             
@@ -897,7 +897,7 @@ extension PeripheralProxy {
             let characteristic = characteristics!.first!
             
             let request = UpdateNotificationStateRequest(enabled: enabled, characteristic: characteristic) { (isNotifying, error) in
-                completion(isNotifying: isNotifying, error: error)
+                completion(isNotifying, error)
             }
             
             let path = characteristic.uuidPath
@@ -913,24 +913,24 @@ extension PeripheralProxy {
         }
     }
     
-    private func runUpdateNotificationStateRequest(path: CBUUIDPath) {
+    fileprivate func runUpdateNotificationStateRequest(_ path: CBUUIDPath) {
         guard let request = self.updateNotificationStateRequests[path]?.first else {
             return
         }
         
-        self.cbPeripheral.setNotifyValue(request.enabled, forCharacteristic: request.characteristic)
+        self.cbPeripheral.setNotifyValue(request.enabled, for: request.characteristic)
         
-        NSTimer.scheduledTimerWithTimeInterval(
-            PeripheralProxy.defaultTimeoutInS,
+        Timer.scheduledTimer(
+            timeInterval: PeripheralProxy.defaultTimeoutInS,
             target: self,
             selector: #selector(self.onUpdateNotificationStateRequest),
             userInfo: Weak(value: request),
             repeats: false)
     }
     
-    @objc private func onUpdateNotificationStateRequest(timer: NSTimer) {
+    @objc fileprivate func onUpdateNotificationStateRequest(_ timer: Timer) {
         defer {
-            if timer.valid { timer.invalidate() }
+            if timer.isValid { timer.invalidate() }
         }
         
         let weakRequest = timer.userInfo as! Weak<UpdateNotificationStateRequest>
@@ -946,7 +946,7 @@ extension PeripheralProxy {
             self.updateNotificationStateRequests[path] = nil
         }
         
-        request.callback(isNotifying: nil, error: Error.OperationTimeoutError(operationName: "update notification status"))
+        request.callback(nil, SBError.operationTimedOut(operation: .updateNotificationStatus))
         
         self.runUpdateNotificationStateRequest(path)
     }
@@ -954,7 +954,7 @@ extension PeripheralProxy {
 
 // MARK: CBPeripheralDelegate
 extension PeripheralProxy: CBPeripheralDelegate {
-    @objc func peripheral(peripheral: CBPeripheral, didReadRSSI RSSI: NSNumber, error: NSError?) {
+    @objc func peripheral(_ peripheral: CBPeripheral, didReadRSSI RSSI: NSNumber, error: Error?) {
         guard let readRSSIRequest = self.readRSSIRequests.first else {
             return
         }
@@ -962,21 +962,18 @@ extension PeripheralProxy: CBPeripheralDelegate {
         self.readRSSIRequests.removeFirst()
         
         var rssi: Int?
-        var swiftyError: Error?
         
-        if let error = error {
-            swiftyError = .CoreBluetoothError(operationName: "read RSSI", error: error)
-        } else {
-            rssi = RSSI.integerValue
+        if error == nil {
+            rssi = RSSI.intValue
         }
         
-        readRSSIRequest.callback(RSSI: rssi, error: swiftyError)
+        readRSSIRequest.callback(rssi, error)
         
         self.runRSSIRequest()
     }
     
-    @objc func peripheralDidUpdateName(peripheral: CBPeripheral) {
-        var userInfo: [NSObject: AnyObject]?
+    @objc func peripheralDidUpdateName(_ peripheral: CBPeripheral) {
+        var userInfo: [AnyHashable: Any]?
         if let name = peripheral.name {
             userInfo = ["name": name]
         }
@@ -984,11 +981,11 @@ extension PeripheralProxy: CBPeripheralDelegate {
         self.postPeripheralEvent(.PeripheralNameUpdate, userInfo: userInfo)
     }
     
-    @objc func peripheral(peripheral: CBPeripheral, didModifyServices invalidatedServices: [CBService]) {
+    @objc func peripheral(_ peripheral: CBPeripheral, didModifyServices invalidatedServices: [CBService]) {
         self.postPeripheralEvent(.PeripheralModifedServices, userInfo: ["invalidatedServices": invalidatedServices])
     }
     
-    @objc func peripheral(peripheral: CBPeripheral, didDiscoverIncludedServicesForService service: CBService, error: NSError?) {
+    @objc func peripheral(_ peripheral: CBPeripheral, didDiscoverIncludedServicesFor service: CBService, error: Error?) {
         guard let includedServicesRequest = self.includedServicesRequests.first else {
             return
         }
@@ -1000,23 +997,23 @@ extension PeripheralProxy: CBPeripheralDelegate {
         self.includedServicesRequests.removeFirst()
         
         if let error = error {
-            includedServicesRequest.callback(services: nil, error: Error.CoreBluetoothError(operationName: "discover included services", error: error))
+            includedServicesRequest.callback(nil, error)
             return
         }
         
         if let serviceUUIDs = includedServicesRequest.serviceUUIDs {
             let servicesTuple = peripheral.servicesWithUUIDs(serviceUUIDs)
             if servicesTuple.missingServicesUUIDs.count > 0 {
-                includedServicesRequest.callback(services: nil, error: Error.PeripheralServiceNotFound(missingServicesUUIDs: servicesTuple.missingServicesUUIDs))
+                includedServicesRequest.callback(nil, SBError.peripheralServiceNotFound(missingServicesUUIDs: servicesTuple.missingServicesUUIDs))
             } else { // This implies that all the services we're found through Set logic in the servicesWithUUIDs function
-                includedServicesRequest.callback(services: servicesTuple.foundServices, error: nil)
+                includedServicesRequest.callback(servicesTuple.foundServices, nil)
             }
         } else {
-            includedServicesRequest.callback(services: service.includedServices, error: nil)
+            includedServicesRequest.callback(service.includedServices, nil)
         }
     }
     
-    @objc func peripheral(peripheral: CBPeripheral, didDiscoverServices error: NSError?) {
+    @objc func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         guard let serviceRequest = self.serviceRequests.first else {
             return
         }
@@ -1028,23 +1025,23 @@ extension PeripheralProxy: CBPeripheralDelegate {
         self.serviceRequests.removeFirst()
         
         if let error = error {
-            serviceRequest.callback(services: nil, error: Error.CoreBluetoothError(operationName: "discover services", error: error))
+            serviceRequest.callback(nil, error)
             return
         }
         
         if let serviceUUIDs = serviceRequest.serviceUUIDs {
             let servicesTuple = peripheral.servicesWithUUIDs(serviceUUIDs)
             if servicesTuple.missingServicesUUIDs.count > 0 {
-                serviceRequest.callback(services: nil, error: Error.PeripheralServiceNotFound(missingServicesUUIDs: servicesTuple.missingServicesUUIDs))
+                serviceRequest.callback(nil, SBError.peripheralServiceNotFound(missingServicesUUIDs: servicesTuple.missingServicesUUIDs))
             } else { // This implies that all the services we're found through Set logic in the servicesWithUUIDs function
-                serviceRequest.callback(services: servicesTuple.foundServices, error: nil)
+                serviceRequest.callback(servicesTuple.foundServices, nil)
             }
         } else {
-            serviceRequest.callback(services: peripheral.services, error: nil)
+            serviceRequest.callback(peripheral.services, nil)
         }
     }
     
-    @objc func peripheral(peripheral: CBPeripheral, didDiscoverCharacteristicsForService service: CBService, error: NSError?) {
+    @objc func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
         guard let characteristicRequest = self.characteristicRequests.first else {
             return
         }
@@ -1056,7 +1053,7 @@ extension PeripheralProxy: CBPeripheralDelegate {
         self.characteristicRequests.removeFirst()
         
         if let error = error {
-            characteristicRequest.callback(characteristics: nil, error: Error.CoreBluetoothError(operationName: "discover characteristics", error: error))
+            characteristicRequest.callback(nil, error)
             return
         }
         
@@ -1064,17 +1061,17 @@ extension PeripheralProxy: CBPeripheralDelegate {
             let characteristicsTuple = service.characteristicsWithUUIDs(characteristicUUIDs)
             
             if characteristicsTuple.missingCharacteristicsUUIDs.count > 0 {
-                characteristicRequest.callback(characteristics: nil, error: Error.PeripheralCharacteristicNotFound(missingCharacteristicsUUIDs: characteristicsTuple.missingCharacteristicsUUIDs))
+                characteristicRequest.callback(nil, SBError.peripheralCharacteristicNotFound(missingCharacteristicsUUIDs: characteristicsTuple.missingCharacteristicsUUIDs))
             } else {
-                characteristicRequest.callback(characteristics: characteristicsTuple.foundCharacteristics, error: nil)
+                characteristicRequest.callback(characteristicsTuple.foundCharacteristics, nil)
             }
             
         } else {
-            characteristicRequest.callback(characteristics: service.characteristics, error: nil)
+            characteristicRequest.callback(service.characteristics, nil)
         }
     }
     
-    @objc func peripheral(peripheral: CBPeripheral, didDiscoverDescriptorsForCharacteristic characteristic: CBCharacteristic, error: NSError?) {
+    @objc func peripheral(_ peripheral: CBPeripheral, didDiscoverDescriptorsFor characteristic: CBCharacteristic, error: Error?) {
         guard let descriptorRequest = self.descriptorRequests.first else {
             return
         }
@@ -1086,18 +1083,18 @@ extension PeripheralProxy: CBPeripheralDelegate {
         self.descriptorRequests.removeFirst()
         
         if let error = error {
-            descriptorRequest.callback(descriptors: nil, error: Error.CoreBluetoothError(operationName: "discover descriptors", error: error))
+            descriptorRequest.callback(nil, error)
         } else {
-            descriptorRequest.callback(descriptors: characteristic.descriptors, error: nil)
+            descriptorRequest.callback(characteristic.descriptors, nil)
         }
     }
     
-    @objc func peripheral(peripheral: CBPeripheral, didUpdateValueForCharacteristic characteristic: CBCharacteristic, error: NSError?) {
+    @objc func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
         let readPath = characteristic.uuidPath
         
         guard let request = self.readCharacteristicRequests[readPath]?.first else {
             if characteristic.isNotifying {
-                var userInfo: [NSObject: AnyObject] = ["characteristic": characteristic]
+                var userInfo: [AnyHashable: Any] = ["characteristic": characteristic]
                 if let error = error {
                     userInfo["error"] = error
                 }
@@ -1117,13 +1114,13 @@ extension PeripheralProxy: CBPeripheralDelegate {
         }
         
         if let error = error {
-            request.callback(data: nil, error: Error.CoreBluetoothError(operationName: "read characteristic", error: error))
+            request.callback(nil, error)
         } else {
-            request.callback(data: characteristic.value, error: nil)
+            request.callback(characteristic.value, nil)
         }
     }
     
-    @objc func peripheral(peripheral: CBPeripheral, didWriteValueForCharacteristic characteristic: CBCharacteristic, error: NSError?) {
+    @objc func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
         let writePath = characteristic.uuidPath
         
         guard let request = self.writeCharacteristicValueRequests[writePath]?.first else {
@@ -1140,13 +1137,13 @@ extension PeripheralProxy: CBPeripheralDelegate {
         }
         
         if let error = error {
-            request.callback(error: Error.CoreBluetoothError(operationName: "write characteristic value", error: error))
+            request.callback(error)
         } else {
-            request.callback(error: nil)
+            request.callback(nil)
         }
     }
     
-    @objc func peripheral(peripheral: CBPeripheral, didUpdateNotificationStateForCharacteristic characteristic: CBCharacteristic, error: NSError?) {
+    @objc func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {
         let path = characteristic.uuidPath
         
         guard let request = self.updateNotificationStateRequests[path]?.first else {
@@ -1163,13 +1160,13 @@ extension PeripheralProxy: CBPeripheralDelegate {
         }
         
         if let error = error {
-            request.callback(isNotifying: nil, error: Error.CoreBluetoothError(operationName: "update characteristic notification state", error: error))
+            request.callback(nil, error)
         } else {
-            request.callback(isNotifying: characteristic.isNotifying, error: nil)
+            request.callback(characteristic.isNotifying, nil)
         }
     }
     
-    @objc func peripheral(peripheral: CBPeripheral, didUpdateValueForDescriptor descriptor: CBDescriptor, error: NSError?) {
+    @objc func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor descriptor: CBDescriptor, error: Error?) {
         let readPath = descriptor.uuidPath
         
         guard let request = self.readDescriptorRequests[readPath]?.first else {
@@ -1186,20 +1183,18 @@ extension PeripheralProxy: CBPeripheralDelegate {
         }
         
         if let error = error {
-            request.callback(value: nil, error: Error.CoreBluetoothError(operationName: "read descriptor", error: error))
+            request.callback(nil, error)
         } else {
             do {
                 let value = try DescriptorValue(descriptor: descriptor)
-                request.callback(value: value, error: nil)
-            } catch let error as Error {
-                request.callback(value: nil, error: error)
-            } catch {
-                request.callback(value: nil, error: Error.InvalidDescriptorValue(descriptor: descriptor))
+                request.callback(value, nil)
+            } catch let error {
+                request.callback(nil, error)
             }
         }
     }
     
-    @objc func peripheral(peripheral: CBPeripheral, didWriteValueForDescriptor descriptor: CBDescriptor, error: NSError?) {
+    @objc func peripheral(_ peripheral: CBPeripheral, didWriteValueFor descriptor: CBDescriptor, error: Error?) {
         let writePath = descriptor.uuidPath
         
         guard let request = self.writeDescriptorValueRequests[writePath]?.first else {
@@ -1216,9 +1211,9 @@ extension PeripheralProxy: CBPeripheralDelegate {
         }
         
         if let error = error {
-            request.callback(error: Error.CoreBluetoothError(operationName: "write descriptor value", error: error))
+            request.callback(error)
         } else {
-            request.callback(error: nil)
+            request.callback(nil)
         }
     }
 }

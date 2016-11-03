@@ -40,38 +40,30 @@ public protocol CBUUIDConvertible {
 
 extension String: CBUUIDConvertible {
     public var CBUUIDRepresentation: CBUUID {
-        get {
-            return CBUUID(string: self)
-        }
+        return CBUUID(string: self)
     }
 }
 
-extension NSUUID: CBUUIDConvertible {
+extension UUID: CBUUIDConvertible {
     public var CBUUIDRepresentation: CBUUID {
-        get {
-            return CBUUID(NSUUID: self)
-        }
+        return CBUUID(nsuuid: self)
     }
 }
 
 extension CBUUID: CBUUIDConvertible {
     public var CBUUIDRepresentation: CBUUID {
-        get {
-            return self
-        }
+        return self
     }
 }
 
 extension CBAttribute: CBUUIDConvertible {
     public var CBUUIDRepresentation: CBUUID {
-        get {
-            return self.UUID
-        }
+        return self.uuid
     }
 }
 
-func ExtractCBUUIDs(CBUUIDConvertibles: [CBUUIDConvertible]?) -> [CBUUID]? {
-    if let CBUUIDConvertibles = CBUUIDConvertibles where CBUUIDConvertibles.count > 0 {
+func ExtractCBUUIDs(_ CBUUIDConvertibles: [CBUUIDConvertible]?) -> [CBUUID]? {
+    if let CBUUIDConvertibles = CBUUIDConvertibles , CBUUIDConvertibles.count > 0 {
         return CBUUIDConvertibles.map { $0.CBUUIDRepresentation }
     } else {
         return nil

@@ -23,6 +23,11 @@
 
 import CoreBluetooth
 
+// For iOS9 Support
+#if !swift(>=2.3)
+    public typealias CBManagerState = CBCentralManagerState
+#endif
+
 /**
     The Central notifications sent through the default 'NSNotificationCenter' by the Central instance.
  
@@ -51,9 +56,9 @@ public enum CentralEvent: String {
  
 */
 public enum PeripheralScanResult {
-    case ScanStarted
-    case ScanResult(peripheral: Peripheral, advertisementData: [String : AnyObject], RSSI: NSNumber)
-    case ScanStopped(error: Error?)
+    case scanStarted
+    case scanResult(peripheral: Peripheral, advertisementData: [String: Any], RSSI: NSNumber)
+    case scanStopped(error: SBError?)
 }
 
 /**
@@ -66,64 +71,77 @@ public enum PeripheralScanResult {
 
 */
 public enum AsyncCentralState: Int {
-    case Unsupported = 2
-    case Unauthorized = 3
-    case PoweredOff = 4
-    case PoweredOn = 5
+    case unsupported = 2
+    case unauthorized = 3
+    case poweredOff = 4
+    case poweredOn = 5
 }
 
-public typealias AsyncCentralStateCallback = (state: AsyncCentralState) -> Void
-public typealias BluetoothStateCallback = (state: CBCentralManagerState) -> Void
-public typealias PeripheralScanCallback = (scanResult: PeripheralScanResult) -> Void
-public typealias PeripheralConnectCallback = (error: Error?) -> Void
-public typealias PeripheralDisconnectCallback = (error: Error?) -> Void
+public typealias AsyncCentralStateCallback = (AsyncCentralState) -> Void
+public typealias BluetoothStateCallback = (CBCentralManagerState) -> Void
+public typealias PeripheralScanCallback = (PeripheralScanResult) -> Void
+public typealias ConnectPeripheralCallback = (Error?) -> Void
+public typealias DisconnectPeripheralCallback = (Error?) -> Void
 
 /// A singleton wrapping a CBCentralManager instance to run CBCentralManager related functions with closures based callbacks instead of the usual CBCentralManagerDelegate interface.
 public final class Central {
     public static let sharedInstance = Central()
     
-    private let centralProxy: CentralProxy = CentralProxy()
+    fileprivate let centralProxy: CentralProxy = CentralProxy()
     
     private init() {}
 }
 
 // MARK: Internal
-typealias InitializeBluetoothCallback = (error: Error?) -> Void
+typealias InitializeBluetoothCallback = (_ error: SBError?) -> Void
 
 extension Central {
-    func initializeBluetooth(completion: InitializeBluetoothCallback) {
+    func initializeBluetooth(completion: @escaping InitializeBluetoothCallback) {
         centralProxy.initializeBluetooth(completion)
     }
     
-    func connectPeripheral(peripheral: CBPeripheral,
-                           timeout: NSTimeInterval = 10,
-                           completion: PeripheralConnectCallback)
+    func connect(peripheral: CBPeripheral,
+                 timeout: TimeInterval = 10,
+                 completion: @escaping ConnectPeripheralCallback)
     {
-        centralProxy.connectPeripheral(peripheral, timeout: timeout, completion)
+        centralProxy.connect(peripheral: peripheral, timeout: timeout, completion)
     }
     
-    func disconnectPeripheral(peripheral: CBPeripheral,
-                              timeout: NSTimeInterval = 10,
-                              completion: PeripheralDisconnectCallback)
+    func disconnect(peripheral: CBPeripheral,
+                    timeout: TimeInterval = 10,
+                    completion: @escaping DisconnectPeripheralCallback)
     {
-        centralProxy.disconnectPeripheral(peripheral, timeout: timeout, completion)
+        centralProxy.disconnect(peripheral: peripheral, timeout: timeout, completion)
     }
 }
 
 // MARK: Public
 extension Central {
-    /// The underlying CBCentralManager state
+    
+    /// The underlying CBCentralManager CBManagerState
     public var state: CBCentralManagerState {
-        get {
-            return self.centralProxy.centralManager.state
+        switch self.centralProxy.centralManager.state.rawValue {
+        case 0:
+            return .unknown
+        case 1:
+            return .resetting
+        case 2:
+            return .unsupported
+        case 3:
+            return .unauthorized
+        case 4:
+            return .poweredOff
+        case 5:
+            return .poweredOn
+        default:
+            assertionFailure("Unhandlable bluetooth state")
+            return .unknown
         }
     }
     
     /// The underlying CBCentralManager isScanning value
     public var isScanning: Bool {
-        get {
-            return self.centralProxy.centralManager.isScanning
-        }
+        return self.centralProxy.centralManager.isScanning
     }
     
     /// Scans for Peripherals through a CBCentralManager scanForPeripheralsWithServices(...) function call.
@@ -131,13 +149,12 @@ extension Central {
     /// - Parameter timeout: The scanning time in seconds before the scan is stopped and the completion closure is called with a scanStopped result.
     /// - Parameter serviceUUIDs: The service UUIDs to search peripherals for or nil if looking for all peripherals.
     /// - Parameter completion: The closures, called multiple times throughout a scan.
-    public func scanWithTimeout(timeout: NSTimeInterval,
-                                serviceUUIDs: [CBUUIDConvertible]?,
-                                completion: PeripheralScanCallback) {
+    public func scanForPeripherals(withServiceUUIDs serviceUUIDs: [CBUUIDConvertible]? = nil,
+                                   timeoutAfter timeout: TimeInterval,
+                                   completion: @escaping PeripheralScanCallback) {
         // Passing in an empty array will act the same as if you passed nil and discover all peripherals but
         // it is recommended to pass in nil for those cases similarly to how the CoreBluetooth scan method works
-        assert(serviceUUIDs == nil || serviceUUIDs?.count > 0)
-        
+        assert(serviceUUIDs == nil || serviceUUIDs!.count > 0)
         centralProxy.scanWithTimeout(timeout, serviceUUIDs: ExtractCBUUIDs(serviceUUIDs), completion)
     }
     
@@ -150,7 +167,8 @@ extension Central {
     /// Sometime, the bluetooth state of your iOS Device/CBCentralManagerState is in an inbetween state of either
     /// ".Unknown" or ".Reseting". This function will wait until the bluetooth state is stable and return a subset
     /// of the CBCentralManager state value which does not includes these values in its completion closure.
-    public func asyncCentralState(completion: AsyncCentralStateCallback) {
-        self.centralProxy.asyncCentralState(completion)
+    public func asyncState(completion: @escaping AsyncCentralStateCallback) {
+        self.centralProxy.asyncState(completion)
     }
+    
 }

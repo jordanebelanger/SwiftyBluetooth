@@ -30,11 +30,13 @@ import CoreBluetooth
 /// - Parameter timeout: The scanning time in seconds before the scan is stopped and the completion closure is called with a scanStopped result.
 /// - Parameter serviceUUIDs: The service UUIDs to search peripherals for or nil if looking for all peripherals.
 /// - Parameter completion: The closures, called multiple times throughout a scan.
-public func scanWithTimeout(timeout: NSTimeInterval,
-                            serviceUUIDs: [CBUUIDConvertible]?,
-                            completion: PeripheralScanCallback)
+public func scanForPeripherals(withServiceUUIDs serviceUUIDs: [CBUUIDConvertible]? = nil,
+                               timeoutAfter timeout: TimeInterval,
+                               completion: @escaping PeripheralScanCallback)
 {
-    Central.sharedInstance.scanWithTimeout(timeout, serviceUUIDs: serviceUUIDs, completion: completion)
+    Central.sharedInstance.scanForPeripherals(withServiceUUIDs: serviceUUIDs,
+                                              timeoutAfter: timeout,
+                                              completion: completion)
 }
 
 /// Will stop the current scan through a CBCentralManager stopScan() function call and invokes the completion
@@ -46,20 +48,11 @@ public func stopScan() {
 /// Sometimes, the bluetooth state of your iOS Device/CBCentralManagerState is in an inbetween state of either
 /// ".Unknown" or ".Reseting". This function will wait until the bluetooth state is stable and return a subset
 /// of the CBCentralManager state value which does not includes these values in its completion closure.
-public func asyncCentralState(completion: AsyncCentralStateCallback) {
-    Central.sharedInstance.asyncCentralState(completion)
-}
-
-/// The Central singleton underlying CBCentralManager state
-public var state: CBCentralManagerState {
-    get {
-        return Central.sharedInstance.state
-    }
+public func asyncState(completion: @escaping AsyncCentralStateCallback) {
+    Central.sharedInstance.asyncState(completion: completion)
 }
 
 /// The Central singleton CBCentralManager isScanning value
 public var isScanning: Bool {
-    get {
-        return Central.sharedInstance.isScanning
-    }
+    return Central.sharedInstance.isScanning
 }

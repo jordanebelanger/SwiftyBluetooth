@@ -21,58 +21,58 @@ import CoreBluetooth
     - CustomValue: Case for descriptor with a non standard UUID
 */
 public enum DescriptorValue {
-    case CharacteristicExtendedProperties(value: UInt16)
-    case CharacteristicUserDescription(value: String)
-    case ClientCharacteristicConfigurationString(value: UInt16)
-    case ServerCharacteristicConfigurationString(value: UInt16)
-    case CharacteristicFormatString(value: NSData)
-    case CharacteristicAggregateFormatString(value: UInt16)
-    case CustomValue(value: AnyObject)
+    case characteristicExtendedProperties(value: UInt16)
+    case characteristicUserDescription(value: String)
+    case clientCharacteristicConfigurationString(value: UInt16)
+    case serverCharacteristicConfigurationString(value: UInt16)
+    case characteristicFormatString(value: Data)
+    case characteristicAggregateFormatString(value: UInt16)
+    case customValue(value: AnyObject)
     
     init(descriptor: CBDescriptor) throws {
         guard let value = descriptor.value else {
-            throw Error.InvalidDescriptorValue(descriptor: descriptor)
+            throw SBError.invalidDescriptorValue(descriptor: descriptor)
         }
         
-        switch descriptor.CBUUIDRepresentation.UUIDString {
+        switch descriptor.CBUUIDRepresentation.uuidString {
         case CBUUIDCharacteristicExtendedPropertiesString:
-            guard let value = UInt16(uncastedUnwrappedNSNumber: descriptor.value) else {
-                throw Error.InvalidDescriptorValue(descriptor: descriptor)
+            guard let value = UInt16(uncastedUnwrappedNSNumber: descriptor.value as AnyObject?) else {
+                throw SBError.invalidDescriptorValue(descriptor: descriptor)
             }
-            self = .CharacteristicExtendedProperties(value: value)
+            self = .characteristicExtendedProperties(value: value)
             
         case CBUUIDCharacteristicUserDescriptionString:
             guard let value = descriptor.value as? String else {
-                throw Error.InvalidDescriptorValue(descriptor: descriptor)
+                throw SBError.invalidDescriptorValue(descriptor: descriptor)
             }
-            self = .CharacteristicUserDescription(value: value)
+            self = .characteristicUserDescription(value: value)
             
         case CBUUIDClientCharacteristicConfigurationString:
-            guard let value = UInt16(uncastedUnwrappedNSNumber: descriptor.value) else {
-                throw Error.InvalidDescriptorValue(descriptor: descriptor)
+            guard let value = UInt16(uncastedUnwrappedNSNumber: descriptor.value as AnyObject?) else {
+                throw SBError.invalidDescriptorValue(descriptor: descriptor)
             }
-            self = .ClientCharacteristicConfigurationString(value: value)
+            self = .clientCharacteristicConfigurationString(value: value)
             
         case CBUUIDServerCharacteristicConfigurationString:
-            guard let value = UInt16(uncastedUnwrappedNSNumber: descriptor.value) else {
-                throw Error.InvalidDescriptorValue(descriptor: descriptor)
+            guard let value = UInt16(uncastedUnwrappedNSNumber: descriptor.value as AnyObject?) else {
+                throw SBError.invalidDescriptorValue(descriptor: descriptor)
             }
-            self = .ServerCharacteristicConfigurationString(value: value)
+            self = .serverCharacteristicConfigurationString(value: value)
             
         case CBUUIDCharacteristicFormatString:
-            guard let value = descriptor.value as? NSData else {
-                throw Error.InvalidDescriptorValue(descriptor: descriptor)
+            guard let value = descriptor.value as? Data else {
+                throw SBError.invalidDescriptorValue(descriptor: descriptor)
             }
-            self = .CharacteristicFormatString(value: value)
+            self = .characteristicFormatString(value: value)
             
         case CBUUIDCharacteristicAggregateFormatString:
-            guard let value = UInt16(uncastedUnwrappedNSNumber: descriptor.value) else {
-                throw Error.InvalidDescriptorValue(descriptor: descriptor)
+            guard let value = UInt16(uncastedUnwrappedNSNumber: descriptor.value as AnyObject?) else {
+                throw SBError.invalidDescriptorValue(descriptor: descriptor)
             }
-            self = .CharacteristicAggregateFormatString(value: value)
+            self = .characteristicAggregateFormatString(value: value)
             
         default:
-            self = .CustomValue(value: value)
+            self = .customValue(value: value as AnyObject)
         }
     }
 }
