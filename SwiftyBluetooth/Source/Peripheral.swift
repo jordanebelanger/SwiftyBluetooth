@@ -28,14 +28,14 @@ import CoreBluetooth
  
     Use the PeripheralEvent enum rawValue as the notification string when registering for notifications.
  
-    - PeripheralNameUpdate: Updates to a Peripheral's CBPeripheral name value, userInfo: ["name": String?]
-    - PeripheralModifedServices: Update to a peripheral's CBPeripheral services, userInfo: ["invalidatedServices": [CBService]]
-    - CharacteristicValueUpdate: An update to the value of a characteristic you're peripherals is subscribed for updates from, userInfo: ["characteristic": CBCharacteristic, "error": SBError?]
+    - peripheralNameUpdate: Updates to a Peripheral's CBPeripheral name value, userInfo: ["name": String?]
+    - peripheralModifedServices: Update to a peripheral's CBPeripheral services, userInfo: ["invalidatedServices": [CBService]]
+    - characteristicValueUpdate: An update to the value of a characteristic you're peripherals is subscribed for updates from, userInfo: ["characteristic": CBCharacteristic, "error": SBError?]
 */
 public enum PeripheralEvent: String {
-    case PeripheralNameUpdate
-    case PeripheralModifedServices
-    case CharacteristicValueUpdate
+    case peripheralNameUpdate
+    case peripheralModifedServices
+    case characteristicValueUpdate
 }
 
 public typealias ReadRSSIRequestCallback = (_ RSSI: Int?, _ error: Error?) -> Void
@@ -335,7 +335,7 @@ extension Peripheral {
     /// Will first discover the service and characteristic you want to either, start, or stop, getting notifcations from.
     ///
     /// - Parameter enabled: If enabled is true, this peripherals will register for change notifcations to the characteristic
-    ///      and notify listeners through the default 'NSNotificationCenter' with a 'PeripheralEvent.CharacteristicValueUpdate' notification.
+    ///      and notify listeners through the default 'NSNotificationCenter' with a 'PeripheralEvent.characteristicValueUpdate' notification.
     /// - Parameter characUUID: The UUID of the characteristic you want set the notify value of.
     /// - Parameter serviceUUID: The UUID of the service of the characteristic above.
     /// - Parameter completion: A closures containing the updated notification value of the characteristic or an error if something went wrong.
@@ -352,7 +352,7 @@ extension Peripheral {
     
     /// Connect to the peripheral and set the notification value of the passed characteristic through a 'CBPeripheral' setNotifyValueForCharacteristic function call.
     ///
-    /// If set to true, this peripheral will emit characteristic change updates through the default NSNotificationCenter using the "CharacteristicValueUpdate" notification.
+    /// If set to true, this peripheral will emit characteristic change updates through the default NSNotificationCenter using the "characteristicValueUpdate" notification.
     ///
     /// - Parameter enabled: The notify state of the charac, set enabled to true to receive change notifications through the default NSNotification center
     /// - Parameter charac: The characteristic you want set the notify value of.

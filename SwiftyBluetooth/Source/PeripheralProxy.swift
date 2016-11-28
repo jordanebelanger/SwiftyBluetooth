@@ -978,11 +978,11 @@ extension PeripheralProxy: CBPeripheralDelegate {
             userInfo = ["name": name]
         }
         
-        self.postPeripheralEvent(.PeripheralNameUpdate, userInfo: userInfo)
+        self.postPeripheralEvent(.peripheralNameUpdate, userInfo: userInfo)
     }
     
     @objc func peripheral(_ peripheral: CBPeripheral, didModifyServices invalidatedServices: [CBService]) {
-        self.postPeripheralEvent(.PeripheralModifedServices, userInfo: ["invalidatedServices": invalidatedServices])
+        self.postPeripheralEvent(.peripheralModifedServices, userInfo: ["invalidatedServices": invalidatedServices])
     }
     
     @objc func peripheral(_ peripheral: CBPeripheral, didDiscoverIncludedServicesFor service: CBService, error: Error?) {
@@ -1099,7 +1099,7 @@ extension PeripheralProxy: CBPeripheralDelegate {
                     userInfo["error"] = error
                 }
                 
-                self.postPeripheralEvent(.CharacteristicValueUpdate, userInfo: userInfo)
+                self.postPeripheralEvent(.characteristicValueUpdate, userInfo: userInfo)
             }
             return
         }
