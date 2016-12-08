@@ -139,16 +139,19 @@ extension Central {
         }
     }
     
+    #if DIRECT_ACCESS
     /// The underlying CBCentralManager class
     public var centralManager: CBCentralManager {
         return self.centralProxy.centralManager
     }
+    #endif
     
     /// The underlying CBCentralManager isScanning value
     public var isScanning: Bool {
         return self.centralProxy.centralManager.isScanning
     }
     
+    #if DIRECT_ACCESS
     /// The underlying CBCentralManager delegate value
     public var delegate: CBCentralManagerDelegate? {
         get {
@@ -158,11 +161,14 @@ extension Central {
             self.centralProxy.centralManager.delegate = newValue
         }
     }
+    #endif
 
+    #if DIRECT_ACCESS
     /// Sets the underlying CBCentralManager delegate back to centralProxy
     public func resetDelegate() {
         self.centralProxy.centralManager.delegate = self.centralProxy
     }
+    #endif
     
     /// Attempts to return the periperals from a list of identifier "UUID"s
     public func retrievePeripherals(withUUIDs uuids: [UUID]) -> [Peripheral] {
