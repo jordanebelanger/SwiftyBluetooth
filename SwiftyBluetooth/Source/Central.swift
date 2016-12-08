@@ -144,6 +144,21 @@ extension Central {
         return self.centralProxy.centralManager.isScanning
     }
     
+    /// The underlying CBCentralManager delegate value
+    public var delegate: CBCentralManagerDelegate? {
+        get {
+            return self.centralProxy.centralManager.delegate
+        }
+        set {
+            self.centralProxy.centralManager.delegate = newValue
+        }
+    }
+
+    /// Sets the underlying CBCentralManager delegate back to centralProxy
+    public func resetDelegate() {
+        self.centralProxy.centralManager.delegate = self.centralProxy
+    }
+    
     /// Scans for Peripherals through a CBCentralManager scanForPeripheralsWithServices(...) function call.
     ///
     /// - Parameter timeout: The scanning time in seconds before the scan is stopped and the completion closure is called with a scanStopped result.
