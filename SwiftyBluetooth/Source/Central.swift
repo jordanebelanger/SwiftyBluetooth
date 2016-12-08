@@ -139,6 +139,11 @@ extension Central {
         }
     }
     
+    /// The underlying CBCentralManager class
+    public var centralManager: CBCentralManager {
+        return self.centralProxy.centralManager
+    }
+    
     /// The underlying CBCentralManager isScanning value
     public var isScanning: Bool {
         return self.centralProxy.centralManager.isScanning
