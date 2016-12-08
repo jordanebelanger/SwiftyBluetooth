@@ -1,0 +1,30 @@
+//
+//  SwiftyBluetoothFlags.xcconfig
+//
+//  Copyright (c) 2016 Jake Rockland
+//
+//  Permission is hereby granted, free of charge, to any person obtaining a copy
+//  of this software and associated documentation files (the "Software"), to deal
+//  in the Software without restriction, including without limitation the rights
+//  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//  copies of the Software, and to permit persons to whom the Software is
+//  furnished to do so, subject to the following conditions:
+//
+//  The above copyright notice and this permission notice shall be included in all
+//  copies or substantial portions of the Software.
+//
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//  SOFTWARE.
+
+// This hook allows users of the framework to provide build flags without modifying any files within the SwiftyBluetooth repository.
+#include? "../../SwiftyBluetoothConfiguration.xcconfig"
+
+// This secondary hook allows to provide a configuration two levels further up the directory hierarchy. It exists primarily for Carthage support to allow for config files outside of auto-generated directories that may not be under version control.
+// Carthage directories are typically structured:
+//    "Carthage/Build/iOS/SwiftyBluetooth"
+#include? "../../../../../SwiftyBluetoothConfiguration.xcconfig"
