@@ -41,6 +41,7 @@
 		09D515301D2DA90A00049B59 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		09D515311D2DA90A00049B59 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		09DEF3B01CC839DE00F9B4EE /* CBUUIDConvertible.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CBUUIDConvertible.swift; path = Source/CBUUIDConvertible.swift; sourceTree = "<group>"; };
+		403A5CFD1DFA11C9000D5FDE /* SwiftyBluetoothFlags.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = SwiftyBluetoothFlags.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -59,6 +60,7 @@
 			isa = PBXGroup;
 			children = (
 				096409B11CC6103D00ADD4D9 /* SwiftyBluetooth.h */,
+				403A5CFD1DFA11C9000D5FDE /* SwiftyBluetoothFlags.xcconfig */,
 				096409B31CC6103D00ADD4D9 /* Info.plist */,
 			);
 			name = "Supporting Files";
