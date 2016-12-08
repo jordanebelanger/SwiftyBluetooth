@@ -139,6 +139,16 @@ extension Central {
         }
     }
     
+    /// The underlying CBCentralManager delegate value
+    public var delegate: CBCentralManagerDelegate? {
+        get {
+            return self.centralProxy.centralManager.delegate
+        }
+        set {
+            self.centralProxy.centralManager.delegate = newValue
+        }
+    }
+    
     /// The underlying CBCentralManager isScanning value
     public var isScanning: Bool {
         return self.centralProxy.centralManager.isScanning
