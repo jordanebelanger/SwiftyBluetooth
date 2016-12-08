@@ -218,6 +218,7 @@
 /* Begin XCBuildConfiguration section */
 		096409B41CC6103D00ADD4D9 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 403A5CFD1DFA11C9000D5FDE /* SwiftyBluetoothFlags.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -260,6 +261,7 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				SWIFTYBLUETOOTH_DIRECT_ACCESS = SWIFTYBLUETOOTH_DIRECT_ACCESS;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
@@ -269,6 +271,7 @@
 		};
 		096409B51CC6103D00ADD4D9 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 403A5CFD1DFA11C9000D5FDE /* SwiftyBluetoothFlags.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -304,6 +307,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
+				SWIFTYBLUETOOTH_DIRECT_ACCESS = SWIFTYBLUETOOTH_DIRECT_ACCESS;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
@@ -314,6 +318,7 @@
 		};
 		096409B71CC6103D00ADD4D9 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 403A5CFD1DFA11C9000D5FDE /* SwiftyBluetoothFlags.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
@@ -327,6 +332,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.tehjord.SwiftyBluetooth;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFTYBLUETOOTH_DIRECT_ACCESS = SWIFTYBLUETOOTH_DIRECT_ACCESS;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 3.0;
 			};
@@ -334,6 +340,7 @@
 		};
 		096409B81CC6103D00ADD4D9 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 403A5CFD1DFA11C9000D5FDE /* SwiftyBluetoothFlags.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
@@ -347,6 +354,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.tehjord.SwiftyBluetooth;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFTYBLUETOOTH_DIRECT_ACCESS = SWIFTYBLUETOOTH_DIRECT_ACCESS;
 				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
