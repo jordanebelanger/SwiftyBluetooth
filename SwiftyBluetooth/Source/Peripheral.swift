@@ -59,7 +59,7 @@ public final class Peripheral {
 // MARK: Public
 extension Peripheral {
     
-    #if DIRECT_ACCESS
+    #if SWIFTYBLUETOOTH_DIRECT_ACCESS
     /// The underlying CBPeripheral class
     public var peripheral: CBPeripheral {
         return self.peripheralProxy.cbPeripheral
