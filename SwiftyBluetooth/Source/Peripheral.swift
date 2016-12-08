@@ -58,6 +58,14 @@ public final class Peripheral {
 
 // MARK: Public
 extension Peripheral {
+    
+    #if SWIFTYBLUETOOTH_DIRECT_ACCESS
+    /// The underlying CBPeripheral class
+    public var peripheral: CBPeripheral {
+        return self.peripheralProxy.cbPeripheral
+    }
+    #endif
+
     /// The underlying CBPeripheral identifier
     public var identifier: UUID {
         return self.peripheralProxy.cbPeripheral.identifier
