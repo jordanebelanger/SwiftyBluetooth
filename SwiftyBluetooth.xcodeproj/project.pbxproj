@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		090622BD1D11380200368A28 /* CBExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090622BC1D11380200368A28 /* CBExtensions.swift */; };
 		0950A66B1D2101DE00512F59 /* SwiftyBluetooth.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0950A66A1D2101DE00512F59 /* SwiftyBluetooth.swift */; };
-		096409B21CC6103D00ADD4D9 /* SwiftyBluetooth.h in Headers */ = {isa = PBXBuildFile; fileRef = 096409B11CC6103D00ADD4D9 /* SwiftyBluetooth.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		096409B21CC6103D00ADD4D9 /* Supporting Files in Headers */ = {isa = PBXBuildFile; fileRef = 096409B11CC6103D00ADD4D9 /* Supporting Files */; settings = {ATTRIBUTES = (Public, ); }; };
 		096409BD1CC610CD00ADD4D9 /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 096409BC1CC610CD00ADD4D9 /* CoreBluetooth.framework */; };
 		096A03CA1D1A6FEE00CB196C /* CBUUIDPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 096A03C91D1A6FEE00CB196C /* CBUUIDPath.swift */; };
 		09709D2E1D306ADB00E01235 /* DescriptorValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09709D2D1D306ADB00E01235 /* DescriptorValue.swift */; };
@@ -26,8 +26,8 @@
 		090622BC1D11380200368A28 /* CBExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CBExtensions.swift; path = Source/CBExtensions.swift; sourceTree = "<group>"; };
 		0950A66A1D2101DE00512F59 /* SwiftyBluetooth.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SwiftyBluetooth.swift; path = Source/SwiftyBluetooth.swift; sourceTree = "<group>"; };
 		096409AE1CC6103D00ADD4D9 /* SwiftyBluetooth.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SwiftyBluetooth.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		096409B11CC6103D00ADD4D9 /* SwiftyBluetooth.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SwiftyBluetooth.h; sourceTree = "<group>"; };
-		096409B31CC6103D00ADD4D9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		096409B11CC6103D00ADD4D9 /* Supporting Files */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "Supporting Files"; sourceTree = "<group>"; };
+		096409B31CC6103D00ADD4D9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = "Supporting Files/Info.plist"; sourceTree = "<group>"; };
 		096409BC1CC610CD00ADD4D9 /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
 		096A03C91D1A6FEE00CB196C /* CBUUIDPath.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CBUUIDPath.swift; path = Source/CBUUIDPath.swift; sourceTree = "<group>"; };
 		09709D2D1D306ADB00E01235 /* DescriptorValue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DescriptorValue.swift; path = Source/DescriptorValue.swift; sourceTree = "<group>"; };
@@ -41,7 +41,8 @@
 		09D515301D2DA90A00049B59 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		09D515311D2DA90A00049B59 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		09DEF3B01CC839DE00F9B4EE /* CBUUIDConvertible.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CBUUIDConvertible.swift; path = Source/CBUUIDConvertible.swift; sourceTree = "<group>"; };
-		403A5CFD1DFA11C9000D5FDE /* SwiftyBluetoothFlags.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = SwiftyBluetoothFlags.xcconfig; sourceTree = "<group>"; };
+		403A5CFD1DFA11C9000D5FDE /* SwiftyBluetoothFlags.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = SwiftyBluetoothFlags.xcconfig; path = "Supporting Files/SwiftyBluetoothFlags.xcconfig"; sourceTree = "<group>"; };
+		409D194F1DFA206B0095F4BC /* SwiftyBluetoothConfiguration.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = SwiftyBluetoothConfiguration.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -59,7 +60,7 @@
 		0950A6691D2101BB00512F59 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				096409B11CC6103D00ADD4D9 /* SwiftyBluetooth.h */,
+				096409B11CC6103D00ADD4D9 /* Supporting Files */,
 				403A5CFD1DFA11C9000D5FDE /* SwiftyBluetoothFlags.xcconfig */,
 				096409B31CC6103D00ADD4D9 /* Info.plist */,
 			);
@@ -72,6 +73,7 @@
 				09D515301D2DA90A00049B59 /* LICENSE */,
 				09D515311D2DA90A00049B59 /* README.md */,
 				09D5152E1D2DA8F900049B59 /* SwiftyBluetooth.podspec */,
+				409D194F1DFA206B0095F4BC /* SwiftyBluetoothConfiguration.xcconfig */,
 				096409B01CC6103D00ADD4D9 /* SwiftyBluetooth */,
 				096409BF1CC610F100ADD4D9 /* Frameworks */,
 				096409AF1CC6103D00ADD4D9 /* Products */,
@@ -128,7 +130,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				096409B21CC6103D00ADD4D9 /* SwiftyBluetooth.h in Headers */,
+				096409B21CC6103D00ADD4D9 /* Supporting Files in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -1,7 +1,7 @@
 //
-//  SwiftyBluetooth.h
+//  SwiftyBluetoothConfiguration.xcconfig
 //
-//  Copyright (c) 2016 Jordane Belanger
+//  Copyright (c) 2016 Jake Rockland
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -21,14 +21,7 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //  SOFTWARE.
 
-#import <UIKit/UIKit.h>
+// Uncomment the following line to support direct access to underlying CBCentral and CBPeripheral.
+SWIFTYBLUETOOTH_FLAGS = // SWIFTYBLUETOOTH_DIRECT_ACCESS
 
-//! Project version number for SwiftyBluetooth.
-FOUNDATION_EXPORT double SwiftyBluetoothVersionNumber;
-
-//! Project version string for SwiftyBluetooth.
-FOUNDATION_EXPORT const unsigned char SwiftyBluetoothVersionString[];
-
-// In this header, you should import all the public headers of your framework using statements like #import <SwiftyBluetooth/PublicHeader.h>
-
-
+SWIFT_ACTIVE_COMPILATION_CONDITIONS= $(inherited) $(SWIFTYBLUETOOTH_FLAGS)
