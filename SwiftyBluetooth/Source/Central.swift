@@ -139,6 +139,11 @@ extension Central {
         }
     }
     
+    /// The underlying CBCentralManager isScanning value
+    public var isScanning: Bool {
+        return self.centralProxy.centralManager.isScanning
+    }
+    
     /// The underlying CBCentralManager delegate value
     public var delegate: CBCentralManagerDelegate? {
         get {
@@ -148,10 +153,10 @@ extension Central {
             self.centralProxy.centralManager.delegate = newValue
         }
     }
-    
-    /// The underlying CBCentralManager isScanning value
-    public var isScanning: Bool {
-        return self.centralProxy.centralManager.isScanning
+
+    /// Sets the underlying CBCentralManager delegate back to centralProxy
+    public func resetDelegate() {
+        self.centralProxy.centralManager.delegate = self.centralProxy
     }
     
     /// Scans for Peripherals through a CBCentralManager scanForPeripheralsWithServices(...) function call.
