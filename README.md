@@ -49,17 +49,23 @@ Note that the callback closure can be called multiple times, but always start an
 
 ### Connecting to a peripheral
 ```swift
-peripheral.connect { (error) in 
-    if let error = error {
+peripheral.connect { (result) in 
+    switch result {
+    case .faliure(let error):
         // an error happened during the connection or the connect call timed out
+    case .success(let peripheral):
+        // the connection was successful
     }
 }
 ```
 ### Disconnecting from a peripheral
 ```swift
-peripheral.disconnect { (error) in 
-    if let error = error {
+peripheral.disconnect { (result) in 
+    switch result {
+    case .faliure(let error):
         // an error happened during the disconnection, but your peripheral is guaranteed to be disconnected 
+    case .success(let peripheral):
+        // the disconnection completed without error
     }
 }
 ```
