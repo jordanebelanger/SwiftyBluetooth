@@ -119,6 +119,14 @@ extension Central {
         centralProxy.connect(peripheral: peripheral, timeout: timeout, completion)
     }
     
+    func connect(peripheralUUID: UUID,
+                 serviceUUIDs: [CBUUID],
+                 timeout: TimeInterval = 10,
+                 completion: @escaping ConnectPeripheralCallback)
+    {
+        centralProxy.connect(peripheralUUID: peripheralUUID, serviceUUIDs: serviceUUIDs, timeout: timeout, completion)
+    }
+    
     func disconnect(peripheral: CBPeripheral,
                     timeout: TimeInterval = 10,
                     completion: @escaping DisconnectPeripheralCallback)
