@@ -161,9 +161,12 @@ private final class ConnectPeripheralRequest {
         self.peripheral = peripheral
     }
     
-    func invokeCallbacks(error: Error?) {
+    func invokeCallbacks(result: PeripheralConnectionResult) {
         for callback in callbacks {
-            callback(.failed(error: error))
+            switch result {
+            case .failed(let error): callback(.failed(error: error))
+            case .success(let peripheral): callback(.success(peripheral: peripheral))
+            }
         }
     }
 }
@@ -243,7 +246,7 @@ extension CentralProxy {
                         userInfo: Weak(value: request),
                         repeats: false)
                 } else {
-                    callback(.failed(error: SBError.peripheralFailedToConnectReasonUnknown))
+                    callback(.failed(error: .peripheralFailedToConnectReasonUnknown))
                     return
                 }
             }
@@ -264,7 +267,7 @@ extension CentralProxy {
         
         self.connectRequests[uuid] = nil
         
-        request.invokeCallbacks(error: SBError.operationTimedOut(operation: .connectPeripheral))
+        request.invokeCallbacks(result: .failed(error: .operationTimedOut(operation: .connectPeripheral)))
     }
 }
 
@@ -280,9 +283,12 @@ private final class DisconnectPeripheralRequest {
         self.peripheral = peripheral
     }
     
-    func invokeCallbacks(error: Error?) {
+    func invokeCallbacks(result: PeripheralConnectionResult) {
         for callback in callbacks {
-            callback(.failed(error: error))
+            switch result {
+            case .failed(let error): callback(.failed(error: error))
+            case .success(let peripheral): callback(.success(peripheral: peripheral))
+            }
         }
     }
 }
@@ -335,7 +341,7 @@ extension CentralProxy {
         
         self.disconnectRequests[uuid] = nil
         
-        request.invokeCallbacks(error: SBError.operationTimedOut(operation: .disconnectPeripheral))
+        request.invokeCallbacks(result: .failed(error: .operationTimedOut(operation: .disconnectPeripheral)))
     }
 }
 
@@ -371,7 +377,7 @@ extension CentralProxy: CBCentralManagerDelegate {
         
         self.connectRequests[uuid] = nil
         
-        request.invokeCallbacks(error: nil)
+        request.invokeCallbacks(result: .success(peripheral: Peripheral(peripheral: peripheral)))
     }
     
     func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
@@ -382,7 +388,11 @@ extension CentralProxy: CBCentralManagerDelegate {
         
         self.disconnectRequests[uuid] = nil
         
-        request.invokeCallbacks(error: error)
+        if let error = error {
+            request.invokeCallbacks(result: .failed(error: .peripheralFailedToDisconnectWithError(error: error)))
+        } else {
+            request.invokeCallbacks(result: .success(peripheral: Peripheral(peripheral: peripheral)))
+        }
     }
     
     func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
@@ -391,11 +401,16 @@ extension CentralProxy: CBCentralManagerDelegate {
             return
         }
         
-        let resolvedError: Error = error ?? SBError.peripheralFailedToConnectReasonUnknown
-        
         self.connectRequests[uuid] = nil
         
-        request.invokeCallbacks(error: resolvedError)
+        let resolvedError: SBError
+        if let error = error {
+            resolvedError = .peripheralFailedToConnectWithError(error: error)
+        } else {
+            resolvedError = .peripheralFailedToConnectReasonUnknown
+        }
+
+        request.invokeCallbacks(result: .failed(error: resolvedError))
     }
     
     func centralManager(_ central: CBCentralManager,
