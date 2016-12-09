@@ -110,7 +110,7 @@ extension PeripheralProxy {
             case .failed(let error):
                 completion(nil, error)
                 return
-            default:
+            case .success(_):
                 break
             }
             
@@ -181,7 +181,7 @@ extension PeripheralProxy {
             case .failed(let error):
                 completion(nil, error)
                 return
-            default:
+            case .success(_):
                 break
             }
             
