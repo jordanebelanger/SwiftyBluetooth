@@ -189,6 +189,25 @@ extension Central {
         self.centralProxy.centralManager.delegate = self.centralProxy
     }
     #endif
+
+    /// Attempts to return the periperals from a list of identifier "UUID"s
+    public func retrievePeripherals(withUUIDs uuids: [UUID]) -> [Peripheral] {
+        let cbPeripherals = self.centralProxy.centralManager.retrievePeripherals(withIdentifiers: uuids)
+        let peripherals = cbPeripherals.map { cbPeripheral -> Peripheral in
+            return Peripheral(peripheral: cbPeripheral)
+        }
+        return peripherals
+    }
+    
+    /// Attempts to return the connected peripheral having the specific service CBUUIDs
+    public func retrieveConnectedPeripherals(withServiceUUIDs uuids: [CBUUIDConvertible]) -> [Peripheral] {
+        let cbUUIDs = ExtractCBUUIDs(uuids) ?? []
+        let cbPeripherals = self.centralProxy.centralManager.retrieveConnectedPeripherals(withServices: cbUUIDs)
+        let peripherals = cbPeripherals.map { cbPeripheral -> Peripheral in
+            return Peripheral(peripheral: cbPeripheral)
+        }
+        return peripherals
+    }
     
     /// Scans for Peripherals through a CBCentralManager scanForPeripheralsWithServices(...) function call.
     ///
