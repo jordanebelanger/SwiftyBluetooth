@@ -62,6 +62,18 @@ public enum PeripheralScanResult {
 }
 
 /**
+ The different results returned in the closure of the Central connect(...) and disconnect(...) functions.
+ 
+ - Success: The connection or disconnection was successful.
+ - Error: The connection or disconnection failed with a given error.
+ 
+ */
+public enum PeripheralConnectionResult {
+    case success(peripheral: Peripheral)
+    case failed(error: Error?)
+}
+
+/**
     An enum type whoses rawValues mirror the CBCentralManagerState enum owns Integer values but without the ".Resetting" and ".Unknown" temporary values.
 
     - Unsupported: CBCentralManagerState.Unsupported
@@ -80,8 +92,8 @@ public enum AsyncCentralState: Int {
 public typealias AsyncCentralStateCallback = (AsyncCentralState) -> Void
 public typealias BluetoothStateCallback = (CBCentralManagerState) -> Void
 public typealias PeripheralScanCallback = (PeripheralScanResult) -> Void
-public typealias ConnectPeripheralCallback = (Error?) -> Void
-public typealias DisconnectPeripheralCallback = (Error?) -> Void
+public typealias ConnectPeripheralCallback = (PeripheralConnectionResult) -> Void
+public typealias DisconnectPeripheralCallback = (PeripheralConnectionResult) -> Void
 
 /// A singleton wrapping a CBCentralManager instance to run CBCentralManager related functions with closures based callbacks instead of the usual CBCentralManagerDelegate interface.
 public final class Central {

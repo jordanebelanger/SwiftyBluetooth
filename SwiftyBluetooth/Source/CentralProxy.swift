@@ -163,7 +163,7 @@ private final class ConnectPeripheralRequest {
     
     func invokeCallbacks(error: Error?) {
         for callback in callbacks {
-            callback(error)
+            callback(.failed(error: error))
         }
     }
 }
@@ -172,14 +172,14 @@ extension CentralProxy {
     func connect(peripheral: CBPeripheral, timeout: TimeInterval, _ callback: @escaping ConnectPeripheralCallback) {
         initializeBluetooth { [unowned self] (error) in
             if let error = error {
-                callback(error)
+                callback(.failed(error: error))
                 return
             }
             
             let uuid = peripheral.identifier
             
             if let cbPeripheral = self.centralManager.retrievePeripherals(withIdentifiers: [uuid]).first , cbPeripheral.state == .connected {
-                callback(nil)
+                callback(.success(peripheral: Peripheral(peripheral: cbPeripheral)))
                 return
             }
             
@@ -196,6 +196,56 @@ extension CentralProxy {
                     selector: #selector(self.onConnectTimerTick),
                     userInfo: Weak(value: request),
                     repeats: false)
+            }
+        }
+    }
+    
+    func connect(peripheralUUID: UUID, serviceUUIDs: [CBUUID], timeout: TimeInterval, _ callback: @escaping ConnectPeripheralCallback) {
+        initializeBluetooth { [unowned self] (error) in
+            if let error = error {
+                callback(.failed(error: error))
+                return
+            }
+            
+            let uuid = UUID(uuidString: peripheralUUID.uuidString)!
+            
+            var peripheral: CBPeripheral?
+           
+            if let cbPeripheral = self.centralManager.retrievePeripherals(withIdentifiers: [uuid]).first {
+                if cbPeripheral.state == .connected {
+                    callback(.success(peripheral: Peripheral(peripheral: cbPeripheral)))
+                    return
+                } else {
+                    peripheral = cbPeripheral
+                    
+                    let connectedPeripherals = self.centralManager.retrieveConnectedPeripherals(withServices: serviceUUIDs)
+                    for cbPeripheral in connectedPeripherals {
+                        if cbPeripheral.identifier == peripheralUUID {
+                            peripheral = cbPeripheral
+                            break
+                        }
+                    }
+                }
+            }
+            
+            if let request = self.connectRequests[uuid] {
+                request.callbacks.append(callback)
+            } else {
+                if let peripheral = peripheral {
+                    let request = ConnectPeripheralRequest(peripheral: peripheral, callback: callback)
+                    self.connectRequests[uuid] = request
+                    
+                    self.centralManager.connect(peripheral, options: nil)
+                    Timer.scheduledTimer(
+                        timeInterval: timeout,
+                        target: self,
+                        selector: #selector(self.onConnectTimerTick),
+                        userInfo: Weak(value: request),
+                        repeats: false)
+                } else {
+                    callback(.failed(error: SBError.peripheralFailedToConnectReasonUnknown))
+                    return
+                }
             }
         }
     }
@@ -232,7 +282,7 @@ private final class DisconnectPeripheralRequest {
     
     func invokeCallbacks(error: Error?) {
         for callback in callbacks {
-            callback(error)
+            callback(.failed(error: error))
         }
     }
 }
@@ -242,7 +292,7 @@ extension CentralProxy {
         initializeBluetooth { [unowned self] (error) in
             
             if let error = error {
-                callback(error)
+                callback(.failed(error: error))
                 return
             }
             
@@ -250,7 +300,7 @@ extension CentralProxy {
             
             if let cbPeripheral = self.centralManager.retrievePeripherals(withIdentifiers: [uuid]).first,
                 (cbPeripheral.state == .disconnected || cbPeripheral.state == .disconnecting) {
-                callback(nil)
+                callback(.success(peripheral: Peripheral(peripheral: cbPeripheral)))
                 return
             }
             

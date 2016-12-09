@@ -85,7 +85,7 @@ extension PeripheralProxy {
         if self.valid {
             Central.sharedInstance.connect(peripheral: self.cbPeripheral, completion: completion)
         } else {
-            completion(SBError.invalidPeripheral)
+            completion(.failed(error: SBError.invalidPeripheral))
         }
     }
     
@@ -105,10 +105,13 @@ private final class ReadRSSIRequest {
 
 extension PeripheralProxy {
     func readRSSI(_ completion: @escaping ReadRSSIRequestCallback) {
-        self.connect { (error) in
-            if let error = error {
+        self.connect { (result) in
+            switch result {
+            case .failed(let error):
                 completion(nil, error)
                 return
+            case .success(_):
+                break
             }
             
             let request = ReadRSSIRequest(callback: completion)
@@ -173,10 +176,13 @@ private final class ServiceRequest {
 
 extension PeripheralProxy {
     func discoverServices(_ serviceUUIDs: [CBUUID]?, completion: @escaping ServiceRequestCallback) {
-        self.connect { (error) in
-            if let error = error {
+        self.connect { (result) in
+            switch result {
+            case .failed(let error):
                 completion(nil, error)
                 return
+            case .success(_):
+                break
             }
             
             // Checking if the peripheral has already discovered the services requested
