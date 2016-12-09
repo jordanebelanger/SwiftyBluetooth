@@ -119,14 +119,6 @@ extension Central {
         centralProxy.connect(peripheral: peripheral, timeout: timeout, completion)
     }
     
-    func connect(peripheralUUID: UUID,
-                 serviceUUIDs: [CBUUID],
-                 timeout: TimeInterval = 10,
-                 completion: @escaping ConnectPeripheralCallback)
-    {
-        centralProxy.connect(peripheralUUID: peripheralUUID, serviceUUIDs: serviceUUIDs, timeout: timeout, completion)
-    }
-    
     func disconnect(peripheral: CBPeripheral,
                     timeout: TimeInterval = 10,
                     completion: @escaping DisconnectPeripheralCallback)
@@ -190,6 +182,20 @@ extension Central {
     }
     #endif
 
+    /// Alternative connection method, when identifier and services are known for a peripheral.
+    ///
+    /// - Parameter peripheralUUID: The unique identifier (UUID) for the given peripheral.
+    /// - Parameter serviceUUIDs: The service UUIDs to for the given peripheral.
+    /// - Parameter timeout: The time in seconds before the connection attempt is stopped and the completion closure is called with a failed result.
+    /// - Parameter completion: The closures, called upon completion (succesful or otherwise) of the connection.
+    public func connect(peripheralUUID: UUID,
+                 serviceUUIDs: [CBUUID],
+                 timeout: TimeInterval = 10,
+                 completion: @escaping ConnectPeripheralCallback)
+    {
+        centralProxy.connect(peripheralUUID: peripheralUUID, serviceUUIDs: serviceUUIDs, timeout: timeout, completion)
+    }
+    
     /// Attempts to return the periperals from a list of identifier "UUID"s
     public func retrievePeripherals(withUUIDs uuids: [UUID]) -> [Peripheral] {
         let cbPeripherals = self.centralProxy.centralManager.retrievePeripherals(withIdentifiers: uuids)
