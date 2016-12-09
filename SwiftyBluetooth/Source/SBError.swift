@@ -50,7 +50,9 @@ public enum SBError: Error {
     case scanningEndedUnexpectedly
     case operationTimedOut(operation: SBOperation)
     case invalidPeripheral
+    case peripheralFailedToConnectWithError(error: Error)
     case peripheralFailedToConnectReasonUnknown
+    case peripheralFailedToDisconnectWithError(error: Error)
     case peripheralServiceNotFound(missingServicesUUIDs: [CBUUID])
     case peripheralCharacteristicNotFound(missingCharacteristicsUUIDs: [CBUUID])
     case peripheralDescriptorsNotFound(missingDescriptorsUUIDs: [CBUUID])
@@ -68,8 +70,12 @@ extension SBError: LocalizedError {
             return "Bluetooth operation timed out: \(operation.rawValue)"
         case .invalidPeripheral:
             return "Invalid Bluetooth peripheral, you must rediscover this peripheral to use it again."
+        case .peripheralFailedToConnectWithError(let error):
+            return "Failed to connect to your peripheral, \(error.localizedDescription)"
         case .peripheralFailedToConnectReasonUnknown:
             return "Failed to connect to your peripheral for an unknown reason."
+        case .peripheralFailedToDisconnectWithError(let error):
+            return "Failed to disconnect from your peripheral, \(error.localizedDescription)"
         case .peripheralServiceNotFound(let missingUUIDs):
             let missingUUIDsString = missingUUIDs.map { $0.uuidString }.joined(separator: ",")
             return "Peripheral service(s) not found: \(missingUUIDsString)"
