@@ -1,5 +1,5 @@
 # SwiftyBluetooth
-Swift 3, fully featured closures based libray for CoreBluetooth on iOS 9+ devices. 
+Swift 3, fully featured closures based library for CoreBluetooth on iOS 9+ devices. 
 
 For Swift 2 use v0.1.1
 
