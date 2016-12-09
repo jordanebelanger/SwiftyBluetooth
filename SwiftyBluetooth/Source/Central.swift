@@ -70,7 +70,7 @@ public enum PeripheralScanResult {
  */
 public enum PeripheralConnectionResult {
     case success(peripheral: Peripheral)
-    case failed(error: Error?)
+    case failed(error: SBError?)
 }
 
 /**
