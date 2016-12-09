@@ -56,3 +56,13 @@ public func asyncState(completion: @escaping AsyncCentralStateCallback) {
 public var isScanning: Bool {
     return Central.sharedInstance.isScanning
 }
+
+/// Attempts to return the periperals from a list of identifier "UUID"s
+public func retrievePeripherals(withUUIDs uuids: [UUID]) -> [Peripheral] {
+    return Central.sharedInstance.retrievePeripherals(withUUIDs: uuids)
+}
+
+/// Attempts to return the connected peripheral having the specific service CBUUIDs
+public func retrieveConnectedPeripherals(withServiceUUIDs uuids: [CBUUIDConvertible]) -> [Peripheral] {
+    return Central.sharedInstance.retrieveConnectedPeripherals(withServiceUUIDs: uuids)
+}
