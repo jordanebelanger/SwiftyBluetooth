@@ -214,6 +214,8 @@ extension CentralProxy {
         
         self.connectRequests[uuid] = nil
         
+        self.centralManager.cancelPeripheralConnection(request.peripheral)
+        
         request.invokeCallbacks(error: SBError.operationTimedOut(operation: .connectPeripheral))
     }
 }
