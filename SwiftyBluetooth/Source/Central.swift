@@ -80,8 +80,8 @@ public enum AsyncCentralState: Int {
 public typealias AsyncCentralStateCallback = (AsyncCentralState) -> Void
 public typealias BluetoothStateCallback = (CBCentralManagerState) -> Void
 public typealias PeripheralScanCallback = (PeripheralScanResult) -> Void
-public typealias ConnectPeripheralCallback = (Error?) -> Void
-public typealias DisconnectPeripheralCallback = (Error?) -> Void
+public typealias ConnectPeripheralCallback = (Result<NoValue>) -> Void
+public typealias DisconnectPeripheralCallback = (Result<NoValue>) -> Void
 
 /// A singleton wrapping a CBCentralManager instance to run CBCentralManager related functions with closures based callbacks instead of the usual CBCentralManagerDelegate interface.
 public final class Central {
@@ -102,15 +102,13 @@ extension Central {
     
     func connect(peripheral: CBPeripheral,
                  timeout: TimeInterval = 10,
-                 completion: @escaping ConnectPeripheralCallback)
-    {
+                 completion: @escaping ConnectPeripheralCallback) {
         centralProxy.connect(peripheral: peripheral, timeout: timeout, completion)
     }
     
     func disconnect(peripheral: CBPeripheral,
                     timeout: TimeInterval = 10,
-                    completion: @escaping DisconnectPeripheralCallback)
-    {
+                    completion: @escaping DisconnectPeripheralCallback) {
         centralProxy.disconnect(peripheral: peripheral, timeout: timeout, completion)
     }
 }

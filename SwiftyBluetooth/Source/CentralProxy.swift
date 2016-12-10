@@ -162,8 +162,15 @@ private final class ConnectPeripheralRequest {
     }
     
     func invokeCallbacks(error: Error?) {
+        let result: Result<NoValue> = {
+            if let error = error {
+                return .failure(error)
+            } else {
+                return .success(.noValue)
+            }
+        }()
         for callback in callbacks {
-            callback(error)
+            callback(result)
         }
     }
 }
@@ -172,14 +179,14 @@ extension CentralProxy {
     func connect(peripheral: CBPeripheral, timeout: TimeInterval, _ callback: @escaping ConnectPeripheralCallback) {
         initializeBluetooth { [unowned self] (error) in
             if let error = error {
-                callback(error)
+                callback(.failure(error))
                 return
             }
             
             let uuid = peripheral.identifier
             
             if let cbPeripheral = self.centralManager.retrievePeripherals(withIdentifiers: [uuid]).first , cbPeripheral.state == .connected {
-                callback(nil)
+                callback(.success(.noValue))
                 return
             }
             
@@ -231,8 +238,15 @@ private final class DisconnectPeripheralRequest {
     }
     
     func invokeCallbacks(error: Error?) {
+        let result: Result<NoValue> = {
+            if let error = error {
+                return .failure(error)
+            } else {
+                return .success(.noValue)
+            }
+        }()
         for callback in callbacks {
-            callback(error)
+            callback(result)
         }
     }
 }
@@ -242,7 +256,7 @@ extension CentralProxy {
         initializeBluetooth { [unowned self] (error) in
             
             if let error = error {
-                callback(error)
+                callback(.failure(error))
                 return
             }
             
@@ -250,7 +264,7 @@ extension CentralProxy {
             
             if let cbPeripheral = self.centralManager.retrievePeripherals(withIdentifiers: [uuid]).first,
                 (cbPeripheral.state == .disconnected || cbPeripheral.state == .disconnecting) {
-                callback(nil)
+                callback(.success(.noValue))
                 return
             }
             
