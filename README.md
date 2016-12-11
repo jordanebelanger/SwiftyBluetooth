@@ -60,7 +60,7 @@ peripheral.connect { result in
 ```
 ### Disconnecting from a peripheral
 ```swift
-peripheral.disconnect { (error) in 
+peripheral.disconnect { result in 
     switch result {
     case .success:
         break // You are now disconnected from the peripheral
@@ -144,11 +144,16 @@ Like the CBPeripheral discoverServices(...) function, passing nil instead of an 
 ### Discovering characteristics
 Discover characteristics using the `discoverCharacteristics(...)` function. If the service on which you are attempting to discover characteristics from has not been discovered, an attempt will first be made to discover that service for you:
 ```swift
-peripheral.discoverCharacteristics(withUUIDs: nil, ofServiceWithUUID: "180A") { (characteristics, error) in
+peripheral.discoverCharacteristics(withUUIDs: nil, ofServiceWithUUID: "180A") { result in
     // The characteristics discovered or an error if something went wrong.
-    // Like the CBPeripheral discoverCharacteristics(...) function, passing nil instead of an array of service 
-    // UUIDs will discover all of this service's characteristics.
+    switch result {
+    case .success(let services):
+        break // An array containing all the characs requested.
+    case .failure(let error):
+        break // A connection error or an array containing the UUIDs of the charac/services that we're not found.
+    }
 }
+Like the CBPeripheral discoverCharacteristics(...) function, passing nil instead of an array of service UUIDs will discover all of this service's characteristics.
 ```
 ## Installation
 
