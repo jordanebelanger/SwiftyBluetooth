@@ -153,8 +153,8 @@ peripheral.discoverCharacteristics(withUUIDs: nil, ofServiceWithUUID: "180A") { 
         break // A connection error or an array containing the UUIDs of the charac/services that we're not found.
     }
 }
-Like the CBPeripheral discoverCharacteristics(...) function, passing nil instead of an array of service UUIDs will discover all of this service's characteristics.
 ```
+Like the CBPeripheral discoverCharacteristics(...) function, passing nil instead of an array of service UUIDs will discover all of this service's characteristics.  
 ## Installation
 
 
