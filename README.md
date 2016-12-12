@@ -85,8 +85,13 @@ If you already know the characteristic and service UUID you want to write to, on
 let exampleBinaryData = String(0b1010).dataUsingEncoding(NSUTF8StringEncoding)!
 peripheral.writeValue(ofCharacWithUUID: "1d5bc11d-e28c-4157-a7be-d8b742a013d8", 
                       fromServiceWithUUID: "4011e369-5981-4dae-b686-619dc656c7ba", 
-                      value: exampleBinaryData) { (error) in
-    // An error is returned if something went wrong
+                      value: exampleBinaryData) { result in
+    switch result {
+    case .success:
+        break // The write was successful.
+    case .failure(let error):
+        break // An error happened while writting the data.
+    }
 }
 ```
 ### Listening to and receiving Characteristic update notifications
