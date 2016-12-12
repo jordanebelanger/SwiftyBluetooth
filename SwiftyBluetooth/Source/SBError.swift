@@ -32,6 +32,7 @@ public enum SBError: Error {
     }
     
     public enum SBOperation: String {
+        case scanForPeripherals = "Scan for peripherals"
         case connectPeripheral = "Connect peripheral"
         case disconnectPeripheral = "Disconnect peripheral"
         case readRSSI = "Read RSSI"

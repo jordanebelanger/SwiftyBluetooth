@@ -144,7 +144,7 @@ extension CentralProxy {
         let weakRequest = timer.userInfo as! Weak<PeripheralScanRequest>
         
         if weakRequest.value != nil {
-            self.stopScan()
+            self.stopScan(error: SBError.operationTimedOut(operation: .scanForPeripherals))
         }
     }
 }
