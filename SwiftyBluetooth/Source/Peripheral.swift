@@ -24,7 +24,7 @@
 import CoreBluetooth
 
 /**
-    The Peripheral notifications sent through the default 'NSNotificationCenter' by Peripherals.
+    The Peripheral notifications sent through the default 'NotificationCenter' by Peripherals.
  
     Use the PeripheralEvent enum rawValue as the notification string when registering for notifications.
  
@@ -335,7 +335,7 @@ extension Peripheral {
     /// Will first discover the service and characteristic you want to either, start, or stop, getting notifcations from.
     ///
     /// - Parameter enabled: If enabled is true, this peripherals will register for change notifcations to the characteristic
-    ///      and notify listeners through the default 'NSNotificationCenter' with a 'PeripheralEvent.characteristicValueUpdate' notification.
+    ///      and notify listeners through the default 'NotificationCenter' with a 'PeripheralEvent.characteristicValueUpdate' notification.
     /// - Parameter characUUID: The UUID of the characteristic you want set the notify value of.
     /// - Parameter serviceUUID: The UUID of the service of the characteristic above.
     /// - Parameter completion: A closures containing the updated notification value of the characteristic or an error if something went wrong.
@@ -352,7 +352,7 @@ extension Peripheral {
     
     /// Connect to the peripheral and set the notification value of the passed characteristic through a 'CBPeripheral' setNotifyValueForCharacteristic function call.
     ///
-    /// If set to true, this peripheral will emit characteristic change updates through the default NSNotificationCenter using the "characteristicValueUpdate" notification.
+    /// If set to true, this peripheral will emit characteristic change updates through the default NotificationCenter using the "characteristicValueUpdate" notification.
     ///
     /// - Parameter enabled: The notify state of the charac, set enabled to true to receive change notifications through the default NSNotification center
     /// - Parameter charac: The characteristic you want set the notify value of.

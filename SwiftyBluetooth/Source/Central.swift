@@ -29,7 +29,7 @@ import CoreBluetooth
 #endif
 
 /**
-    The Central notifications sent through the default 'NSNotificationCenter' by the Central instance.
+    The Central notifications sent through the default 'NotificationCenter' by the Central instance.
  
     Use the CentralEvent enum rawValue as the notification string when registering for notifications.
  
