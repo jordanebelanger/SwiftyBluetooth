@@ -85,7 +85,7 @@ extension PeripheralProxy {
         if self.valid {
             Central.sharedInstance.connect(peripheral: self.cbPeripheral, completion: completion)
         } else {
-            completion(SBError.invalidPeripheral)
+            completion(.failure(SBError.invalidPeripheral))
         }
     }
     
@@ -105,9 +105,9 @@ private final class ReadRSSIRequest {
 
 extension PeripheralProxy {
     func readRSSI(_ completion: @escaping ReadRSSIRequestCallback) {
-        self.connect { (error) in
-            if let error = error {
-                completion(nil, error)
+        self.connect { (result) in
+            if let error = result.error {
+                completion(.failure(error))
                 return
             }
             
@@ -148,7 +148,7 @@ extension PeripheralProxy {
         
         self.readRSSIRequests.removeFirst()
         
-        request.callback(nil, SBError.operationTimedOut(operation: .readRSSI))
+        request.callback(.failure(SBError.operationTimedOut(operation: .readRSSI)))
         
         self.runRSSIRequest()
     }
@@ -173,9 +173,9 @@ private final class ServiceRequest {
 
 extension PeripheralProxy {
     func discoverServices(_ serviceUUIDs: [CBUUID]?, completion: @escaping ServiceRequestCallback) {
-        self.connect { (error) in
-            if let error = error {
-                completion(nil, error)
+        self.connect { (result) in
+            if let error = result.error {
+                completion(.failure(error))
                 return
             }
             
@@ -184,13 +184,13 @@ extension PeripheralProxy {
                 let servicesTuple = self.cbPeripheral.servicesWithUUIDs(serviceUUIDs)
                 
                 if servicesTuple.missingServicesUUIDs.count == 0 {
-                    completion(servicesTuple.foundServices, nil)
+                    completion(.success(servicesTuple.foundServices))
                     return
                 }
             }
             
-            let request = ServiceRequest(serviceUUIDs: serviceUUIDs) { (services, error) in
-                completion(services, error)
+            let request = ServiceRequest(serviceUUIDs: serviceUUIDs) { result in
+                completion(result)
             }
             
             self.serviceRequests.append(request)
@@ -231,7 +231,7 @@ extension PeripheralProxy {
         
         self.serviceRequests.removeFirst()
         
-        request.callback(nil, SBError.operationTimedOut(operation: .discoverServices))
+        request.callback(.failure(SBError.operationTimedOut(operation: .discoverServices)))
         
         self.runServiceRequest()
     }
@@ -259,16 +259,16 @@ private final class IncludedServicesRequest {
 
 extension PeripheralProxy {
     func discoverIncludedServices(_ serviceUUIDs: [CBUUID]?, forService serviceUUID: CBUUID, completion: @escaping ServiceRequestCallback) {
-        self.discoverServices([serviceUUID]) { (services, error) in
-            if let error = error {
-                completion(nil, error)
+        self.discoverServices([serviceUUID]) { result in
+            if let error = result.error {
+                completion(.failure(error))
                 return
             }
             
-            let parentService = services!.first!
+            let parentService = result.value!.first!
             
-            let request = IncludedServicesRequest(serviceUUIDs: serviceUUIDs, forService: parentService) { (services, error) in
-                completion(services, error)
+            let request = IncludedServicesRequest(serviceUUIDs: serviceUUIDs, forService: parentService) { result in
+                completion(result)
             }
             
             self.includedServicesRequests.append(request)
@@ -309,7 +309,7 @@ extension PeripheralProxy {
         
         self.includedServicesRequests.removeFirst()
         
-        request.callback(nil, SBError.operationTimedOut(operation: .discoverIncludedServices))
+        request.callback(.failure(SBError.operationTimedOut(operation: .discoverIncludedServices)))
         
         self.runIncludedServicesRequest()
     }
@@ -344,30 +344,29 @@ extension PeripheralProxy {
                                  forService serviceUUID: CBUUID,
                                             completion: @escaping CharacteristicRequestCallback)
     {
-        self.discoverServices([serviceUUID]) { (services, error) in
-            if let error = error {
-                completion(nil, error)
+        self.discoverServices([serviceUUID]) { result in
+            if let error = result.error {
+                completion(.failure(error))
                 return
             }
             
             // It would be a bug if we received an empty service array without an error from the discoverServices function
             // when asking for a specific service
-            let service = services!.first!
+            let service = result.value!.first!
             
             // Checking if this service already has the characteristic requested
             if let characteristicUUIDs = characteristicUUIDs {
                 let characTuple = service.characteristicsWithUUIDs(characteristicUUIDs)
                 
                 if (characTuple.missingCharacteristicsUUIDs.count == 0) {
-                    completion(characTuple.foundCharacteristics, nil)
+                    completion(.success(characTuple.foundCharacteristics))
                     return
                 }
             }
             
             let request = CharacteristicRequest(service: service,
-                                                characteristicUUIDs: characteristicUUIDs)
-            { (characteristics, error) in
-                completion(characteristics, error)
+                                                characteristicUUIDs: characteristicUUIDs) { result in
+                completion(result)
             }
             
             self.characteristicRequests.append(request)
@@ -408,7 +407,7 @@ extension PeripheralProxy {
         
         self.characteristicRequests.removeFirst()
         
-        request.callback(nil, SBError.operationTimedOut(operation: .discoverCharacteristics))
+        request.callback(.failure(SBError.operationTimedOut(operation: .discoverCharacteristics)))
         
         self.runCharacteristicRequest()
     }
@@ -432,19 +431,19 @@ private final class DescriptorRequest {
 
 extension PeripheralProxy {
     func discoverDescriptorsForCharacteristic(_ characteristicUUID: CBUUID, serviceUUID: CBUUID, completion: @escaping DescriptorRequestCallback) {
-        self.discoverCharacteristics([characteristicUUID], forService: serviceUUID) { (characteristics, error) in
+        self.discoverCharacteristics([characteristicUUID], forService: serviceUUID) { result in
             
-            if let error = error {
-                completion(nil, error)
+            if let error = result.error {
+                completion(.failure(error))
                 return
             }
             
             // It would be a terrible bug in the first place if the discover characteristic returned an empty array
             // with no error message when searching for a specific characteristic, I want to crash if it happens :)
-            let characteristic = characteristics!.first!
+            let characteristic = result.value!.first!
             
-            let request = DescriptorRequest(characteristic: characteristic) { (descriptors, error) in
-                completion(descriptors, error)
+            let request = DescriptorRequest(characteristic: characteristic) { result in
+                completion(result)
             }
             
             self.descriptorRequests.append(request)
@@ -483,7 +482,7 @@ extension PeripheralProxy {
         
         self.descriptorRequests.removeFirst()
         
-        request.callback(nil, SBError.operationTimedOut(operation: .discoverDescriptors))
+        request.callback(.failure(SBError.operationTimedOut(operation: .discoverDescriptors)))
         
         self.runDescriptorRequest()
     }
@@ -510,19 +509,19 @@ extension PeripheralProxy {
                             serviceUUID: CBUUID,
                             completion: @escaping ReadCharacRequestCallback) {
         
-        self.discoverCharacteristics([characteristicUUID], forService: serviceUUID) { (characteristics, error) in
+        self.discoverCharacteristics([characteristicUUID], forService: serviceUUID) { result in
             
-            if let error = error {
-                completion(nil, error)
+            if let error = result.error {
+                completion(.failure(error))
                 return
             }
             
             // Having no error yet not having the characteristic should never happen and would be considered a bug,
             // I'd rather crash here than not notice the bug
-            let characteristic = characteristics!.first!
+            let characteristic = result.value!.first!
             
-            let request = ReadCharacteristicRequest(characteristic: characteristic) { (data, error) in
-                completion(data, error)
+            let request = ReadCharacteristicRequest(characteristic: characteristic) { result in
+                completion(result)
             }
             
             let readPath = characteristic.uuidPath
@@ -571,7 +570,7 @@ extension PeripheralProxy {
             self.readCharacteristicRequests[readPath] = nil
         }
         
-        request.callback(nil, SBError.operationTimedOut(operation: .readCharacteristic))
+        request.callback(.failure(SBError.operationTimedOut(operation: .readCharacteristic)))
         
         self.runReadCharacteristicRequest(readPath)
     }
@@ -602,14 +601,14 @@ extension PeripheralProxy {
                         completion: @escaping ReadDescriptorRequestCallback)
     {
         
-        self.discoverDescriptorsForCharacteristic(characteristicUUID, serviceUUID: serviceUUID) { (descriptors, error) in
-            if let error = error {
-                completion(nil, error)
+        self.discoverDescriptorsForCharacteristic(characteristicUUID, serviceUUID: serviceUUID) { result in
+            if let error = result.error {
+                completion(.failure(error))
                 return
             }
             
-            guard let descriptor = descriptors?.first else {
-                completion(nil, SBError.peripheralDescriptorsNotFound(missingDescriptorsUUIDs: [descriptorUUID]))
+            guard let descriptor = result.value?.first else {
+                completion(.failure(SBError.peripheralDescriptorsNotFound(missingDescriptorsUUIDs: [descriptorUUID])))
                 return
             }
             
@@ -661,7 +660,7 @@ extension PeripheralProxy {
             self.readDescriptorRequests[readPath] = nil
         }
         
-        request.callback(nil, SBError.operationTimedOut(operation: .readDescriptor))
+        request.callback(.failure(SBError.operationTimedOut(operation: .readDescriptor)))
         
         self.runReadDescriptorRequest(readPath)
     }
@@ -693,19 +692,21 @@ extension PeripheralProxy {
                                   type: CBCharacteristicWriteType,
                                   completion: @escaping WriteRequestCallback)
     {
-        self.discoverCharacteristics([characteristicUUID], forService: serviceUUID) { (characteristics, error) in
+        self.discoverCharacteristics([characteristicUUID], forService: serviceUUID) { result in
             
-            if let error = error {
-                completion(error)
+            if let error = result.error {
+                completion(.failure(error))
                 return
             }
             
             // Having no error yet not having the characteristic should never happen and would be considered a bug,
             // I'd rather crash here than not notice the bug hence the forced unwrap
-            let characteristic = characteristics!.first!
+            let characteristic = result.value!.first!
             
-            let request = WriteCharacteristicValueRequest(characteristic: characteristic, value: value, type: type) { (error) in
-                completion(error)
+            let request = WriteCharacteristicValueRequest(characteristic: characteristic,
+                                                          value: value,
+                                                          type: type) { result in
+                completion(result)
             }
             
             let writePath = characteristic.uuidPath
@@ -742,7 +743,7 @@ extension PeripheralProxy {
                 self.writeCharacteristicValueRequests[writePath] = nil
             }
             
-            request.callback(nil)
+            request.callback(.success(.noValue))
             
             self.runWriteCharacteristicValueRequest(writePath)
         }
@@ -767,7 +768,7 @@ extension PeripheralProxy {
             self.writeCharacteristicValueRequests[writePath] = nil
         }
         
-        request.callback(SBError.operationTimedOut(operation: .writeCharacteristic))
+        request.callback(.failure(SBError.operationTimedOut(operation: .writeCharacteristic)))
         
         self.runWriteCharacteristicValueRequest(writePath)
     }
@@ -798,20 +799,20 @@ extension PeripheralProxy {
                               value: Data,
                               completion: @escaping WriteRequestCallback)
     {
-        self.discoverDescriptorsForCharacteristic(characteristicUUID, serviceUUID: serviceUUID) { (descriptors, error) in
+        self.discoverDescriptorsForCharacteristic(characteristicUUID, serviceUUID: serviceUUID) { result in
             
-            if let error = error {
-                completion(error)
+            if let error = result.error {
+                completion(.failure(error))
                 return
             }
             
-            guard let descriptor = descriptors?.filter({ $0.uuid == descriptorUUID }).first else {
-                completion(SBError.peripheralDescriptorsNotFound(missingDescriptorsUUIDs: [descriptorUUID]))
+            guard let descriptor = result.value?.filter({ $0.uuid == descriptorUUID }).first else {
+                completion(.failure(SBError.peripheralDescriptorsNotFound(missingDescriptorsUUIDs: [descriptorUUID])))
                 return
             }
             
-            let request = WriteDescriptorValueRequest(descriptor: descriptor, value: value) { (error) in
-                completion(error)
+            let request = WriteDescriptorValueRequest(descriptor: descriptor, value: value) { result in
+                completion(result)
             }
             
             let writePath = descriptor.uuidPath
@@ -860,7 +861,7 @@ extension PeripheralProxy {
             self.writeDescriptorValueRequests[writePath] = nil
         }
         
-        request.callback(SBError.operationTimedOut(operation: .writeDescriptor))
+        request.callback(.failure(SBError.operationTimedOut(operation: .writeDescriptor)))
         
         self.runWriteDescriptorValueRequest(writePath)
     }
@@ -885,19 +886,20 @@ private final class UpdateNotificationStateRequest {
 extension PeripheralProxy {
     func setNotifyValueForCharacteristic(_ enabled: Bool, characteristicUUID: CBUUID, serviceUUID: CBUUID, completion: @escaping UpdateNotificationStateCallback) {
         
-        self.discoverCharacteristics([characteristicUUID], forService: serviceUUID) { (characteristics, error) in
+        self.discoverCharacteristics([characteristicUUID], forService: serviceUUID) { result in
             
-            if let error = error {
-                completion(nil, error)
+            if let error = result.error {
+                completion(.failure(error))
                 return
             }
             
             // Having no error yet not having the characteristic should never happen and would be considered a bug,
             // I'd rather crash here than not notice the bug hence the forced unwrap
-            let characteristic = characteristics!.first!
+            let characteristic = result.value!.first!
             
-            let request = UpdateNotificationStateRequest(enabled: enabled, characteristic: characteristic) { (isNotifying, error) in
-                completion(isNotifying, error)
+            let request = UpdateNotificationStateRequest(enabled: enabled,
+                                                         characteristic: characteristic) { result in
+                completion(result)
             }
             
             let path = characteristic.uuidPath
@@ -923,12 +925,12 @@ extension PeripheralProxy {
         Timer.scheduledTimer(
             timeInterval: PeripheralProxy.defaultTimeoutInS,
             target: self,
-            selector: #selector(self.onUpdateNotificationStateRequest),
+            selector: #selector(self.onUpdateNotificationStateRequestTick),
             userInfo: Weak(value: request),
             repeats: false)
     }
     
-    @objc fileprivate func onUpdateNotificationStateRequest(_ timer: Timer) {
+    @objc fileprivate func onUpdateNotificationStateRequestTick(_ timer: Timer) {
         defer {
             if timer.isValid { timer.invalidate() }
         }
@@ -946,7 +948,7 @@ extension PeripheralProxy {
             self.updateNotificationStateRequests[path] = nil
         }
         
-        request.callback(nil, SBError.operationTimedOut(operation: .updateNotificationStatus))
+        request.callback(.failure(SBError.operationTimedOut(operation: .updateNotificationStatus)))
         
         self.runUpdateNotificationStateRequest(path)
     }
@@ -961,13 +963,15 @@ extension PeripheralProxy: CBPeripheralDelegate {
         
         self.readRSSIRequests.removeFirst()
         
-        var rssi: Int?
+        let result: Result<Int> = {
+            if let error = error {
+                return .failure(error)
+            } else {
+                return .success(RSSI.intValue)
+            }
+        }()
         
-        if error == nil {
-            rssi = RSSI.intValue
-        }
-        
-        readRSSIRequest.callback(rssi, error)
+        readRSSIRequest.callback(result)
         
         self.runRSSIRequest()
     }
@@ -997,19 +1001,19 @@ extension PeripheralProxy: CBPeripheralDelegate {
         self.includedServicesRequests.removeFirst()
         
         if let error = error {
-            includedServicesRequest.callback(nil, error)
+            includedServicesRequest.callback(.failure(error))
             return
         }
         
         if let serviceUUIDs = includedServicesRequest.serviceUUIDs {
             let servicesTuple = peripheral.servicesWithUUIDs(serviceUUIDs)
             if servicesTuple.missingServicesUUIDs.count > 0 {
-                includedServicesRequest.callback(nil, SBError.peripheralServiceNotFound(missingServicesUUIDs: servicesTuple.missingServicesUUIDs))
+                includedServicesRequest.callback(.failure(SBError.peripheralServiceNotFound(missingServicesUUIDs: servicesTuple.missingServicesUUIDs)))
             } else { // This implies that all the services we're found through Set logic in the servicesWithUUIDs function
-                includedServicesRequest.callback(servicesTuple.foundServices, nil)
+                includedServicesRequest.callback(.success(servicesTuple.foundServices))
             }
         } else {
-            includedServicesRequest.callback(service.includedServices, nil)
+            includedServicesRequest.callback(.success(service.includedServices ?? []))
         }
     }
     
@@ -1025,19 +1029,19 @@ extension PeripheralProxy: CBPeripheralDelegate {
         self.serviceRequests.removeFirst()
         
         if let error = error {
-            serviceRequest.callback(nil, error)
+            serviceRequest.callback(.failure(error))
             return
         }
         
         if let serviceUUIDs = serviceRequest.serviceUUIDs {
             let servicesTuple = peripheral.servicesWithUUIDs(serviceUUIDs)
             if servicesTuple.missingServicesUUIDs.count > 0 {
-                serviceRequest.callback(nil, SBError.peripheralServiceNotFound(missingServicesUUIDs: servicesTuple.missingServicesUUIDs))
+                serviceRequest.callback(.failure(SBError.peripheralServiceNotFound(missingServicesUUIDs: servicesTuple.missingServicesUUIDs)))
             } else { // This implies that all the services we're found through Set logic in the servicesWithUUIDs function
-                serviceRequest.callback(servicesTuple.foundServices, nil)
+                serviceRequest.callback(.success(servicesTuple.foundServices))
             }
         } else {
-            serviceRequest.callback(peripheral.services, nil)
+            serviceRequest.callback(.success(peripheral.services ?? []))
         }
     }
     
@@ -1053,7 +1057,7 @@ extension PeripheralProxy: CBPeripheralDelegate {
         self.characteristicRequests.removeFirst()
         
         if let error = error {
-            characteristicRequest.callback(nil, error)
+            characteristicRequest.callback(.failure(error))
             return
         }
         
@@ -1061,13 +1065,12 @@ extension PeripheralProxy: CBPeripheralDelegate {
             let characteristicsTuple = service.characteristicsWithUUIDs(characteristicUUIDs)
             
             if characteristicsTuple.missingCharacteristicsUUIDs.count > 0 {
-                characteristicRequest.callback(nil, SBError.peripheralCharacteristicNotFound(missingCharacteristicsUUIDs: characteristicsTuple.missingCharacteristicsUUIDs))
+                characteristicRequest.callback(.failure(SBError.peripheralCharacteristicNotFound(missingCharacteristicsUUIDs: characteristicsTuple.missingCharacteristicsUUIDs)))
             } else {
-                characteristicRequest.callback(characteristicsTuple.foundCharacteristics, nil)
+                characteristicRequest.callback(.success(characteristicsTuple.foundCharacteristics))
             }
-            
         } else {
-            characteristicRequest.callback(service.characteristics, nil)
+            characteristicRequest.callback(.success(service.characteristics ?? []))
         }
     }
     
@@ -1083,9 +1086,9 @@ extension PeripheralProxy: CBPeripheralDelegate {
         self.descriptorRequests.removeFirst()
         
         if let error = error {
-            descriptorRequest.callback(nil, error)
+            descriptorRequest.callback(.failure(error))
         } else {
-            descriptorRequest.callback(characteristic.descriptors, nil)
+            descriptorRequest.callback(.success(characteristic.descriptors ?? []))
         }
     }
     
@@ -1114,9 +1117,9 @@ extension PeripheralProxy: CBPeripheralDelegate {
         }
         
         if let error = error {
-            request.callback(nil, error)
+            request.callback(.failure(error))
         } else {
-            request.callback(characteristic.value, nil)
+            request.callback(.success(characteristic.value!))
         }
     }
     
@@ -1137,9 +1140,9 @@ extension PeripheralProxy: CBPeripheralDelegate {
         }
         
         if let error = error {
-            request.callback(error)
+            request.callback(.failure(error))
         } else {
-            request.callback(nil)
+            request.callback(.success(.noValue))
         }
     }
     
@@ -1160,9 +1163,9 @@ extension PeripheralProxy: CBPeripheralDelegate {
         }
         
         if let error = error {
-            request.callback(nil, error)
+            request.callback(.failure(error))
         } else {
-            request.callback(characteristic.isNotifying, nil)
+            request.callback(.success(characteristic.isNotifying))
         }
     }
     
@@ -1183,13 +1186,13 @@ extension PeripheralProxy: CBPeripheralDelegate {
         }
         
         if let error = error {
-            request.callback(nil, error)
+            request.callback(.failure(error))
         } else {
             do {
                 let value = try DescriptorValue(descriptor: descriptor)
-                request.callback(value, nil)
+                request.callback(.success(value))
             } catch let error {
-                request.callback(nil, error)
+                request.callback(.failure(error))
             }
         }
     }
@@ -1211,9 +1214,9 @@ extension PeripheralProxy: CBPeripheralDelegate {
         }
         
         if let error = error {
-            request.callback(error)
+            request.callback(.failure(error))
         } else {
-            request.callback(nil)
+            request.callback(.success(.noValue))
         }
     }
 }

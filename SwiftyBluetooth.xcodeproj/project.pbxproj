@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		090622BD1D11380200368A28 /* CBExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090622BC1D11380200368A28 /* CBExtensions.swift */; };
 		0950A66B1D2101DE00512F59 /* SwiftyBluetooth.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0950A66A1D2101DE00512F59 /* SwiftyBluetooth.swift */; };
-		096409B21CC6103D00ADD4D9 /* SwiftyBluetooth.h in Headers */ = {isa = PBXBuildFile; fileRef = 096409B11CC6103D00ADD4D9 /* SwiftyBluetooth.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		096409B21CC6103D00ADD4D9 /* Supporting Files in Headers */ = {isa = PBXBuildFile; fileRef = 096409B11CC6103D00ADD4D9 /* Supporting Files */; settings = {ATTRIBUTES = (Public, ); }; };
 		096409BD1CC610CD00ADD4D9 /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 096409BC1CC610CD00ADD4D9 /* CoreBluetooth.framework */; };
 		096A03CA1D1A6FEE00CB196C /* CBUUIDPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 096A03C91D1A6FEE00CB196C /* CBUUIDPath.swift */; };
 		09709D2E1D306ADB00E01235 /* DescriptorValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09709D2D1D306ADB00E01235 /* DescriptorValue.swift */; };
@@ -20,14 +20,15 @@
 		09C576AB1CC626C70001EFF7 /* Peripheral.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09C576A71CC626C70001EFF7 /* Peripheral.swift */; };
 		09C576AC1CC626C70001EFF7 /* Util.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09C576A81CC626C70001EFF7 /* Util.swift */; };
 		09DEF3B11CC839DE00F9B4EE /* CBUUIDConvertible.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09DEF3B01CC839DE00F9B4EE /* CBUUIDConvertible.swift */; };
+		5949336FBD625A0984FED486 /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59493C943987B6C658526D67 /* Result.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		090622BC1D11380200368A28 /* CBExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CBExtensions.swift; path = Source/CBExtensions.swift; sourceTree = "<group>"; };
 		0950A66A1D2101DE00512F59 /* SwiftyBluetooth.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SwiftyBluetooth.swift; path = Source/SwiftyBluetooth.swift; sourceTree = "<group>"; };
 		096409AE1CC6103D00ADD4D9 /* SwiftyBluetooth.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SwiftyBluetooth.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		096409B11CC6103D00ADD4D9 /* SwiftyBluetooth.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SwiftyBluetooth.h; sourceTree = "<group>"; };
-		096409B31CC6103D00ADD4D9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		096409B11CC6103D00ADD4D9 /* Supporting Files */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "Supporting Files"; sourceTree = "<group>"; };
+		096409B31CC6103D00ADD4D9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = "Supporting Files/Info.plist"; sourceTree = "<group>"; };
 		096409BC1CC610CD00ADD4D9 /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
 		096A03C91D1A6FEE00CB196C /* CBUUIDPath.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CBUUIDPath.swift; path = Source/CBUUIDPath.swift; sourceTree = "<group>"; };
 		09709D2D1D306ADB00E01235 /* DescriptorValue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DescriptorValue.swift; path = Source/DescriptorValue.swift; sourceTree = "<group>"; };
@@ -41,6 +42,9 @@
 		09D515301D2DA90A00049B59 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		09D515311D2DA90A00049B59 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		09DEF3B01CC839DE00F9B4EE /* CBUUIDConvertible.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CBUUIDConvertible.swift; path = Source/CBUUIDConvertible.swift; sourceTree = "<group>"; };
+		403A5CFD1DFA11C9000D5FDE /* SwiftyBluetoothFlags.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = SwiftyBluetoothFlags.xcconfig; path = "Supporting Files/SwiftyBluetoothFlags.xcconfig"; sourceTree = "<group>"; };
+		409D194F1DFA206B0095F4BC /* SwiftyBluetoothConfiguration.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = SwiftyBluetoothConfiguration.xcconfig; sourceTree = "<group>"; };
+		59493C943987B6C658526D67 /* Result.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Result.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,7 +62,8 @@
 		0950A6691D2101BB00512F59 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				096409B11CC6103D00ADD4D9 /* SwiftyBluetooth.h */,
+				096409B11CC6103D00ADD4D9 /* Supporting Files */,
+				403A5CFD1DFA11C9000D5FDE /* SwiftyBluetoothFlags.xcconfig */,
 				096409B31CC6103D00ADD4D9 /* Info.plist */,
 			);
 			name = "Supporting Files";
@@ -70,6 +75,7 @@
 				09D515301D2DA90A00049B59 /* LICENSE */,
 				09D515311D2DA90A00049B59 /* README.md */,
 				09D5152E1D2DA8F900049B59 /* SwiftyBluetooth.podspec */,
+				409D194F1DFA206B0095F4BC /* SwiftyBluetoothConfiguration.xcconfig */,
 				096409B01CC6103D00ADD4D9 /* SwiftyBluetooth */,
 				096409BF1CC610F100ADD4D9 /* Frameworks */,
 				096409AF1CC6103D00ADD4D9 /* Products */,
@@ -114,6 +120,7 @@
 				09DEF3B01CC839DE00F9B4EE /* CBUUIDConvertible.swift */,
 				096A03C91D1A6FEE00CB196C /* CBUUIDPath.swift */,
 				090622BC1D11380200368A28 /* CBExtensions.swift */,
+				59493C943987B6C658526D67 /* Result.swift */,
 				09C576A81CC626C70001EFF7 /* Util.swift */,
 			);
 			name = Source;
@@ -126,7 +133,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				096409B21CC6103D00ADD4D9 /* SwiftyBluetooth.h in Headers */,
+				096409B21CC6103D00ADD4D9 /* Supporting Files in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -208,6 +215,7 @@
 				090622BD1D11380200368A28 /* CBExtensions.swift in Sources */,
 				09DEF3B11CC839DE00F9B4EE /* CBUUIDConvertible.swift in Sources */,
 				09C576AC1CC626C70001EFF7 /* Util.swift in Sources */,
+				5949336FBD625A0984FED486 /* Result.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -216,6 +224,7 @@
 /* Begin XCBuildConfiguration section */
 		096409B41CC6103D00ADD4D9 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 403A5CFD1DFA11C9000D5FDE /* SwiftyBluetoothFlags.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -258,6 +267,7 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				SWIFTYBLUETOOTH_DIRECT_ACCESS = SWIFTYBLUETOOTH_DIRECT_ACCESS;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
@@ -267,6 +277,7 @@
 		};
 		096409B51CC6103D00ADD4D9 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 403A5CFD1DFA11C9000D5FDE /* SwiftyBluetoothFlags.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -302,6 +313,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
+				SWIFTYBLUETOOTH_DIRECT_ACCESS = SWIFTYBLUETOOTH_DIRECT_ACCESS;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
@@ -312,6 +324,7 @@
 		};
 		096409B71CC6103D00ADD4D9 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 403A5CFD1DFA11C9000D5FDE /* SwiftyBluetoothFlags.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
@@ -319,12 +332,13 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				INFOPLIST_FILE = SwiftyBluetooth/Info.plist;
+				INFOPLIST_FILE = "SwiftyBluetooth/Supporting Files/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.tehjord.SwiftyBluetooth;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFTYBLUETOOTH_DIRECT_ACCESS = SWIFTYBLUETOOTH_DIRECT_ACCESS;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 3.0;
 			};
@@ -332,6 +346,7 @@
 		};
 		096409B81CC6103D00ADD4D9 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 403A5CFD1DFA11C9000D5FDE /* SwiftyBluetoothFlags.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
@@ -339,12 +354,13 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				INFOPLIST_FILE = SwiftyBluetooth/Info.plist;
+				INFOPLIST_FILE = "SwiftyBluetooth/Supporting Files/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.tehjord.SwiftyBluetooth;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFTYBLUETOOTH_DIRECT_ACCESS = SWIFTYBLUETOOTH_DIRECT_ACCESS;
 				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
