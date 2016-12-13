@@ -20,6 +20,7 @@
 		09C576AB1CC626C70001EFF7 /* Peripheral.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09C576A71CC626C70001EFF7 /* Peripheral.swift */; };
 		09C576AC1CC626C70001EFF7 /* Util.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09C576A81CC626C70001EFF7 /* Util.swift */; };
 		09DEF3B11CC839DE00F9B4EE /* CBUUIDConvertible.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09DEF3B01CC839DE00F9B4EE /* CBUUIDConvertible.swift */; };
+		5949336FBD625A0984FED486 /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59493C943987B6C658526D67 /* Result.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -43,6 +44,7 @@
 		09DEF3B01CC839DE00F9B4EE /* CBUUIDConvertible.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CBUUIDConvertible.swift; path = Source/CBUUIDConvertible.swift; sourceTree = "<group>"; };
 		403A5CFD1DFA11C9000D5FDE /* SwiftyBluetoothFlags.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = SwiftyBluetoothFlags.xcconfig; path = "Supporting Files/SwiftyBluetoothFlags.xcconfig"; sourceTree = "<group>"; };
 		409D194F1DFA206B0095F4BC /* SwiftyBluetoothConfiguration.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = SwiftyBluetoothConfiguration.xcconfig; sourceTree = "<group>"; };
+		59493C943987B6C658526D67 /* Result.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Result.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -118,6 +120,7 @@
 				09DEF3B01CC839DE00F9B4EE /* CBUUIDConvertible.swift */,
 				096A03C91D1A6FEE00CB196C /* CBUUIDPath.swift */,
 				090622BC1D11380200368A28 /* CBExtensions.swift */,
+				59493C943987B6C658526D67 /* Result.swift */,
 				09C576A81CC626C70001EFF7 /* Util.swift */,
 			);
 			name = Source;
@@ -212,6 +215,7 @@
 				090622BD1D11380200368A28 /* CBExtensions.swift in Sources */,
 				09DEF3B11CC839DE00F9B4EE /* CBUUIDConvertible.swift in Sources */,
 				09C576AC1CC626C70001EFF7 /* Util.swift in Sources */,
+				5949336FBD625A0984FED486 /* Result.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

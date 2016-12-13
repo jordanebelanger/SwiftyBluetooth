@@ -38,14 +38,18 @@ public enum PeripheralEvent: String {
     case characteristicValueUpdate
 }
 
-public typealias ReadRSSIRequestCallback = (_ RSSI: Int?, _ error: Error?) -> Void
-public typealias ServiceRequestCallback = (_ services: [CBService]?, _ error: Error?) -> Void
-public typealias CharacteristicRequestCallback = (_ characteristics: [CBCharacteristic]?, _ error: Error?) -> Void
-public typealias DescriptorRequestCallback = (_ descriptors: [CBDescriptor]?, _ error: Error?) -> Void
-public typealias ReadCharacRequestCallback = (_ data: Data?, _ error: Error?) -> Void
-public typealias ReadDescriptorRequestCallback = (_ value: DescriptorValue?, _ error: Error?) -> Void
-public typealias WriteRequestCallback = (_ error: Error?) -> Void
-public typealias UpdateNotificationStateCallback = (_ isNotifying: Bool?, _ error: Error?) -> Void
+
+public typealias rssi = Int
+public typealias isNotifying = Bool
+
+public typealias ReadRSSIRequestCallback = (_ result: Result<rssi>) -> Void
+public typealias ServiceRequestCallback = (_ result: Result<[CBService]>) -> Void
+public typealias CharacteristicRequestCallback = (_ result: Result<[CBCharacteristic]>) -> Void
+public typealias DescriptorRequestCallback = (_ result: Result<[CBDescriptor]>) -> Void
+public typealias ReadCharacRequestCallback = (_ result: Result<Data>) -> Void
+public typealias ReadDescriptorRequestCallback = (_ result: Result<DescriptorValue>) -> Void
+public typealias WriteRequestCallback = (_ result: Result<NoValue>) -> Void
+public typealias UpdateNotificationStateCallback = (_ result: Result<isNotifying>) -> Void
 
 /// An interface on top of a CBPeripheral instance used to run CBPeripheral related functions with closures based callbacks instead of the usual CBPeripheralDelegate interface.
 public final class Peripheral {
