@@ -49,17 +49,23 @@ Note that the callback closure can be called multiple times, but always start an
 
 ### Connecting to a peripheral
 ```swift
-peripheral.connect { (error) in 
-    if let error = error {
-        // an error happened during the connection or the connect call timed out
+peripheral.connect { result in 
+    switch result {
+    case .success:
+        break // You are now connected to the peripheral
+    case .failure(let error):
+        break // An error happened while connecting
     }
 }
 ```
 ### Disconnecting from a peripheral
 ```swift
-peripheral.disconnect { (error) in 
-    if let error = error {
-        // an error happened during the disconnection, but your peripheral is guaranteed to be disconnected 
+peripheral.disconnect { result in 
+    switch result {
+    case .success:
+        break // You are now disconnected from the peripheral
+    case .failure(let error):
+        break // An error happened during the disconnection
     }
 }
 ```
@@ -67,16 +73,26 @@ peripheral.disconnect { (error) in
 If you already know the characteristic and service UUIDs you want to read from, once you've found a peripheral you can read from it right away like this: 
 
 ```swift
-peripheral.readValue(ofCharacWithUUID: "2A29", fromServiceWithUUID: "180A") { (data, error) in
-    // The read data is returned or an error if something went wrong
+peripheral.readValue(ofCharacWithUUID: "2A29", fromServiceWithUUID: "180A") { result in
+    switch result {
+    case .success(let data):
+        break // The data was read and is returned as an NSData instance
+    case .failure(let error):
+        break // An error happened while attempting to read the data
+    }
 }
 ```
 This will connect to the peripheral if necessary and ensure the characteristic and service needed are discovered before reading from the characteristic matching `characteristicUUID`. If the charac/service cannot be retrieved you will receive an error specifying which charac/service could not be found.
 
 If you have a reference to a `CBCharacteristic`, you can read using the characteristic directly:
 ```swift
-peripheral.readValue(ofCharac: charac) { (data, error) in
-    // The read data is returned or an error if something went wrong
+peripheral.readValue(ofCharac: charac) { result in
+    switch result {
+    case .success(let data):
+        break // The data was read and is returned as an NSData instance
+    case .failure(let error):
+        break // An error happened while attempting to read the data
+    }
 }
 ```
 ### Writing to a Peripheral's service's characteristic
@@ -120,21 +136,30 @@ peripheral.setNotifyValue(toEnabled: true, forCharacWithUUID: "2A29", ofServiceW
 ### Discovering services 
 Discover services using the `discoverServices(...)` function:
 ```swift
-peripheral.discoverServices(withUUIDs: nil) { (services, error) in
-    // The services discovered or an error if something went wrong.
-    // Like the CBPeripheral discoverServices(...) function, passing nil instead of an array
-    // of service UUIDs will discover all of this Peripheral's services.
+peripheral.discoverServices(withUUIDs: nil) { result in
+    switch result {
+    case .success(let services):
+        break // An array containing all the services requested
+    case .failure(let error):
+        break // A connection error or an array containing the UUIDs of the services that we're not found
+    }
 }
 ```
+Like the CBPeripheral discoverServices(...) function, passing nil instead of an array of service UUIDs will discover all of this Peripheral's services.
 ### Discovering characteristics
 Discover characteristics using the `discoverCharacteristics(...)` function. If the service on which you are attempting to discover characteristics from has not been discovered, an attempt will first be made to discover that service for you:
 ```swift
-peripheral.discoverCharacteristics(withUUIDs: nil, ofServiceWithUUID: "180A") { (characteristics, error) in
+peripheral.discoverCharacteristics(withUUIDs: nil, ofServiceWithUUID: "180A") { result in
     // The characteristics discovered or an error if something went wrong.
-    // Like the CBPeripheral discoverCharacteristics(...) function, passing nil instead of an array of service 
-    // UUIDs will discover all of this service's characteristics.
+    switch result {
+    case .success(let services):
+        break // An array containing all the characs requested.
+    case .failure(let error):
+        break // A connection error or an array containing the UUIDs of the charac/services that we're not found.
+    }
 }
 ```
+Like the CBPeripheral discoverCharacteristics(...) function, passing nil instead of an array of service UUIDs will discover all of this service's characteristics.  
 ## Installation
 
 

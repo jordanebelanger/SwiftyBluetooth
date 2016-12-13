@@ -80,8 +80,8 @@ public enum AsyncCentralState: Int {
 public typealias AsyncCentralStateCallback = (AsyncCentralState) -> Void
 public typealias BluetoothStateCallback = (CBCentralManagerState) -> Void
 public typealias PeripheralScanCallback = (PeripheralScanResult) -> Void
-public typealias ConnectPeripheralCallback = (Error?) -> Void
-public typealias DisconnectPeripheralCallback = (Error?) -> Void
+public typealias ConnectPeripheralCallback = (Result<NoValue>) -> Void
+public typealias DisconnectPeripheralCallback = (Result<NoValue>) -> Void
 
 /// A singleton wrapping a CBCentralManager instance to run CBCentralManager related functions with closures based callbacks instead of the usual CBCentralManagerDelegate interface.
 public final class Central {
@@ -102,15 +102,13 @@ extension Central {
     
     func connect(peripheral: CBPeripheral,
                  timeout: TimeInterval = 10,
-                 completion: @escaping ConnectPeripheralCallback)
-    {
+                 completion: @escaping ConnectPeripheralCallback) {
         centralProxy.connect(peripheral: peripheral, timeout: timeout, completion)
     }
     
     func disconnect(peripheral: CBPeripheral,
                     timeout: TimeInterval = 10,
-                    completion: @escaping DisconnectPeripheralCallback)
-    {
+                    completion: @escaping DisconnectPeripheralCallback) {
         centralProxy.disconnect(peripheral: peripheral, timeout: timeout, completion)
     }
 }
@@ -139,10 +137,36 @@ extension Central {
         }
     }
     
+    #if SWIFTYBLUETOOTH_DIRECT_ACCESS
+    /// The underlying CBCentralManager class
+    public var centralManager: CBCentralManager {
+        return self.centralProxy.centralManager
+    }
+    #endif
+    
     /// The underlying CBCentralManager isScanning value
     public var isScanning: Bool {
         return self.centralProxy.centralManager.isScanning
     }
+    
+    #if SWIFTYBLUETOOTH_DIRECT_ACCESS
+    /// The underlying CBCentralManager delegate value
+    public var delegate: CBCentralManagerDelegate? {
+        get {
+            return self.centralProxy.centralManager.delegate
+        }
+        set {
+            self.centralProxy.centralManager.delegate = newValue
+        }
+    }
+    #endif
+
+    #if SWIFTYBLUETOOTH_DIRECT_ACCESS
+    /// Sets the underlying CBCentralManager delegate back to centralProxy
+    public func resetDelegate() {
+        self.centralProxy.centralManager.delegate = self.centralProxy
+    }
+    #endif
     
     /// Attempts to return the periperals from a list of identifier "UUID"s
     public func retrievePeripherals(withUUIDs uuids: [UUID]) -> [Peripheral] {

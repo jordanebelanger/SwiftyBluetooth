@@ -1,7 +1,7 @@
 //
-//  Util.swift
+//  SwiftyBluetoothConfiguration.xcconfig
 //
-//  Copyright (c) 2016 Jordane Belanger
+//  Copyright (c) 2016 Jake Rockland
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -21,36 +21,7 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //  SOFTWARE.
 
-import Foundation
+// Uncomment the following line to support direct access to underlying CBCentral and CBPeripheral.
+SWIFTYBLUETOOTH_FLAGS = // SWIFTYBLUETOOTH_DIRECT_ACCESS
 
-// Represents an absence of return value for a successful operation, i.e Result<NoValue>, for example 
-// after a successful Write operation.
-public enum NoValue {
-    case noValue
-}
-
-public final class Box<T> {
-    let value: T
-    
-    init(value: T) {
-        self.value = value
-    }
-}
-
-final class Weak<T: AnyObject> {
-    weak var value : T?
-    
-    init (value: T) {
-        self.value = value
-    }
-}
-
-extension UInt16 {
-    init?(uncastedUnwrappedNSNumber: AnyObject?) {
-        guard let numberValue = uncastedUnwrappedNSNumber as? NSNumber else {
-            return nil
-        }
-        
-        self = UInt16(truncatingBitPattern: numberValue.intValue)
-    }
-}
+SWIFT_ACTIVE_COMPILATION_CONDITIONS= $(inherited) $(SWIFTYBLUETOOTH_FLAGS)
