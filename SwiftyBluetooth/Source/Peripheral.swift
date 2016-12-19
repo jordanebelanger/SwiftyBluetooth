@@ -103,8 +103,8 @@ extension Peripheral {
     }
     
     /// Connect to the peripheral through Ble to our Central sharedInstance
-    public func connect(completion: @escaping ConnectPeripheralCallback) {
-        self.peripheralProxy.connect(completion)
+    public func connect(withTimeout timeout: TimeInterval = 10, completion: @escaping ConnectPeripheralCallback) {
+        self.peripheralProxy.connect(timeout: timeout, completion)
     }
     
     /// Disconnect the peripheral from our Central sharedInstance
