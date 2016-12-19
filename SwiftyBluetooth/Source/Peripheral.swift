@@ -24,7 +24,7 @@
 import CoreBluetooth
 
 /**
-    The Peripheral notifications sent through the default 'NSNotificationCenter' by Peripherals.
+    The Peripheral notifications sent through the default 'NotificationCenter' by Peripherals.
  
     Use the PeripheralEvent enum rawValue as the notification string when registering for notifications.
  
@@ -38,14 +38,18 @@ public enum PeripheralEvent: String {
     case characteristicValueUpdate
 }
 
-public typealias ReadRSSIRequestCallback = (_ RSSI: Int?, _ error: Error?) -> Void
-public typealias ServiceRequestCallback = (_ services: [CBService]?, _ error: Error?) -> Void
-public typealias CharacteristicRequestCallback = (_ characteristics: [CBCharacteristic]?, _ error: Error?) -> Void
-public typealias DescriptorRequestCallback = (_ descriptors: [CBDescriptor]?, _ error: Error?) -> Void
-public typealias ReadCharacRequestCallback = (_ data: Data?, _ error: Error?) -> Void
-public typealias ReadDescriptorRequestCallback = (_ value: DescriptorValue?, _ error: Error?) -> Void
-public typealias WriteRequestCallback = (_ error: Error?) -> Void
-public typealias UpdateNotificationStateCallback = (_ isNotifying: Bool?, _ error: Error?) -> Void
+
+public typealias rssi = Int
+public typealias isNotifying = Bool
+
+public typealias ReadRSSIRequestCallback = (_ result: Result<rssi>) -> Void
+public typealias ServiceRequestCallback = (_ result: Result<[CBService]>) -> Void
+public typealias CharacteristicRequestCallback = (_ result: Result<[CBCharacteristic]>) -> Void
+public typealias DescriptorRequestCallback = (_ result: Result<[CBDescriptor]>) -> Void
+public typealias ReadCharacRequestCallback = (_ result: Result<Data>) -> Void
+public typealias ReadDescriptorRequestCallback = (_ result: Result<DescriptorValue>) -> Void
+public typealias WriteRequestCallback = (_ result: Result<NoValue>) -> Void
+public typealias UpdateNotificationStateCallback = (_ result: Result<isNotifying>) -> Void
 
 /// An interface on top of a CBPeripheral instance used to run CBPeripheral related functions with closures based callbacks instead of the usual CBPeripheralDelegate interface.
 public final class Peripheral {
@@ -58,6 +62,14 @@ public final class Peripheral {
 
 // MARK: Public
 extension Peripheral {
+    
+    #if SWIFTYBLUETOOTH_DIRECT_ACCESS
+    /// The underlying CBPeripheral class
+    public var peripheral: CBPeripheral {
+        return self.peripheralProxy.cbPeripheral
+    }
+    #endif
+
     /// The underlying CBPeripheral identifier
     public var identifier: UUID {
         return self.peripheralProxy.cbPeripheral.identifier
@@ -339,7 +351,7 @@ extension Peripheral {
     /// Will first discover the service and characteristic you want to either, start, or stop, getting notifcations from.
     ///
     /// - Parameter enabled: If enabled is true, this peripherals will register for change notifcations to the characteristic
-    ///      and notify listeners through the default 'NSNotificationCenter' with a 'PeripheralEvent.characteristicValueUpdate' notification.
+    ///      and notify listeners through the default 'NotificationCenter' with a 'PeripheralEvent.characteristicValueUpdate' notification.
     /// - Parameter characUUID: The UUID of the characteristic you want set the notify value of.
     /// - Parameter serviceUUID: The UUID of the service of the characteristic above.
     /// - Parameter completion: A closures containing the updated notification value of the characteristic or an error if something went wrong.
@@ -356,7 +368,7 @@ extension Peripheral {
     
     /// Connect to the peripheral and set the notification value of the passed characteristic through a 'CBPeripheral' setNotifyValueForCharacteristic function call.
     ///
-    /// If set to true, this peripheral will emit characteristic change updates through the default NSNotificationCenter using the "characteristicValueUpdate" notification.
+    /// If set to true, this peripheral will emit characteristic change updates through the default NotificationCenter using the "characteristicValueUpdate" notification.
     ///
     /// - Parameter enabled: The notify state of the charac, set enabled to true to receive change notifications through the default NSNotification center
     /// - Parameter charac: The characteristic you want set the notify value of.
