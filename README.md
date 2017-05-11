@@ -29,7 +29,7 @@ Note: The library is currently not thread safe, make sure to run your `Central` 
 Below are a couple examples of operations that might be of interest to you.
 
 ### State preservation
-The Library is backed by a CBCentralManager singleton wrapper and does not give you direct access to the underlying CBCentralManager. You can still setup the underlying CBCentralManager for state restoration by calling `setSharedCentralInstanceWith(restoreIdentifier: )` and use the restoreIdentifier of your choice.
+SwiftyBluetooth is backed by a CBCentralManager singleton wrapper and does not give you direct access to the underlying CBCentralManager. You can still setup the underlying CBCentralManager for state restoration by calling `setSharedCentralInstanceWith(restoreIdentifier: )` and use the restoreIdentifier of your choice.
 
 Take note that this method can only be called once and must be called before anything else in the library otherwise the Central sharedInstance will be lazily initiated the first time you access it.
 
