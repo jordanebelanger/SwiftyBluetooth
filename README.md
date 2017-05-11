@@ -29,7 +29,9 @@ Note: The library is currently not thread safe, make sure to run your `Central` 
 Below are a couple examples of operations that might be of interest to you.
 
 ### State preservation
-SwiftyBluetooth is backed by a CBCentralManager singleton wrapper and does not give you direct access to the underlying CBCentralManager. You can still setup the underlying CBCentralManager for state restoration by calling `setSharedCentralInstanceWith(restoreIdentifier: )` and use the restoreIdentifier of your choice.
+SwiftyBluetooth is backed by a CBCentralManager singleton wrapper and does not give you direct access to the underlying CBCentralManager. 
+
+But, you can still setup the underlying CBCentralManager for state restoration by calling `setSharedCentralInstanceWith(restoreIdentifier: )` and use the restoreIdentifier of your choice.
 
 Take note that this method can only be called once and must be called before anything else in the library otherwise the Central sharedInstance will be lazily initiated the first time you access it.
 
@@ -38,7 +40,7 @@ As such, it is recommended to call it in your App Delegate's `didFinishLaunching
 setSharedCentralInstanceWith(restoreIdentifier: "MY_APP_BLUETOOTH_STATE_RESTORE_IDENTIFIER")
 ```
 
-You can also register for state preservation notifications on the default NotificationCenter that constains the preserved peripherals in their userInfo:
+Register for state preservation notifications on the default NotificationCenter. Those notifications will contain an array of restored `Peripheral`.
 ```swift
 NotificationCenter.default.addObserver(forName: Central.CentralManagerWillRestoreStateNotification,
                                         object: Central.sharedInstance,
@@ -49,7 +51,7 @@ NotificationCenter.default.addObserver(forName: Central.CentralManagerWillRestor
 }
 ```
 ### Scanning for Peripherals
-You can scan for peripherals by calling `scanWithTimeout(...)` while passing a `timeout` in seconds and a `callback` closure to receive `Peripheral` result callbacks as well as update on the status of your scan:
+Scan for peripherals by calling `scanWithTimeout(...)` while passing a `timeout` in seconds and a `callback` closure to receive `Peripheral` result callbacks as well as update on the status of your scan:
 ```swift
 // You can pass in nil if you want to discover all Peripherals
 SwiftyBluetooth.scanForPeripherals(withServiceUUIDs: nil, timeoutAfter: 15) { scanResult in
@@ -89,7 +91,7 @@ peripheral.disconnect { result in
 }
 ```
 ### Reading from a peripheral's service's characteristic
-If you already know the characteristic and service UUIDs you want to read from, once you've found a peripheral you can read from it right away like this: 
+If you already know the characteristic and service UUIDs you want to read from, once a peripheral has been found you can read from it right away like this: 
 
 ```swift
 peripheral.readValue(ofCharacWithUUID: "2A29", fromServiceWithUUID: "180A") { result in
@@ -101,7 +103,7 @@ peripheral.readValue(ofCharacWithUUID: "2A29", fromServiceWithUUID: "180A") { re
     }
 }
 ```
-This will connect to the peripheral if necessary and ensure the characteristic and service needed are discovered before reading from the characteristic matching `characteristicUUID`. If the charac/service cannot be retrieved you will receive an error specifying which charac/service could not be found.
+This will connect to the peripheral if necessary and ensure that the characteristic and service needed are discovered before reading from the characteristic matching `characteristicUUID`. If the charac/service cannot be retrieved you will receive an error specifying which charac/service could not be found.
 
 If you have a reference to a `CBCharacteristic`, you can read using the characteristic directly:
 ```swift
@@ -115,7 +117,7 @@ peripheral.readValue(ofCharac: charac) { result in
 }
 ```
 ### Writing to a Peripheral's service's characteristic
-If you already know the characteristic and service UUID you want to write to, once you've found a peripheral, you can write to that characteristic right away like this: 
+If you already know the characteristic and service UUID you want to write to, once a peripheral has been found, you can write to that characteristic right away like this: 
 ```swift
 let exampleBinaryData = String(0b1010).dataUsingEncoding(NSUTF8StringEncoding)!
 peripheral.writeValue(ofCharacWithUUID: "1d5bc11d-e28c-4157-a7be-d8b742a013d8", 
@@ -129,7 +131,7 @@ peripheral.writeValue(ofCharacWithUUID: "1d5bc11d-e28c-4157-a7be-d8b742a013d8",
     }
 }
 ```
-### Listening to and receiving Characteristic update notifications
+### Receiving Characteristic update notifications
 Receiving characteristic value updates is done through notifications on the default `NotificationCenter`. All supported `Peripheral` notifications are part of the `PeripheralEvent` enum. Use this enum's raw values as the notification string when registering for notifications:
 ```swift
 // First we prepare ourselves to receive update notifications 
