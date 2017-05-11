@@ -81,9 +81,9 @@ final class PeripheralProxy: NSObject  {
 
 // MARK: Connect/Disconnect Requests
 extension PeripheralProxy {
-    func connect(_ completion: @escaping ConnectPeripheralCallback) {
+    func connect(timeout: TimeInterval = 10, _ completion: @escaping ConnectPeripheralCallback) {
         if self.valid {
-            Central.sharedInstance.connect(peripheral: self.cbPeripheral, completion: completion)
+            Central.sharedInstance.connect(peripheral: self.cbPeripheral, timeout: timeout, completion: completion)
         } else {
             completion(.failure(SBError.invalidPeripheral))
         }
