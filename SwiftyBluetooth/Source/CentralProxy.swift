@@ -45,9 +45,9 @@ final class CentralProxy: NSObject {
         self.centralManager.delegate = self
     }
     
-    fileprivate func postCentralEvent(_ event: CentralEvent, userInfo: [AnyHashable: Any]? = nil) {
+    fileprivate func postCentralEvent(_ event: NSNotification.Name, userInfo: [AnyHashable: Any]? = nil) {
         NotificationCenter.default.post(
-            name: Notification.Name(rawValue: event.rawValue),
+            name: event,
             object: Central.sharedInstance,
             userInfo: userInfo)
     }
@@ -314,6 +314,8 @@ extension CentralProxy {
 extension CentralProxy: CBCentralManagerDelegate {
     
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
+        postCentralEvent(Central.CentralStateChange, userInfo: ["state": central.state])
+        
         switch central.state.rawValue {
         case 0: // .unknown
             self.stopScan(error: .scanningEndedUnexpectedly)
@@ -337,35 +339,35 @@ extension CentralProxy: CBCentralManagerDelegate {
     
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         let uuid = peripheral.identifier
-        guard let request = self.connectRequests[uuid] else {
+        guard let request = connectRequests[uuid] else {
             return
         }
         
-        self.connectRequests[uuid] = nil
+        connectRequests[uuid] = nil
         
         request.invokeCallbacks(error: nil)
     }
     
     func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
         let uuid = peripheral.identifier
-        guard let request = self.disconnectRequests[uuid] else {
+        guard let request = disconnectRequests[uuid] else {
             return
         }
         
-        self.disconnectRequests[uuid] = nil
+        disconnectRequests[uuid] = nil
         
         request.invokeCallbacks(error: error)
     }
     
     func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
         let uuid = peripheral.identifier
-        guard let request = self.connectRequests[uuid] else {
+        guard let request = connectRequests[uuid] else {
             return
         }
         
         let resolvedError: Error = error ?? SBError.peripheralFailedToConnectReasonUnknown
         
-        self.connectRequests[uuid] = nil
+        connectRequests[uuid] = nil
         
         request.invokeCallbacks(error: resolvedError)
     }
@@ -381,11 +383,17 @@ extension CentralProxy: CBCentralManagerDelegate {
         
         let peripheral = Peripheral(peripheral: peripheral)
         
-        scanRequest.callback(.scanResult(peripheral: peripheral, advertisementData: advertisementData, RSSI: RSSI))
+        var rssiOptional: Int? = Int(RSSI)
+        if let rssi = rssiOptional, rssi == 127 {
+            rssiOptional = nil
+        }
+        
+        scanRequest.callback(.scanResult(peripheral: peripheral, advertisementData: advertisementData, RSSI: rssiOptional))
     }
     
     func centralManager(_ central: CBCentralManager, willRestoreState dict: [String: Any]) {
-        self.postCentralEvent(.CentralManagerWillRestoreState, userInfo: dict)
+        let peripherals = ((dict[CBCentralManagerRestoredStatePeripheralsKey] as? [CBPeripheral]) ?? []).map { Peripheral(peripheral: $0) }
+        postCentralEvent(Central.CentralManagerWillRestoreState, userInfo: ["peripherals": peripherals])
     }
 
 }

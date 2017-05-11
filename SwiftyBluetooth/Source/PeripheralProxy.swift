@@ -52,12 +52,11 @@ final class PeripheralProxy: NSObject  {
         
         cbPeripheral.delegate = self
         
-        NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: CentralEvent.CentralStateChange.rawValue),
-                                                                object: Central.sharedInstance,
-                                                                queue: nil)
+        NotificationCenter.default.addObserver(forName: Central.CentralStateChange,
+                                               object: Central.sharedInstance,
+                                               queue: nil)
         { [weak self] (notification) in
-            let boxedState = (notification as NSNotification).userInfo!["state"] as! Box<CBCentralManagerState>
-            if boxedState.value.rawValue < CBCentralManagerState.poweredOff.rawValue {
+            if let state = notification.userInfo?["state"] as? CBCentralManagerState, state == .poweredOff {
                 self?.valid = false
             }
         }
@@ -67,13 +66,13 @@ final class PeripheralProxy: NSObject  {
         NotificationCenter.default.removeObserver(self)
     }
     
-    fileprivate func postPeripheralEvent(_ event: PeripheralEvent, userInfo: [AnyHashable: Any]?) {
+    fileprivate func postPeripheralEvent(_ event: Notification.Name, userInfo: [AnyHashable: Any]?) {
         guard let peripheral = self.peripheral else {
             return
         }
         
         NotificationCenter.default.post(
-            name: Notification.Name(rawValue: event.rawValue),
+            name: event,
             object: peripheral,
             userInfo: userInfo)
     }
@@ -982,11 +981,11 @@ extension PeripheralProxy: CBPeripheralDelegate {
             userInfo = ["name": name]
         }
         
-        self.postPeripheralEvent(.peripheralNameUpdate, userInfo: userInfo)
+        self.postPeripheralEvent(Peripheral.PeripheralNameUpdate, userInfo: userInfo)
     }
     
     @objc func peripheral(_ peripheral: CBPeripheral, didModifyServices invalidatedServices: [CBService]) {
-        self.postPeripheralEvent(.peripheralModifedServices, userInfo: ["invalidatedServices": invalidatedServices])
+        self.postPeripheralEvent(Peripheral.PeripheralModifedServices, userInfo: ["invalidatedServices": invalidatedServices])
     }
     
     @objc func peripheral(_ peripheral: CBPeripheral, didDiscoverIncludedServicesFor service: CBService, error: Error?) {
@@ -1102,7 +1101,7 @@ extension PeripheralProxy: CBPeripheralDelegate {
                     userInfo["error"] = error
                 }
                 
-                self.postPeripheralEvent(.characteristicValueUpdate, userInfo: userInfo)
+                self.postPeripheralEvent(Peripheral.PeripheralCharacteristicValueUpdate, userInfo: userInfo)
             }
             return
         }

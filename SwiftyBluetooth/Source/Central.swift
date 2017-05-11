@@ -29,35 +29,16 @@ import CoreBluetooth
 #endif
 
 /**
-    The Central notifications sent through the default 'NSNotificationCenter' by the Central instance.
- 
-    Use the CentralEvent enum rawValue as the notification string when registering for notifications.
- 
-    - CentralManagerWillRestoreState: Posted when the app comes back from the background and restores the 
-        underlying CBCentralManager state after the centralManager:willRestoreState: delegate method is called.
-        The userInfo of this notification is the same as was passed in the delegate method, userInfo: [String : AnyObject]
-    - CentralStateChange: The underlying CBCentralManager state changed, take note that if the central state
-        goes from poweredOn to something lower, all the Peripherals are invalidated and need to be discovered again.
-        The userInfo is a Box containing the CBCentralManagerState enum value, you can cast it to a constant like this
-        "let boxedState = notification.userInfo!["state"] as! Box<CBCentralManagerState>"
-        userInfo: ["state": Box<CBCentralState>]
-*/
-public enum CentralEvent: String {
-    case CentralManagerWillRestoreState
-    case CentralStateChange
-}
-
-/**
     The different results returned in the closure of the Central scanWithTimeout(...) function.
 
     - ScanStarted: The scan just started.
-    - ScanResult: A Peripheral found result.
+    - ScanResult: A Peripheral found result. `RSSI` will be nil if it could not be read.
     - ScanStopped: The scan ended.
  
 */
 public enum PeripheralScanResult {
     case scanStarted
-    case scanResult(peripheral: Peripheral, advertisementData: [String: Any], RSSI: NSNumber)
+    case scanResult(peripheral: Peripheral, advertisementData: [String: Any], RSSI: Int?)
     case scanStopped(error: SBError?)
 }
 
@@ -87,6 +68,18 @@ public typealias DisconnectPeripheralCallback = (Result<Void>) -> Void
 public final class Central {
     private static var _sharedInstance: Central?
     
+    /// The name of a `Notification` posted by the Central sharedInstance when the app comes back from the background and restores the
+    /// underlying CBCentralManager state after the centralManager:willRestoreState: delegate method is called.
+    /// The userInfo contains an Array of `Peripheral` that were restored.
+    /// Unwrap the peripherals with `notification.userInfo?["peripherals"] as? [Peripheral]`
+    public static let CentralManagerWillRestoreState = Notification.Name("SwiftyBluetooth_CentralManagerWillRestoreStateNotification")
+    
+    /// The name of a `Notification` posted by the Central sharedInstance when its underlying CBCentralManager state changes. Take note that if the `CBCentralManager` state
+    /// goes from poweredOn to something lower, all your peripherals will be invalidated and need to be discovered again.
+    /// The new `CBCentralManagerState` can be found in the notification's userInfo.
+    /// Unwrap with `notification.userInfo?["state"] as? CBCentralManagerState`
+    public static let CentralStateChange = Notification.Name("SwiftyBluetooth_CentralStateChange")
+    
     /// The sharedInstance Singleton, you can instantiate it yourself by
     /// calling `setSharedInstanceWith(restoreIdentifier: )` which will allow you
     /// to pass in a state preservation identifier. Otherwise, this sharedInstance
@@ -104,7 +97,7 @@ public final class Central {
     /// launches.
     @discardableResult
     public static func setSharedInstanceWith(restoreIdentifier: String) -> Central {
-        assertionFailure("You can only set the sharedInstance of the Central once.")
+        assertionFailure("You can only set the sharedInstance of the Central once and you must do so before calling any other SwiftyBluetooth functions.")
         _sharedInstance = Central(stateRestoreIdentifier: restoreIdentifier)
         return _sharedInstance!
     }

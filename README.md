@@ -12,9 +12,9 @@ SwiftyBluetooth tries to address these concerns by providing a clear, closure ba
 - Supports Swift 3 ~> v0.2.0 and Swift 2 = v0.1.1
 - Synthaxic sugar and helper functions for common CoreBluetooth tasks 
 - Closure based CBCentralManager peripheral scanning with a timeout
-- NSNotification based event for CBCentralManager state changes and state restoration  
+- Notification based event for CBCentralManager state changes and state restoration  
 - Closure based calls for every CBPeripheral operations
-- NSNotification based event for CBPeripheral name updates, characteristic value updates and services updates
+- Notification based event for CBPeripheral name updates, characteristic value updates and services updates
 - Precise errors and guaranteed timeout for every Bluetooth operation
 - [Full documentation for all public interfaces](http://cocoadocs.org/docsets/SwiftyBluetooth/)
 
@@ -28,6 +28,26 @@ Note: The library is currently not thread safe, make sure to run your `Central` 
 
 Below are a couple examples of operations that might be of interest to you.
 
+### State preservation
+The Library is backed by a CBCentralManager singleton wrapper and does not give you direct access to the underlying CBCentralManager. You can still setup the underlying CBCentralManager for state restoration by calling `setSharedCentralInstanceWith(restoreIdentifier: )` and use the restoreIdentifier of your choice.
+
+Take note that this method can only be called once and must be called before anything else in the library otherwise the Central sharedInstance will be lazily initiated the first time you access it.
+
+As such, it is recommended to call it in your App Delegate's `didFinishLaunchingWithOptions(:)`
+```swift
+setSharedCentralInstanceWith(restoreIdentifier: "MY_APP_BLUETOOTH_STATE_RESTORE_IDENTIFIER")
+```
+
+You can also register for state preservation notifications on the default NotificationCenter that constains the preserved peripherals in their userInfo:
+```swift
+NotificationCenter.default.addObserver(forName: Central.CentralManagerWillRestoreStateNotification,
+                                        object: Central.sharedInstance,
+                                        queue: nil) { (notification) in
+    if let restoredPeripherals = notification.userInfo?["peripherals"] as? [Peripheral] {
+
+    }
+}
+```
 ### Scanning for Peripherals
 You can scan for peripherals by calling `scanWithTimeout(...)` while passing a `timeout` in seconds and a `callback` closure to receive `Peripheral` result callbacks as well as update on the status of your scan:
 ```swift
@@ -42,8 +62,7 @@ SwiftyBluetooth.scanForPeripherals(withServiceUUIDs: nil, timeoutAfter: 15) { sc
         case .scanStopped(let error):
             // The scan stopped, an error is passed if the scan stopped unexpectedly
     }
-}
-        
+}        
 ```
 Note that the callback closure can be called multiple times, but always start and finish with a callback containing a `.scanStarted` and `.scanStopped` result respectively. Your callback will be called with a `.scanResult` for every unique peripheral found during the scan.  
 
@@ -89,7 +108,7 @@ If you have a reference to a `CBCharacteristic`, you can read using the characte
 peripheral.readValue(ofCharac: charac) { result in
     switch result {
     case .success(let data):
-        break // The data was read and is returned as an NSData instance
+        break // The data was read and is returned as a Data instance
     case .failure(let error):
         break // An error happened while attempting to read the data
     }
@@ -111,21 +130,23 @@ peripheral.writeValue(ofCharacWithUUID: "1d5bc11d-e28c-4157-a7be-d8b742a013d8",
 }
 ```
 ### Listening to and receiving Characteristic update notifications
-Receiving characteristic value updates is done through notifications on the default `NSNotificationCenter`. All supported `Peripheral` notifications are part of the `PeripheralEvent` enum. Use this enum's raw values as the notification string when registering for notifications:
+Receiving characteristic value updates is done through notifications on the default `NotificationCenter`. All supported `Peripheral` notifications are part of the `PeripheralEvent` enum. Use this enum's raw values as the notification string when registering for notifications:
 ```swift
 // First we prepare ourselves to receive update notifications 
 let peripheral = somePeripheral
 
-NSNotificationCenter.defaultCenter().addObserverForName(PeripheralEvent.characteristicValueUpdate.rawValue, 
-                                                        object: peripheral, 
-                                                        queue: nil) { (notification) in
-    let updatedCharacteristic: CBCharacteristic = notification.userInfo["characteristic"]!
-    var newValue = updatedCharacteristic.value 
+NotificationCenter.default.addObserver(forName: Peripheral.PeripheralCharacteristicValueUpdate, 
+                                        object: peripheral, 
+                                        queue: nil) { (notification) in
+    let charac = notification.userInfo!["characteristic"] as! CBCharacteristic
+    if let error = notification.userInfo?["error"] as? SBError {
+        // Deal with error
+    }
 }
 
 // We can then set a characteristic's notification value to true and start receiving updates to that characteristic
 peripheral.setNotifyValue(toEnabled: true, forCharacWithUUID: "2A29", ofServiceWithUUID: "180A") { (isNotifying, error) in
-    // If there were no errors, you will now receive NSNotifications when that characteristic value gets updated.
+    // If there were no errors, you will now receive Notifications when that characteristic value gets updated.
 }
 ```
 ### Discovering services 

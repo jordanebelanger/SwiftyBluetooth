@@ -24,19 +24,13 @@
 import CoreBluetooth
 
 /**
-    The Peripheral notifications sent through the default 'NSNotificationCenter' by Peripherals.
+    The Peripheral notifications sent through the default 'NotificationCenter' by Peripherals.
  
     Use the PeripheralEvent enum rawValue as the notification string when registering for notifications.
  
-    - peripheralNameUpdate: Updates to a Peripheral's CBPeripheral name value, userInfo: ["name": String?]
     - peripheralModifedServices: Update to a peripheral's CBPeripheral services, userInfo: ["invalidatedServices": [CBService]]
     - characteristicValueUpdate: An update to the value of a characteristic you're peripherals is subscribed for updates from, userInfo: ["characteristic": CBCharacteristic, "error": SBError?]
 */
-public enum PeripheralEvent: String {
-    case peripheralNameUpdate
-    case peripheralModifedServices
-    case characteristicValueUpdate
-}
 
 
 public typealias rssi = Int
@@ -62,6 +56,20 @@ public final class Peripheral {
 
 // MARK: Public
 extension Peripheral {
+    /// The name of a `Notification` posted by a `Peripheral` instance when its `CBPeripheral` name value changes.
+    /// Unwrap the new name if available with `notification.userInfo?["name"] as? String`
+    public static let PeripheralNameUpdate = Notification.Name(rawValue: "SwiftyBluetooth_PeripheralNameUpdate")
+    
+    /// The name of a `Notification` posted by a `Peripheral` instance when some of its `CBPeripheral` services are invalidated.
+    /// Unwrap the invalidated services with `notification.userInfo?["invalidatedServices"] as? [CBSErvice]`
+    public static let PeripheralModifedServices = Notification.Name(rawValue: "SwiftyBluetooth_PeripheralModifedServices")
+    
+    /// The name of a `Notification` posted by a `Peripheral` instance when one of the characteristic you have subcribed for update from
+    /// changes its value.
+    /// Unwrap the new charac value with `notification.userInfo?["characteristic"] as? CBCharacteristic`
+    /// Unwrap the error if any with `notification.userInfo?["error"] as? SBError`
+    public static let PeripheralCharacteristicValueUpdate = Notification.Name(rawValue: "SwiftyBluetooth_PharacteristicValueUpdate")
+    
     /// The underlying CBPeripheral identifier
     public var identifier: UUID {
         return self.peripheralProxy.cbPeripheral.identifier
@@ -343,7 +351,7 @@ extension Peripheral {
     /// Will first discover the service and characteristic you want to either, start, or stop, getting notifcations from.
     ///
     /// - Parameter enabled: If enabled is true, this peripherals will register for change notifcations to the characteristic
-    ///      and notify listeners through the default 'NSNotificationCenter' with a 'PeripheralEvent.characteristicValueUpdate' notification.
+    ///      and notify listeners through the default 'NotificationCenter' with a 'PeripheralEvent.characteristicValueUpdate' notification.
     /// - Parameter characUUID: The UUID of the characteristic you want set the notify value of.
     /// - Parameter serviceUUID: The UUID of the service of the characteristic above.
     /// - Parameter completion: A closures containing the updated notification value of the characteristic or an error if something went wrong.
@@ -360,9 +368,9 @@ extension Peripheral {
     
     /// Connect to the peripheral and set the notification value of the passed characteristic through a 'CBPeripheral' setNotifyValueForCharacteristic function call.
     ///
-    /// If set to true, this peripheral will emit characteristic change updates through the default NSNotificationCenter using the "characteristicValueUpdate" notification.
+    /// If set to true, this peripheral will emit characteristic change updates through the default NotificationCenter using the "characteristicValueUpdate" notification.
     ///
-    /// - Parameter enabled: The notify state of the charac, set enabled to true to receive change notifications through the default NSNotification center
+    /// - Parameter enabled: The notify state of the charac, set enabled to true to receive change notifications through the default Notification center
     /// - Parameter charac: The characteristic you want set the notify value of.
     /// - Parameter completion: A closures containing the updated notification value of the characteristic or an error if something went wrong.
     public func setNotifyValue(toEnabled enabled: Bool,
