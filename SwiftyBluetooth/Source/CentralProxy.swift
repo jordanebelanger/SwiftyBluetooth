@@ -39,6 +39,12 @@ final class CentralProxy: NSObject {
         self.centralManager.delegate = self
     }
     
+    init(stateRestoreIdentifier: String) {
+        self.centralManager = CBCentralManager(delegate: nil, queue: nil, options: [CBCentralManagerOptionRestoreIdentifierKey: stateRestoreIdentifier])
+        super.init()
+        self.centralManager.delegate = self
+    }
+    
     fileprivate func postCentralEvent(_ event: CentralEvent, userInfo: [AnyHashable: Any]? = nil) {
         NotificationCenter.default.post(
             name: Notification.Name(rawValue: event.rawValue),
@@ -162,11 +168,11 @@ private final class ConnectPeripheralRequest {
     }
     
     func invokeCallbacks(error: Error?) {
-        let result: Result<NoValue> = {
+        let result: Result<Void> = {
             if let error = error {
                 return .failure(error)
             } else {
-                return .success(.noValue)
+                return .success()
             }
         }()
         for callback in callbacks {
@@ -186,7 +192,7 @@ extension CentralProxy {
             let uuid = peripheral.identifier
             
             if let cbPeripheral = self.centralManager.retrievePeripherals(withIdentifiers: [uuid]).first , cbPeripheral.state == .connected {
-                callback(.success(.noValue))
+                callback(.success())
                 return
             }
             
@@ -240,11 +246,11 @@ private final class DisconnectPeripheralRequest {
     }
     
     func invokeCallbacks(error: Error?) {
-        let result: Result<NoValue> = {
+        let result: Result<Void> = {
             if let error = error {
                 return .failure(error)
             } else {
-                return .success(.noValue)
+                return .success()
             }
         }()
         for callback in callbacks {
@@ -266,7 +272,7 @@ extension CentralProxy {
             
             if let cbPeripheral = self.centralManager.retrievePeripherals(withIdentifiers: [uuid]).first,
                 (cbPeripheral.state == .disconnected || cbPeripheral.state == .disconnecting) {
-                callback(.success(.noValue))
+                callback(.success())
                 return
             }
             

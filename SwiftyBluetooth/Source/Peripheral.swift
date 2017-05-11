@@ -48,7 +48,7 @@ public typealias CharacteristicRequestCallback = (_ result: Result<[CBCharacteri
 public typealias DescriptorRequestCallback = (_ result: Result<[CBDescriptor]>) -> Void
 public typealias ReadCharacRequestCallback = (_ result: Result<Data>) -> Void
 public typealias ReadDescriptorRequestCallback = (_ result: Result<DescriptorValue>) -> Void
-public typealias WriteRequestCallback = (_ result: Result<NoValue>) -> Void
+public typealias WriteRequestCallback = (_ result: Result<Void>) -> Void
 public typealias UpdateNotificationStateCallback = (_ result: Result<isNotifying>) -> Void
 
 /// An interface on top of a CBPeripheral instance used to run CBPeripheral related functions with closures based callbacks instead of the usual CBPeripheralDelegate interface.

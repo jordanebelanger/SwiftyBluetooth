@@ -743,7 +743,7 @@ extension PeripheralProxy {
                 self.writeCharacteristicValueRequests[writePath] = nil
             }
             
-            request.callback(.success(.noValue))
+            request.callback(.success())
             
             self.runWriteCharacteristicValueRequest(writePath)
         }
@@ -1142,7 +1142,7 @@ extension PeripheralProxy: CBPeripheralDelegate {
         if let error = error {
             request.callback(.failure(error))
         } else {
-            request.callback(.success(.noValue))
+            request.callback(.success())
         }
     }
     
@@ -1216,7 +1216,7 @@ extension PeripheralProxy: CBPeripheralDelegate {
         if let error = error {
             request.callback(.failure(error))
         } else {
-            request.callback(.success(.noValue))
+            request.callback(.success())
         }
     }
 }

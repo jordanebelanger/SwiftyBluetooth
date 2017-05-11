@@ -23,12 +23,6 @@
 
 import Foundation
 
-// Represents an absence of return value for a successful operation, i.e Result<NoValue>, for example 
-// after a successful Write operation.
-public enum NoValue {
-    case noValue
-}
-
 public final class Box<T> {
     let value: T
     
