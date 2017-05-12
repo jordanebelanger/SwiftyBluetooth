@@ -36,14 +36,14 @@ import CoreBluetooth
 public typealias rssi = Int
 public typealias isNotifying = Bool
 
-public typealias ReadRSSIRequestCallback = (_ result: Result<rssi>) -> Void
-public typealias ServiceRequestCallback = (_ result: Result<[CBService]>) -> Void
-public typealias CharacteristicRequestCallback = (_ result: Result<[CBCharacteristic]>) -> Void
-public typealias DescriptorRequestCallback = (_ result: Result<[CBDescriptor]>) -> Void
-public typealias ReadCharacRequestCallback = (_ result: Result<Data>) -> Void
-public typealias ReadDescriptorRequestCallback = (_ result: Result<DescriptorValue>) -> Void
-public typealias WriteRequestCallback = (_ result: Result<Void>) -> Void
-public typealias UpdateNotificationStateCallback = (_ result: Result<isNotifying>) -> Void
+public typealias ReadRSSIRequestCallback = (_ result: SwiftyBluetooth.Result<rssi>) -> Void
+public typealias ServiceRequestCallback = (_ result: SwiftyBluetooth.Result<[CBService]>) -> Void
+public typealias CharacteristicRequestCallback = (_ result: SwiftyBluetooth.Result<[CBCharacteristic]>) -> Void
+public typealias DescriptorRequestCallback = (_ result: SwiftyBluetooth.Result<[CBDescriptor]>) -> Void
+public typealias ReadCharacRequestCallback = (_ result: SwiftyBluetooth.Result<Data>) -> Void
+public typealias ReadDescriptorRequestCallback = (_ result: SwiftyBluetooth.Result<DescriptorValue>) -> Void
+public typealias WriteRequestCallback = (_ result: SwiftyBluetooth.Result<Void>) -> Void
+public typealias UpdateNotificationStateCallback = (_ result: SwiftyBluetooth.Result<isNotifying>) -> Void
 
 /// An interface on top of a CBPeripheral instance used to run CBPeripheral related functions with closures based callbacks instead of the usual CBPeripheralDelegate interface.
 public final class Peripheral {

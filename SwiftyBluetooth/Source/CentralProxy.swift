@@ -168,7 +168,7 @@ private final class ConnectPeripheralRequest {
     }
     
     func invokeCallbacks(error: Error?) {
-        let result: Result<Void> = {
+        let result: SwiftyBluetooth.Result<Void> = {
             if let error = error {
                 return .failure(error)
             } else {
@@ -246,7 +246,7 @@ private final class DisconnectPeripheralRequest {
     }
     
     func invokeCallbacks(error: Error?) {
-        let result: Result<Void> = {
+        let result: SwiftyBluetooth.Result<Void> = {
             if let error = error {
                 return .failure(error)
             } else {

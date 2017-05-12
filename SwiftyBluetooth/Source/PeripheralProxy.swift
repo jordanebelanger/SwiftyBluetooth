@@ -962,7 +962,7 @@ extension PeripheralProxy: CBPeripheralDelegate {
         
         self.readRSSIRequests.removeFirst()
         
-        let result: Result<Int> = {
+        let result: SwiftyBluetooth.Result<Int> = {
             if let error = error {
                 return .failure(error)
             } else {

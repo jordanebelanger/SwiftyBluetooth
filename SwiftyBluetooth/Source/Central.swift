@@ -61,8 +61,8 @@ public enum AsyncCentralState: Int {
 public typealias AsyncCentralStateCallback = (AsyncCentralState) -> Void
 public typealias BluetoothStateCallback = (CBCentralManagerState) -> Void
 public typealias PeripheralScanCallback = (PeripheralScanResult) -> Void
-public typealias ConnectPeripheralCallback = (Result<Void>) -> Void
-public typealias DisconnectPeripheralCallback = (Result<Void>) -> Void
+public typealias ConnectPeripheralCallback = (SwiftyBluetooth.Result<Void>) -> Void
+public typealias DisconnectPeripheralCallback = (SwiftyBluetooth.Result<Void>) -> Void
 
 /// A singleton wrapping a CBCentralManager instance to run CBCentralManager related functions with closures based callbacks instead of the usual CBCentralManagerDelegate interface.
 public final class Central {
