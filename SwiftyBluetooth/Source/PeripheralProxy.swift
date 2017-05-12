@@ -962,7 +962,7 @@ extension PeripheralProxy: CBPeripheralDelegate {
         
         self.readRSSIRequests.removeFirst()
         
-        let result: SBResult<Int> = {
+        let result: Result<Int> = {
             if let error = error {
                 return .failure(error)
             } else {

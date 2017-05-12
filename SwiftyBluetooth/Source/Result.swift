@@ -31,7 +31,7 @@ import Foundation
 ///
 /// - failure: The request encountered an error resulting in a failure. The associated values are the original data
 ///            provided by the server as well as the error that caused the failure.
-public enum SBResult<Value> {
+public enum Result<Value> {
     case success(Value)
     case failure(Error)
     
@@ -73,7 +73,7 @@ public enum SBResult<Value> {
 
 // MARK: - CustomStringConvertible
 
-extension SBResult: CustomStringConvertible {
+extension Result: CustomStringConvertible {
     /// The textual representation used when written to an output stream, which includes whether the result was a
     /// success or failure.
     public var description: String {
@@ -88,7 +88,7 @@ extension SBResult: CustomStringConvertible {
 
 // MARK: - CustomDebugStringConvertible
 
-extension SBResult: CustomDebugStringConvertible {
+extension Result: CustomDebugStringConvertible {
     /// The debug textual representation used when written to an output stream, which includes whether the result was a
     /// success or failure in addition to the value or error.
     public var debugDescription: String {

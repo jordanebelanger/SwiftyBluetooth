@@ -36,14 +36,14 @@ import CoreBluetooth
 public typealias rssi = Int
 public typealias isNotifying = Bool
 
-public typealias ReadRSSIRequestCallback = (_ result: SBResult<rssi>) -> Void
-public typealias ServiceRequestCallback = (_ result: SBResult<[CBService]>) -> Void
-public typealias CharacteristicRequestCallback = (_ result: SBResult<[CBCharacteristic]>) -> Void
-public typealias DescriptorRequestCallback = (_ result: SBResult<[CBDescriptor]>) -> Void
-public typealias ReadCharacRequestCallback = (_ result: SBResult<Data>) -> Void
-public typealias ReadDescriptorRequestCallback = (_ result: SBResult<DescriptorValue>) -> Void
-public typealias WriteRequestCallback = (_ result: SBResult<Void>) -> Void
-public typealias UpdateNotificationStateCallback = (_ result: SBResult<isNotifying>) -> Void
+public typealias ReadRSSIRequestCallback = (_ result: Result<rssi>) -> Void
+public typealias ServiceRequestCallback = (_ result: Result<[CBService]>) -> Void
+public typealias CharacteristicRequestCallback = (_ result: Result<[CBCharacteristic]>) -> Void
+public typealias DescriptorRequestCallback = (_ result: Result<[CBDescriptor]>) -> Void
+public typealias ReadCharacRequestCallback = (_ result: Result<Data>) -> Void
+public typealias ReadDescriptorRequestCallback = (_ result: Result<DescriptorValue>) -> Void
+public typealias WriteRequestCallback = (_ result: Result<Void>) -> Void
+public typealias UpdateNotificationStateCallback = (_ result: Result<isNotifying>) -> Void
 
 /// An interface on top of a CBPeripheral instance used to run CBPeripheral related functions with closures based callbacks instead of the usual CBPeripheralDelegate interface.
 public final class Peripheral {
