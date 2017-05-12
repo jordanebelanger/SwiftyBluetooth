@@ -28,28 +28,6 @@ Note: The library is currently not thread safe, make sure to run your `Central` 
 
 Below are a couple examples of operations that might be of interest to you.
 
-### State preservation
-SwiftyBluetooth is backed by a CBCentralManager singleton wrapper and does not give you direct access to the underlying CBCentralManager. 
-
-But, you can still setup the underlying CBCentralManager for state restoration by calling `setSharedCentralInstanceWith(restoreIdentifier: )` and use the restoreIdentifier of your choice.
-
-Take note that this method can only be called once and must be called before anything else in the library otherwise the Central sharedInstance will be lazily initiated the first time you access it.
-
-As such, it is recommended to call it in your App Delegate's `didFinishLaunchingWithOptions(:)`
-```swift
-SwiftyBluetooth.setSharedCentralInstanceWith(restoreIdentifier: "MY_APP_BLUETOOTH_STATE_RESTORE_IDENTIFIER")
-```
-
-Register for state preservation notifications on the default NotificationCenter. Those notifications will contain an array of restored `Peripheral`.
-```swift
-NotificationCenter.default.addObserver(forName: Central.CentralManagerWillRestoreStateNotification,
-                                        object: Central.sharedInstance,
-                                        queue: nil) { (notification) in
-    if let restoredPeripherals = notification.userInfo?["peripherals"] as? [Peripheral] {
-
-    }
-}
-```
 ### Scanning for Peripherals
 Scan for peripherals by calling `scanWithTimeout(...)` while passing a `timeout` in seconds and a `callback` closure to receive `Peripheral` result callbacks as well as update on the status of your scan:
 ```swift
@@ -178,6 +156,28 @@ peripheral.discoverCharacteristics(withUUIDs: nil, ofServiceWithUUID: "180A") { 
 }
 ```
 Like the CBPeripheral discoverCharacteristics(...) function, passing nil instead of an array of service UUIDs will discover all of this service's characteristics.  
+### State preservation
+SwiftyBluetooth is backed by a CBCentralManager singleton wrapper and does not give you direct access to the underlying CBCentralManager. 
+
+But, you can still setup the underlying CBCentralManager for state restoration by calling `setSharedCentralInstanceWith(restoreIdentifier: )` and use the restoreIdentifier of your choice.
+
+Take note that this method can only be called once and must be called before anything else in the library otherwise the Central sharedInstance will be lazily initiated the first time you access it.
+
+As such, it is recommended to call it in your App Delegate's `didFinishLaunchingWithOptions(:)`
+```swift
+SwiftyBluetooth.setSharedCentralInstanceWith(restoreIdentifier: "MY_APP_BLUETOOTH_STATE_RESTORE_IDENTIFIER")
+```
+
+Register for state preservation notifications on the default NotificationCenter. Those notifications will contain an array of restored `Peripheral`.
+```swift
+NotificationCenter.default.addObserver(forName: Central.CentralManagerWillRestoreStateNotification,
+object: Central.sharedInstance,
+queue: nil) { (notification) in
+if let restoredPeripherals = notification.userInfo?["peripherals"] as? [Peripheral] {
+
+}
+}
+```
 ## Installation
 
 
