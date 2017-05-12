@@ -37,7 +37,7 @@ Take note that this method can only be called once and must be called before any
 
 As such, it is recommended to call it in your App Delegate's `didFinishLaunchingWithOptions(:)`
 ```swift
-setSharedCentralInstanceWith(restoreIdentifier: "MY_APP_BLUETOOTH_STATE_RESTORE_IDENTIFIER")
+SwiftyBluetooth.setSharedCentralInstanceWith(restoreIdentifier: "MY_APP_BLUETOOTH_STATE_RESTORE_IDENTIFIER")
 ```
 
 Register for state preservation notifications on the default NotificationCenter. Those notifications will contain an array of restored `Peripheral`.
