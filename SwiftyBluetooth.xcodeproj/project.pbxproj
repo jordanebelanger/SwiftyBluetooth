@@ -20,7 +20,7 @@
 		09C576AB1CC626C70001EFF7 /* Peripheral.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09C576A71CC626C70001EFF7 /* Peripheral.swift */; };
 		09C576AC1CC626C70001EFF7 /* Util.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09C576A81CC626C70001EFF7 /* Util.swift */; };
 		09DEF3B11CC839DE00F9B4EE /* CBUUIDConvertible.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09DEF3B01CC839DE00F9B4EE /* CBUUIDConvertible.swift */; };
-		C5A00DBD1EC58166003C8828 /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5A00DBC1EC58166003C8828 /* Result.swift */; };
+		C5A00DBF1EC582E4003C8828 /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5A00DBC1EC58166003C8828 /* Result.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -200,13 +200,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C5A00DBF1EC582E4003C8828 /* Result.swift in Sources */,
 				09C576AA1CC626C70001EFF7 /* SBError.swift in Sources */,
 				0974ABA41D28C176008B1B4F /* CentralProxy.swift in Sources */,
 				09C576AB1CC626C70001EFF7 /* Peripheral.swift in Sources */,
 				09C576A91CC626C70001EFF7 /* Central.swift in Sources */,
 				0974ABA81D28C19C008B1B4F /* PeripheralProxy.swift in Sources */,
 				0950A66B1D2101DE00512F59 /* SwiftyBluetooth.swift in Sources */,
-				C5A00DBD1EC58166003C8828 /* Result.swift in Sources */,
 				096A03CA1D1A6FEE00CB196C /* CBUUIDPath.swift in Sources */,
 				09709D2E1D306ADB00E01235 /* DescriptorValue.swift in Sources */,
 				090622BD1D11380200368A28 /* CBExtensions.swift in Sources */,
@@ -238,7 +238,7 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
@@ -289,7 +289,7 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
