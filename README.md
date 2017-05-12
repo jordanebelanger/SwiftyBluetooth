@@ -171,11 +171,11 @@ SwiftyBluetooth.setSharedCentralInstanceWith(restoreIdentifier: "MY_APP_BLUETOOT
 Register for state preservation notifications on the default NotificationCenter. Those notifications will contain an array of restored `Peripheral`.
 ```swift
 NotificationCenter.default.addObserver(forName: Central.CentralManagerWillRestoreStateNotification,
-object: Central.sharedInstance,
-queue: nil) { (notification) in
-if let restoredPeripherals = notification.userInfo?["peripherals"] as? [Peripheral] {
+                                        object: Central.sharedInstance, 
+                                         queue: nil) { (notification) in
+    if let restoredPeripherals = notification.userInfo?["peripherals"] as? [Peripheral] {
 
-}
+    }
 }
 ```
 ## Installation
