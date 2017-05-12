@@ -92,12 +92,12 @@ public final class Central {
         return _sharedInstance!
     }
     
-    /// Allows you to initially set the sharedInstance and use the restore 
-    /// identifier string of your choice for state preservation between app 
+    /// Allows you to initially set the sharedInstance and use the restore
+    /// identifier string of your choice for state preservation between app
     /// launches.
     @discardableResult
     public static func setSharedInstanceWith(restoreIdentifier: String) -> Central {
-        assertionFailure("You can only set the sharedInstance of the Central once and you must do so before calling any other SwiftyBluetooth functions.")
+        assert(_sharedInstance == nil, "You can only set the sharedInstance of the Central once and you must do so before calling any other SwiftyBluetooth functions.")
         _sharedInstance = Central(stateRestoreIdentifier: restoreIdentifier)
         return _sharedInstance!
     }
@@ -165,7 +165,8 @@ extension Central {
     }
     
     /// Attempts to return the periperals from a list of identifier "UUID"s
-    public func retrievePeripherals(withUUIDs uuids: [UUID]) -> [Peripheral] {
+    public func retrievePeripherals(withUUIDs uuids: [CBUUIDConvertible]) -> [Peripheral] {
+        let uuids = uuids.flatMap { UUID(uuidString: $0.CBUUIDRepresentation.uuidString)  }
         let cbPeripherals = self.centralProxy.centralManager.retrievePeripherals(withIdentifiers: uuids)
         let peripherals = cbPeripherals.map { cbPeripheral -> Peripheral in
             return Peripheral(peripheral: cbPeripheral)

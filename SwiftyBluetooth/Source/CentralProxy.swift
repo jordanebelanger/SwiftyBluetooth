@@ -31,18 +31,18 @@ final class CentralProxy: NSObject {
     fileprivate lazy var connectRequests: [UUID: ConnectPeripheralRequest] = [:]
     fileprivate lazy var disconnectRequests: [UUID: DisconnectPeripheralRequest] = [:]
     
-    let centralManager: CBCentralManager
+    var centralManager: CBCentralManager!
     
     override init() {
-        self.centralManager = CBCentralManager(delegate: nil, queue: nil)
         super.init()
-        self.centralManager.delegate = self
+        
+        self.centralManager = CBCentralManager(delegate: self, queue: nil)
     }
     
     init(stateRestoreIdentifier: String) {
-        self.centralManager = CBCentralManager(delegate: nil, queue: nil, options: [CBCentralManagerOptionRestoreIdentifierKey: stateRestoreIdentifier])
         super.init()
-        self.centralManager.delegate = self
+        
+        self.centralManager = CBCentralManager(delegate: self, queue: nil, options: [CBCentralManagerOptionRestoreIdentifierKey: stateRestoreIdentifier])
     }
     
     fileprivate func postCentralEvent(_ event: NSNotification.Name, userInfo: [AnyHashable: Any]? = nil) {
