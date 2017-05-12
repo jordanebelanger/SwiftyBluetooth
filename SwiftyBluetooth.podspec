@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = 'SwiftyBluetooth'
-  s.version      = '0.3.0'
+  s.version      = '0.4.0'
   s.license      =  'MIT'
   s.homepage     = 'https://github.com/tehjord/SwiftyBluetooth'
   s.authors      = { 'Jordan Belanger' => 'jordane.belanger@gmail.com' }
