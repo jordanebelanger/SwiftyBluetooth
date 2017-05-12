@@ -20,7 +20,7 @@
 		09C576AB1CC626C70001EFF7 /* Peripheral.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09C576A71CC626C70001EFF7 /* Peripheral.swift */; };
 		09C576AC1CC626C70001EFF7 /* Util.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09C576A81CC626C70001EFF7 /* Util.swift */; };
 		09DEF3B11CC839DE00F9B4EE /* CBUUIDConvertible.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09DEF3B01CC839DE00F9B4EE /* CBUUIDConvertible.swift */; };
-		C5A00DBF1EC582E4003C8828 /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5A00DBC1EC58166003C8828 /* Result.swift */; };
+		C5317C9D1EC658E5007179BC /* SBResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5317C9C1EC658E5007179BC /* SBResult.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -42,7 +42,7 @@
 		09D515301D2DA90A00049B59 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		09D515311D2DA90A00049B59 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		09DEF3B01CC839DE00F9B4EE /* CBUUIDConvertible.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CBUUIDConvertible.swift; path = Source/CBUUIDConvertible.swift; sourceTree = "<group>"; };
-		C5A00DBC1EC58166003C8828 /* Result.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Result.swift; path = Source/Result.swift; sourceTree = "<group>"; };
+		C5317C9C1EC658E5007179BC /* SBResult.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SBResult.swift; path = Source/SBResult.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -116,7 +116,7 @@
 				09DEF3B01CC839DE00F9B4EE /* CBUUIDConvertible.swift */,
 				096A03C91D1A6FEE00CB196C /* CBUUIDPath.swift */,
 				090622BC1D11380200368A28 /* CBExtensions.swift */,
-				C5A00DBC1EC58166003C8828 /* Result.swift */,
+				C5317C9C1EC658E5007179BC /* SBResult.swift */,
 				09C576A81CC626C70001EFF7 /* Util.swift */,
 			);
 			name = Source;
@@ -200,7 +200,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C5A00DBF1EC582E4003C8828 /* Result.swift in Sources */,
 				09C576AA1CC626C70001EFF7 /* SBError.swift in Sources */,
 				0974ABA41D28C176008B1B4F /* CentralProxy.swift in Sources */,
 				09C576AB1CC626C70001EFF7 /* Peripheral.swift in Sources */,
@@ -210,6 +209,7 @@
 				096A03CA1D1A6FEE00CB196C /* CBUUIDPath.swift in Sources */,
 				09709D2E1D306ADB00E01235 /* DescriptorValue.swift in Sources */,
 				090622BD1D11380200368A28 /* CBExtensions.swift in Sources */,
+				C5317C9D1EC658E5007179BC /* SBResult.swift in Sources */,
 				09DEF3B11CC839DE00F9B4EE /* CBUUIDConvertible.swift in Sources */,
 				09C576AC1CC626C70001EFF7 /* Util.swift in Sources */,
 			);

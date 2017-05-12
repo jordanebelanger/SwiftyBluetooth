@@ -31,10 +31,10 @@ import Foundation
 ///
 /// - failure: The request encountered an error resulting in a failure. The associated values are the original data
 ///            provided by the server as well as the error that caused the failure.
-public enum Result<Value> {
+public enum SBResult<Value> {
     case success(Value)
     case failure(Error)
-
+    
     /// Returns `true` if the result is a success, `false` otherwise.
     public var isSuccess: Bool {
         switch self {
@@ -44,12 +44,12 @@ public enum Result<Value> {
             return false
         }
     }
-
+    
     /// Returns `true` if the result is a failure, `false` otherwise.
     public var isFailure: Bool {
         return !isSuccess
     }
-
+    
     /// Returns the associated value if the result is a success, `nil` otherwise.
     public var value: Value? {
         switch self {
@@ -59,7 +59,7 @@ public enum Result<Value> {
             return nil
         }
     }
-
+    
     /// Returns the associated error value if the result is a failure, `nil` otherwise.
     public var error: Error? {
         switch self {
@@ -73,7 +73,7 @@ public enum Result<Value> {
 
 // MARK: - CustomStringConvertible
 
-extension Result: CustomStringConvertible {
+extension SBResult: CustomStringConvertible {
     /// The textual representation used when written to an output stream, which includes whether the result was a
     /// success or failure.
     public var description: String {
@@ -88,7 +88,7 @@ extension Result: CustomStringConvertible {
 
 // MARK: - CustomDebugStringConvertible
 
-extension Result: CustomDebugStringConvertible {
+extension SBResult: CustomDebugStringConvertible {
     /// The debug textual representation used when written to an output stream, which includes whether the result was a
     /// success or failure in addition to the value or error.
     public var debugDescription: String {
