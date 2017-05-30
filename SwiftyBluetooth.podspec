@@ -4,7 +4,7 @@ Pod::Spec.new do |s|
   s.license      =  'MIT'
   s.homepage     = 'https://github.com/tehjord/SwiftyBluetooth'
   s.authors      = { 'Jordan Belanger' => 'jordane.belanger@gmail.com' }
-  s.summary      = 'Swift 2/3 compatible fully featured closures based libray for CoreBluetooth on iOS 9+ devices'
+  s.summary      = 'Fully featured closures based library for CoreBluetooth'
   s.source       = { :git => 'https://github.com/tehjord/SwiftyBluetooth.git', :tag => s.version }
   s.source_files = 'SwiftyBluetooth/Source/*.swift'
   s.requires_arc = true
