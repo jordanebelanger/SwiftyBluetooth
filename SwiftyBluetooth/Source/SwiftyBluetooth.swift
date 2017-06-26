@@ -39,6 +39,7 @@ public func setSharedCentralInstanceWith(restoreIdentifier: String) -> Central {
 /// - Parameter serviceUUIDs: The service UUIDs to search peripherals for or nil if looking for all peripherals.
 /// - Parameter completion: The closures, called multiple times throughout a scan.
 public func scanForPeripherals(withServiceUUIDs serviceUUIDs: [CBUUIDConvertible]? = nil,
+                               options: [String : Any]? = nil,
                                timeoutAfter timeout: TimeInterval,
                                completion: @escaping PeripheralScanCallback)
 {

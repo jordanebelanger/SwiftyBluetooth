@@ -190,12 +190,13 @@ extension Central {
     /// - Parameter serviceUUIDs: The service UUIDs to search peripherals for or nil if looking for all peripherals.
     /// - Parameter completion: The closures, called multiple times throughout a scan.
     public func scanForPeripherals(withServiceUUIDs serviceUUIDs: [CBUUIDConvertible]? = nil,
+                                   options: [String : Any]? = nil,
                                    timeoutAfter timeout: TimeInterval,
                                    completion: @escaping PeripheralScanCallback) {
         // Passing in an empty array will act the same as if you passed nil and discover all peripherals but
         // it is recommended to pass in nil for those cases similarly to how the CoreBluetooth scan method works
         assert(serviceUUIDs == nil || serviceUUIDs!.count > 0)
-        centralProxy.scanWithTimeout(timeout, serviceUUIDs: ExtractCBUUIDs(serviceUUIDs), completion)
+        centralProxy.scanWithTimeout(timeout, serviceUUIDs: ExtractCBUUIDs(serviceUUIDs), options: options, completion)
     }
     
     /// Will stop the current scan through a CBCentralManager stopScan() function call and invokes the completion
