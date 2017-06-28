@@ -44,6 +44,7 @@ public func scanForPeripherals(withServiceUUIDs serviceUUIDs: [CBUUIDConvertible
                                completion: @escaping PeripheralScanCallback)
 {
     Central.sharedInstance.scanForPeripherals(withServiceUUIDs: serviceUUIDs,
+                                              options: options,
                                               timeoutAfter: timeout,
                                               completion: completion)
 }
