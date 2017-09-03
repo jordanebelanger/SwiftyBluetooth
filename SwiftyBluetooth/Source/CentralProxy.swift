@@ -45,7 +45,7 @@ final class CentralProxy: NSObject {
         #if os(OSX)
             //MARK: in macOS, the CBCentralManagerOptionRestoreIdentifierKey don't exist
             //TODO: in macOS 10.13 CBCentralManagerOptionRestoreIdentifierKey will be add
-            self.centralManager = CBCentralManager(delegate: self, queue: nil, options: [:])
+            self.centralManager = CBCentralManager(delegate: self, queue: DispatchQueue(label: "CentralProxy.swift"), options: [CBCentralManagerOptionShowPowerAlertKey: false])
         #else
             self.centralManager = CBCentralManager(delegate: self, queue: nil, options: [CBCentralManagerOptionRestoreIdentifierKey: stateRestoreIdentifier])
         #endif
