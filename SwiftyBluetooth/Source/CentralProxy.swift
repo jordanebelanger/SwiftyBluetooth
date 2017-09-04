@@ -36,18 +36,19 @@ final class CentralProxy: NSObject {
     override init() {
         super.init()
         
-        self.centralManager = CBCentralManager(delegate: self, queue: nil)
+        self.centralManager = CBCentralManager(delegate: self, queue: DispatchQueue(label: "CentralProxy.swift"))
     }
     
     init(stateRestoreIdentifier: String) {
         super.init()
         
+        let queue = DispatchQueue(label: "CentralProxy.swift")
         #if os(OSX)
             //MARK: in macOS, the CBCentralManagerOptionRestoreIdentifierKey don't exist
             //TODO: in macOS 10.13 CBCentralManagerOptionRestoreIdentifierKey will be add
-            self.centralManager = CBCentralManager(delegate: self, queue: DispatchQueue(label: "CentralProxy.swift"), options: [CBCentralManagerOptionShowPowerAlertKey: false])
+            self.centralManager = CBCentralManager(delegate: self, queue: queue, options: [CBCentralManagerOptionShowPowerAlertKey: false])
         #else
-            self.centralManager = CBCentralManager(delegate: self, queue: nil, options: [CBCentralManagerOptionRestoreIdentifierKey: stateRestoreIdentifier])
+            self.centralManager = CBCentralManager(delegate: self, queue: queue, options: [CBCentralManagerOptionRestoreIdentifierKey: stateRestoreIdentifier])
         #endif
     }
     
