@@ -94,11 +94,11 @@ public final class Central {
     
     /// Allows you to initially set the sharedInstance and use the restore
     /// identifier string of your choice for state preservation between app
-    /// launches.
+    /// launches or setup custom running queue.
     @discardableResult
-    public static func setSharedInstanceWith(restoreIdentifier: String) -> Central {
+    public static func setSharedInstanceWith(stateRestoreIdentifier: String?, queue: DispatchQueue?) -> Central {
         assert(_sharedInstance == nil, "You can only set the sharedInstance of the Central once and you must do so before calling any other SwiftyBluetooth functions.")
-        _sharedInstance = Central(stateRestoreIdentifier: restoreIdentifier)
+        _sharedInstance = Central(stateRestoreIdentifier: stateRestoreIdentifier, queue: queue)
         return _sharedInstance!
     }
     
@@ -108,8 +108,8 @@ public final class Central {
         self.centralProxy = CentralProxy()
     }
     
-    private init(stateRestoreIdentifier: String) {
-        self.centralProxy = CentralProxy(stateRestoreIdentifier: stateRestoreIdentifier)
+    private init(stateRestoreIdentifier: String?, queue: DispatchQueue?) {
+        self.centralProxy = CentralProxy(stateRestoreIdentifier: stateRestoreIdentifier, queue: queue)
     }
     
 }

@@ -27,10 +27,11 @@ import CoreBluetooth
 
 /// Allows you to initially set the Central sharedInstance and use the restore
 /// identifier string of your choice for state preservation between app
-/// launches. Must be called before anything else from the library and can only be called once.
+/// launches or setup custom running queue. Must be called before anything else
+/// from the library and can only be called once.
 @discardableResult
-public func setSharedCentralInstanceWith(restoreIdentifier: String) -> Central {
-    return Central.setSharedInstanceWith(restoreIdentifier: restoreIdentifier)
+public func setSharedCentralInstanceWith(restoreIdentifier: String? = nil, queue: DispatchQueue? = nil) -> Central {
+    return Central.setSharedInstanceWith(stateRestoreIdentifier: restoreIdentifier, queue: queue)
 }
 
 /// Scans for Peripherals through a CBCentralManager scanForPeripheralsWithServices(...) function call.
