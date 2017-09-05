@@ -30,6 +30,7 @@ final class CentralProxy: NSObject {
     
     fileprivate lazy var connectRequests: [UUID: ConnectPeripheralRequest] = [:]
     fileprivate lazy var disconnectRequests: [UUID: DisconnectPeripheralRequest] = [:]
+    fileprivate lazy var peripherals = NSMapTable<NSString, Peripheral>.strongToWeakObjects()
     
     var centralManager: CBCentralManager!
     
@@ -400,15 +401,26 @@ extension CentralProxy: CBCentralManagerDelegate {
         guard let scanRequest = scanRequest else {
             return
         }
-        
-        let peripheral = Peripheral(peripheral: peripheral)
-        
+
+        // MARK: fixed the bug: after creating Peripheral for existed CBPeripheral last Peripheral will replace CBPeripheral.delegate
+        //       and old Peripherals don't receive a response
+        //
+        let cbPeripheral = peripheral
+
+        let key = NSString(string: cbPeripheral.identifier.uuidString)
+        var peripheral = self.peripherals.object(forKey: key)
+        if peripheral == nil {
+            peripheral = Peripheral(peripheral: cbPeripheral)
+            self.peripherals.setObject(peripheral, forKey: key)
+        }
+        //
+
         var rssiOptional: Int? = Int(RSSI)
         if let rssi = rssiOptional, rssi == 127 {
             rssiOptional = nil
         }
-        
-        scanRequest.callback(.scanResult(peripheral: peripheral, advertisementData: advertisementData, RSSI: rssiOptional))
+
+        scanRequest.callback(.scanResult(peripheral: peripheral!, advertisementData: advertisementData, RSSI: rssiOptional))
     }
     
     func centralManager(_ central: CBCentralManager, willRestoreState dict: [String: Any]) {
