@@ -402,7 +402,7 @@ extension CentralProxy: CBCentralManagerDelegate {
             return
         }
 
-        // MARK: fixed the bug: after creating Peripheral for existed CBPeripheral last Peripheral will replace CBPeripheral.delegate
+        // MARK: fixed the bug: after creating Peripheral for existed CBPeripheral last Peripheral replaces CBPeripheral.delegate
         //       and old Peripherals don't receive a response
         //
         let cbPeripheral = peripheral
