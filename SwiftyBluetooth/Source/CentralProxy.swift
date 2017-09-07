@@ -134,12 +134,14 @@ extension CentralProxy {
                 scanRequest.callback(.scanStarted)
                 self.centralManager.scanForPeripherals(withServices: serviceUUIDs, options: options)
                 
-                Timer.scheduledTimer(
-                    timeInterval: timeout,
-                    target: self,
-                    selector: #selector(self.onScanTimerTick),
-                    userInfo: Weak(value: scanRequest),
-                    repeats: false)
+                DispatchQueue.main.async {
+                    Timer.scheduledTimer(
+                        timeInterval: timeout,
+                        target: self,
+                        selector: #selector(self.onScanTimerTick),
+                        userInfo: Weak(value: scanRequest),
+                        repeats: false)
+                }
             }
         }
     }
@@ -214,12 +216,15 @@ extension CentralProxy {
                 self.connectRequests[uuid] = request
                 
                 self.centralManager.connect(peripheral, options: nil)
-                Timer.scheduledTimer(
-                    timeInterval: timeout,
-                    target: self,
-                    selector: #selector(self.onConnectTimerTick),
-                    userInfo: Weak(value: request),
-                    repeats: false)
+                
+                DispatchQueue.main.async {
+                    Timer.scheduledTimer(
+                        timeInterval: timeout,
+                        target: self,
+                        selector: #selector(self.onConnectTimerTick),
+                        userInfo: Weak(value: request),
+                        repeats: false)
+                }
             }
         }
     }
@@ -304,12 +309,15 @@ extension CentralProxy {
                 self.disconnectRequests[uuid] = request
                 
                 self.centralManager.cancelPeripheralConnection(peripheral)
-                Timer.scheduledTimer(
-                    timeInterval: timeout,
-                    target: self,
-                    selector: #selector(self.onDisconnectTimerTick),
-                    userInfo: Weak(value: request),
-                    repeats: false)
+                DispatchQueue.main.async {
+                    Timer.scheduledTimer(
+                        timeInterval: timeout,
+                        target: self,
+                        selector: #selector(self.onDisconnectTimerTick),
+                        userInfo: Weak(value: request),
+                        repeats: false)
+                }
+                
             }
         }
     }

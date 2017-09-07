@@ -126,12 +126,14 @@ extension PeripheralProxy {
         }
         
         self.cbPeripheral.readRSSI()
-        Timer.scheduledTimer(
-            timeInterval: PeripheralProxy.defaultTimeoutInS,
-            target: self,
-            selector: #selector(self.onReadRSSIOperationTick),
-            userInfo: Weak(value: request),
-            repeats: false)
+        DispatchQueue.main.async {
+            Timer.scheduledTimer(
+                timeInterval: PeripheralProxy.defaultTimeoutInS,
+                target: self,
+                selector: #selector(self.onReadRSSIOperationTick),
+                userInfo: Weak(value: request),
+                repeats: false)
+        }
     }
     
     @objc fileprivate func onReadRSSIOperationTick(_ timer: Timer) {
@@ -207,12 +209,14 @@ extension PeripheralProxy {
         
         self.cbPeripheral.discoverServices(request.serviceUUIDs)
         
-        Timer.scheduledTimer(
-            timeInterval: PeripheralProxy.defaultTimeoutInS,
-            target: self,
-            selector: #selector(self.onServiceRequestTimerTick),
-            userInfo: Weak(value: request),
-            repeats: false)
+        DispatchQueue.main.async {
+            Timer.scheduledTimer(
+                timeInterval: PeripheralProxy.defaultTimeoutInS,
+                target: self,
+                selector: #selector(self.onServiceRequestTimerTick),
+                userInfo: Weak(value: request),
+                repeats: false)
+        }
     }
     
     @objc fileprivate func onServiceRequestTimerTick(_ timer: Timer) {
@@ -285,12 +289,14 @@ extension PeripheralProxy {
         
         self.cbPeripheral.discoverIncludedServices(request.serviceUUIDs, for: request.parentService)
         
-        Timer.scheduledTimer(
-            timeInterval: PeripheralProxy.defaultTimeoutInS,
-            target: self,
-            selector: #selector(self.onIncludedServicesRequestTimerTick),
-            userInfo: Weak(value: request),
-            repeats: false)
+        DispatchQueue.main.async {
+            Timer.scheduledTimer(
+                timeInterval: PeripheralProxy.defaultTimeoutInS,
+                target: self,
+                selector: #selector(self.onIncludedServicesRequestTimerTick),
+                userInfo: Weak(value: request),
+                repeats: false)
+        }
     }
     
     @objc fileprivate func onIncludedServicesRequestTimerTick(_ timer: Timer) {
@@ -383,12 +389,14 @@ extension PeripheralProxy {
         
         self.cbPeripheral.discoverCharacteristics(request.characteristicUUIDs, for: request.service)
         
-        Timer.scheduledTimer(
-            timeInterval: PeripheralProxy.defaultTimeoutInS,
-            target: self,
-            selector: #selector(self.onCharacteristicRequestTimerTick),
-            userInfo: Weak(value: request),
-            repeats: false)
+        DispatchQueue.main.async {
+            Timer.scheduledTimer(
+                timeInterval: PeripheralProxy.defaultTimeoutInS,
+                target: self,
+                selector: #selector(self.onCharacteristicRequestTimerTick),
+                userInfo: Weak(value: request),
+                repeats: false)
+        }
     }
     
     @objc fileprivate func onCharacteristicRequestTimerTick(_ timer: Timer) {
@@ -460,12 +468,14 @@ extension PeripheralProxy {
         
         self.cbPeripheral.discoverDescriptors(for: request.characteristic)
         
-        Timer.scheduledTimer(
-            timeInterval: PeripheralProxy.defaultTimeoutInS,
-            target: self,
-            selector: #selector(self.onDescriptorRequestTimerTick),
-            userInfo: Weak(value: request),
-            repeats: false)
+        DispatchQueue.main.async {
+            Timer.scheduledTimer(
+                timeInterval: PeripheralProxy.defaultTimeoutInS,
+                target: self,
+                selector: #selector(self.onDescriptorRequestTimerTick),
+                userInfo: Weak(value: request),
+                repeats: false)
+        }
     }
     
     @objc fileprivate func onDescriptorRequestTimerTick(_ timer: Timer) {
@@ -543,12 +553,14 @@ extension PeripheralProxy {
         
         self.cbPeripheral.readValue(for: request.characteristic)
         
-        Timer.scheduledTimer(
-            timeInterval: PeripheralProxy.defaultTimeoutInS,
-            target: self,
-            selector: #selector(self.onReadCharacteristicTimerTick),
-            userInfo: Weak(value: request),
-            repeats: false)
+        DispatchQueue.main.async {
+            Timer.scheduledTimer(
+                timeInterval: PeripheralProxy.defaultTimeoutInS,
+                target: self,
+                selector: #selector(self.onReadCharacteristicTimerTick),
+                userInfo: Weak(value: request),
+                repeats: false)
+        }
     }
     
     @objc fileprivate func onReadCharacteristicTimerTick(_ timer: Timer) {
@@ -633,12 +645,14 @@ extension PeripheralProxy {
         
         self.cbPeripheral.readValue(for: request.descriptor)
         
-        Timer.scheduledTimer(
-            timeInterval: PeripheralProxy.defaultTimeoutInS,
-            target: self,
-            selector: #selector(self.onReadDescriptorTimerTick),
-            userInfo: Weak(value: request),
-            repeats: false)
+        DispatchQueue.main.async {
+            Timer.scheduledTimer(
+                timeInterval: PeripheralProxy.defaultTimeoutInS,
+                target: self,
+                selector: #selector(self.onReadDescriptorTimerTick),
+                userInfo: Weak(value: request),
+                repeats: false)
+        }
     }
     
     @objc fileprivate func onReadDescriptorTimerTick(_ timer: Timer) {
@@ -729,12 +743,14 @@ extension PeripheralProxy {
         self.cbPeripheral.writeValue(request.value, for: request.characteristic, type: request.type)
         
         if request.type == CBCharacteristicWriteType.withResponse {
-            Timer.scheduledTimer(
-                timeInterval: PeripheralProxy.defaultTimeoutInS,
-                target: self,
-                selector: #selector(self.onWriteCharacteristicValueRequestTimerTick),
-                userInfo: Weak(value: request),
-                repeats: false)
+            DispatchQueue.main.async {
+                Timer.scheduledTimer(
+                    timeInterval: PeripheralProxy.defaultTimeoutInS,
+                    target: self,
+                    selector: #selector(self.onWriteCharacteristicValueRequestTimerTick),
+                    userInfo: Weak(value: request),
+                    repeats: false)
+            }
         } else {
             // If no response is expected, we execute the callback and clear the request right away
             self.writeCharacteristicValueRequests[writePath]?.removeFirst()
@@ -834,12 +850,14 @@ extension PeripheralProxy {
         
         self.cbPeripheral.writeValue(request.value, for: request.descriptor)
         
-        Timer.scheduledTimer(
-            timeInterval: PeripheralProxy.defaultTimeoutInS,
-            target: self,
-            selector: #selector(self.onWriteDescriptorValueRequestTimerTick),
-            userInfo: Weak(value: request),
-            repeats: false)
+        DispatchQueue.main.async {
+            Timer.scheduledTimer(
+                timeInterval: PeripheralProxy.defaultTimeoutInS,
+                target: self,
+                selector: #selector(self.onWriteDescriptorValueRequestTimerTick),
+                userInfo: Weak(value: request),
+                repeats: false)
+        }
     }
     
     @objc fileprivate func onWriteDescriptorValueRequestTimerTick(_ timer: Timer) {
@@ -921,12 +939,14 @@ extension PeripheralProxy {
         
         self.cbPeripheral.setNotifyValue(request.enabled, for: request.characteristic)
         
-        Timer.scheduledTimer(
-            timeInterval: PeripheralProxy.defaultTimeoutInS,
-            target: self,
-            selector: #selector(self.onUpdateNotificationStateRequestTick),
-            userInfo: Weak(value: request),
-            repeats: false)
+        DispatchQueue.main.async {
+            Timer.scheduledTimer(
+                timeInterval: PeripheralProxy.defaultTimeoutInS,
+                target: self,
+                selector: #selector(self.onUpdateNotificationStateRequestTick),
+                userInfo: Weak(value: request),
+                repeats: false)
+        }
     }
     
     @objc fileprivate func onUpdateNotificationStateRequestTick(_ timer: Timer) {
