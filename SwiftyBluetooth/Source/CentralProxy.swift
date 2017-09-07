@@ -30,19 +30,30 @@ final class CentralProxy: NSObject {
     
     fileprivate lazy var connectRequests: [UUID: ConnectPeripheralRequest] = [:]
     fileprivate lazy var disconnectRequests: [UUID: DisconnectPeripheralRequest] = [:]
+    fileprivate lazy var peripherals = NSMapTable<NSString, Peripheral>.strongToWeakObjects()
     
     var centralManager: CBCentralManager!
     
     override init() {
         super.init()
         
-        self.centralManager = CBCentralManager(delegate: self, queue: nil)
+        self.centralManager = CBCentralManager(delegate: self, queue: nil, options: nil)
     }
     
-    init(stateRestoreIdentifier: String) {
+    init(stateRestoreIdentifier: String?, queue: DispatchQueue?) {
         super.init()
         
-        self.centralManager = CBCentralManager(delegate: self, queue: nil, options: [CBCentralManagerOptionRestoreIdentifierKey: stateRestoreIdentifier])
+        #if os(OSX)
+            //MARK: in macOS, the CBCentralManagerOptionRestoreIdentifierKey don't exist
+            //TODO: in macOS 10.13 CBCentralManagerOptionRestoreIdentifierKey will be add
+            self.centralManager = CBCentralManager(delegate: self, queue: queue, options: nil)
+        #else
+            if let restoreIdentifier = stateRestoreIdentifier {
+                self.centralManager = CBCentralManager(delegate: self, queue: queue, options: [CBCentralManagerOptionRestoreIdentifierKey: restoreIdentifier])
+            } else {
+                self.centralManager = CBCentralManager(delegate: self, queue: queue, options: nil)
+            }
+        #endif
     }
     
     fileprivate func postCentralEvent(_ event: NSNotification.Name, userInfo: [AnyHashable: Any]? = nil) {
@@ -108,7 +119,7 @@ private final class PeripheralScanRequest {
 }
 
 extension CentralProxy {
-    func scanWithTimeout(_ timeout: TimeInterval, serviceUUIDs: [CBUUID]?, options: [String : Any]?, _ callback: @escaping PeripheralScanCallback) {
+    func scanWithTimeout(_ timeout: TimeInterval?, serviceUUIDs: [CBUUID]?, options: [String : Any]?, _ callback: @escaping PeripheralScanCallback) {
         initializeBluetooth { [unowned self] (error) in
             if let error = error {
                 callback(PeripheralScanResult.scanStopped(error: error))
@@ -123,12 +134,16 @@ extension CentralProxy {
                 scanRequest.callback(.scanStarted)
                 self.centralManager.scanForPeripherals(withServices: serviceUUIDs, options: options)
                 
-                Timer.scheduledTimer(
-                    timeInterval: timeout,
-                    target: self,
-                    selector: #selector(self.onScanTimerTick),
-                    userInfo: Weak(value: scanRequest),
-                    repeats: false)
+                if let timeout = timeout {
+                    DispatchQueue.main.async {
+                        Timer.scheduledTimer(
+                            timeInterval: timeout,
+                            target: self,
+                            selector: #selector(self.onScanTimerTick),
+                            userInfo: Weak(value: scanRequest),
+                            repeats: false)
+                    }
+                }
             }
         }
     }
@@ -203,12 +218,15 @@ extension CentralProxy {
                 self.connectRequests[uuid] = request
                 
                 self.centralManager.connect(peripheral, options: nil)
-                Timer.scheduledTimer(
-                    timeInterval: timeout,
-                    target: self,
-                    selector: #selector(self.onConnectTimerTick),
-                    userInfo: Weak(value: request),
-                    repeats: false)
+                
+                DispatchQueue.main.async {
+                    Timer.scheduledTimer(
+                        timeInterval: timeout,
+                        target: self,
+                        selector: #selector(self.onConnectTimerTick),
+                        userInfo: Weak(value: request),
+                        repeats: false)
+                }
             }
         }
     }
@@ -270,11 +288,21 @@ extension CentralProxy {
             
             let uuid = peripheral.identifier
             
-            if let cbPeripheral = self.centralManager.retrievePeripherals(withIdentifiers: [uuid]).first,
-                (cbPeripheral.state == .disconnected || cbPeripheral.state == .disconnecting) {
-                callback(.success())
-                return
-            }
+            #if os(OSX)
+                //MARK: in macOS, the CBPeripheralState.disconnecting don't exist
+                //TODO: in macOS 10.13 CBPeripheralState.disconnecting will be add
+                if let cbPeripheral = self.centralManager.retrievePeripherals(withIdentifiers: [uuid]).first,
+                    (cbPeripheral.state == .disconnected) {
+                    callback(.success())
+                    return
+                }
+            #else
+                if let cbPeripheral = self.centralManager.retrievePeripherals(withIdentifiers: [uuid]).first,
+                    (cbPeripheral.state == .disconnected || cbPeripheral.state == .disconnecting) {
+                    callback(.success())
+                    return
+                }
+            #endif
             
             if let request = self.disconnectRequests[uuid] {
                 request.callbacks.append(callback)
@@ -283,12 +311,15 @@ extension CentralProxy {
                 self.disconnectRequests[uuid] = request
                 
                 self.centralManager.cancelPeripheralConnection(peripheral)
-                Timer.scheduledTimer(
-                    timeInterval: timeout,
-                    target: self,
-                    selector: #selector(self.onDisconnectTimerTick),
-                    userInfo: Weak(value: request),
-                    repeats: false)
+                DispatchQueue.main.async {
+                    Timer.scheduledTimer(
+                        timeInterval: timeout,
+                        target: self,
+                        selector: #selector(self.onDisconnectTimerTick),
+                        userInfo: Weak(value: request),
+                        repeats: false)
+                }
+                
             }
         }
     }
@@ -380,20 +411,36 @@ extension CentralProxy: CBCentralManagerDelegate {
         guard let scanRequest = scanRequest else {
             return
         }
-        
-        let peripheral = Peripheral(peripheral: peripheral)
-        
+
+        // MARK: fixed the bug: after creating Peripheral for existed CBPeripheral last Peripheral replaces CBPeripheral.delegate
+        //       and old Peripherals don't receive a response
+        //
+        let cbPeripheral = peripheral
+
+        let key = NSString(string: cbPeripheral.identifier.uuidString)
+        var peripheral = self.peripherals.object(forKey: key)
+        if peripheral == nil {
+            peripheral = Peripheral(peripheral: cbPeripheral)
+            self.peripherals.setObject(peripheral, forKey: key)
+        }
+        //
+
         var rssiOptional: Int? = Int(RSSI)
         if let rssi = rssiOptional, rssi == 127 {
             rssiOptional = nil
         }
-        
-        scanRequest.callback(.scanResult(peripheral: peripheral, advertisementData: advertisementData, RSSI: rssiOptional))
+
+        scanRequest.callback(.scanResult(peripheral: peripheral!, advertisementData: advertisementData, RSSI: rssiOptional))
     }
     
     func centralManager(_ central: CBCentralManager, willRestoreState dict: [String: Any]) {
-        let peripherals = ((dict[CBCentralManagerRestoredStatePeripheralsKey] as? [CBPeripheral]) ?? []).map { Peripheral(peripheral: $0) }
-        postCentralEvent(Central.CentralManagerWillRestoreState, userInfo: ["peripherals": peripherals])
+        #if os(OSX)
+            //MARK: in macOS, the CBCentralManagerOptionRestoreIdentifierKey don't exist
+            //TODO: in macOS 10.13 CBCentralManagerOptionRestoreIdentifierKey will be add
+        #else
+            let peripherals = ((dict[CBCentralManagerRestoredStatePeripheralsKey] as? [CBPeripheral]) ?? []).map { Peripheral(peripheral: $0) }
+            postCentralEvent(Central.CentralManagerWillRestoreState, userInfo: ["peripherals": peripherals])
+        #endif
     }
 
 }
