@@ -119,7 +119,7 @@ private final class PeripheralScanRequest {
 }
 
 extension CentralProxy {
-    func scanWithTimeout(_ timeout: TimeInterval, serviceUUIDs: [CBUUID]?, options: [String : Any]?, _ callback: @escaping PeripheralScanCallback) {
+    func scanWithTimeout(_ timeout: TimeInterval?, serviceUUIDs: [CBUUID]?, options: [String : Any]?, _ callback: @escaping PeripheralScanCallback) {
         initializeBluetooth { [unowned self] (error) in
             if let error = error {
                 callback(PeripheralScanResult.scanStopped(error: error))
@@ -134,13 +134,15 @@ extension CentralProxy {
                 scanRequest.callback(.scanStarted)
                 self.centralManager.scanForPeripherals(withServices: serviceUUIDs, options: options)
                 
-                DispatchQueue.main.async {
-                    Timer.scheduledTimer(
-                        timeInterval: timeout,
-                        target: self,
-                        selector: #selector(self.onScanTimerTick),
-                        userInfo: Weak(value: scanRequest),
-                        repeats: false)
+                if let timeout = timeout {
+                    DispatchQueue.main.async {
+                        Timer.scheduledTimer(
+                            timeInterval: timeout,
+                            target: self,
+                            selector: #selector(self.onScanTimerTick),
+                            userInfo: Weak(value: scanRequest),
+                            repeats: false)
+                    }
                 }
             }
         }

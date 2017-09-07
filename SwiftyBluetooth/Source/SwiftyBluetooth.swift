@@ -36,12 +36,12 @@ public func setSharedCentralInstanceWith(restoreIdentifier: String? = nil, queue
 
 /// Scans for Peripherals through a CBCentralManager scanForPeripheralsWithServices(...) function call.
 ///
-/// - Parameter timeout: The scanning time in seconds before the scan is stopped and the completion closure is called with a scanStopped result.
+/// - Parameter timeout: The scanning time in seconds before the scan is stopped and the completion closure is called with a scanStopped result. If set to nil then scanning will infinity.
 /// - Parameter serviceUUIDs: The service UUIDs to search peripherals for or nil if looking for all peripherals.
 /// - Parameter completion: The closures, called multiple times throughout a scan.
 public func scanForPeripherals(withServiceUUIDs serviceUUIDs: [CBUUIDConvertible]? = nil,
                                options: [String : Any]? = nil,
-                               timeoutAfter timeout: TimeInterval,
+                               timeoutAfter timeout: TimeInterval? = nil,
                                completion: @escaping PeripheralScanCallback)
 {
     Central.sharedInstance.scanForPeripherals(withServiceUUIDs: serviceUUIDs,

@@ -191,7 +191,7 @@ extension Central {
     /// - Parameter completion: The closures, called multiple times throughout a scan.
     public func scanForPeripherals(withServiceUUIDs serviceUUIDs: [CBUUIDConvertible]? = nil,
                                    options: [String : Any]? = nil,
-                                   timeoutAfter timeout: TimeInterval,
+                                   timeoutAfter timeout: TimeInterval?,
                                    completion: @escaping PeripheralScanCallback) {
         // Passing in an empty array will act the same as if you passed nil and discover all peripherals but
         // it is recommended to pass in nil for those cases similarly to how the CoreBluetooth scan method works
