@@ -123,13 +123,13 @@ extension Central {
     }
     
     func connect(peripheral: CBPeripheral,
-                 timeout: TimeInterval = 10,
+                 timeout: TimeInterval = PeripheralProxy.defaultTimeoutInS,
                  completion: @escaping ConnectPeripheralCallback) {
         centralProxy.connect(peripheral: peripheral, timeout: timeout, completion)
     }
     
     func disconnect(peripheral: CBPeripheral,
-                    timeout: TimeInterval = 10,
+                    timeout: TimeInterval = PeripheralProxy.defaultTimeoutInS,
                     completion: @escaping DisconnectPeripheralCallback) {
         centralProxy.disconnect(peripheral: peripheral, timeout: timeout, completion)
     }
