@@ -23,6 +23,18 @@
 
 import CoreBluetooth
 
+
+#if os(OSX)
+    //MARK: in macOS, the CBCentralManager haven't the isScanning property
+    extension CBCentralManager {
+        open var isScanning: Bool {
+            get {
+                return true
+            }
+        }
+    }
+#endif
+
 extension CBPeripheral {
     public func serviceWithUUID(_ uuid: CBUUID) -> CBService? {
         guard let services = self.services else {

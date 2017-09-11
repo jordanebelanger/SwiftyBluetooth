@@ -56,11 +56,31 @@ extension CBUUID: CBUUIDConvertible {
     }
 }
 
-extension CBAttribute: CBUUIDConvertible {
-    public var CBUUIDRepresentation: CBUUID {
-        return self.uuid
+#if os(OSX)
+    extension CBDescriptor: CBUUIDConvertible {
+        public var CBUUIDRepresentation: CBUUID {
+            return self.uuid
+        }
     }
-}
+    
+    extension CBCharacteristic: CBUUIDConvertible {
+        public var CBUUIDRepresentation: CBUUID {
+            return self.uuid
+        }
+    }
+    
+    extension CBService: CBUUIDConvertible {
+        public var CBUUIDRepresentation: CBUUID {
+            return self.uuid
+        }
+    }
+#else
+    extension CBAttribute: CBUUIDConvertible {
+        public var CBUUIDRepresentation: CBUUID {
+            return self.uuid
+        }
+    }
+#endif
 
 func ExtractCBUUIDs(_ CBUUIDConvertibles: [CBUUIDConvertible]?) -> [CBUUID]? {
     if let CBUUIDConvertibles = CBUUIDConvertibles , CBUUIDConvertibles.count > 0 {

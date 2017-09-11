@@ -42,7 +42,13 @@ final class CentralProxy: NSObject {
     init(stateRestoreIdentifier: String) {
         super.init()
         
-        self.centralManager = CBCentralManager(delegate: self, queue: nil, options: [CBCentralManagerOptionRestoreIdentifierKey: stateRestoreIdentifier])
+        #if os(OSX)
+            //MARK: in macOS, the CBCentralManagerOptionRestoreIdentifierKey don't exist
+            //TODO: in macOS 10.13 CBCentralManagerOptionRestoreIdentifierKey will be add
+            self.centralManager = CBCentralManager(delegate: self, queue: nil, options: nil)
+        #else
+            self.centralManager = CBCentralManager(delegate: self, queue: nil, options: [CBCentralManagerOptionRestoreIdentifierKey: stateRestoreIdentifier])
+        #endif
     }
     
     fileprivate func postCentralEvent(_ event: NSNotification.Name, userInfo: [AnyHashable: Any]? = nil) {
@@ -270,11 +276,21 @@ extension CentralProxy {
             
             let uuid = peripheral.identifier
             
-            if let cbPeripheral = self.centralManager.retrievePeripherals(withIdentifiers: [uuid]).first,
-                (cbPeripheral.state == .disconnected || cbPeripheral.state == .disconnecting) {
-                callback(.success())
-                return
-            }
+            #if os(OSX)
+                //MARK: in macOS, the CBPeripheralState.disconnecting don't exist
+                //TODO: in macOS 10.13 CBPeripheralState.disconnecting will be add
+                if let cbPeripheral = self.centralManager.retrievePeripherals(withIdentifiers: [uuid]).first,
+                    (cbPeripheral.state == .disconnected) {
+                    callback(.success())
+                    return
+                }
+            #else
+                if let cbPeripheral = self.centralManager.retrievePeripherals(withIdentifiers: [uuid]).first,
+                    (cbPeripheral.state == .disconnected || cbPeripheral.state == .disconnecting) {
+                    callback(.success())
+                    return
+                }
+            #endif
             
             if let request = self.disconnectRequests[uuid] {
                 request.callbacks.append(callback)
@@ -392,8 +408,13 @@ extension CentralProxy: CBCentralManagerDelegate {
     }
     
     func centralManager(_ central: CBCentralManager, willRestoreState dict: [String: Any]) {
-        let peripherals = ((dict[CBCentralManagerRestoredStatePeripheralsKey] as? [CBPeripheral]) ?? []).map { Peripheral(peripheral: $0) }
-        postCentralEvent(Central.CentralManagerWillRestoreState, userInfo: ["peripherals": peripherals])
+        #if os(OSX)
+            //MARK: in macOS, the CBCentralManagerOptionRestoreIdentifierKey don't exist
+            //TODO: in macOS 10.13 CBCentralManagerOptionRestoreIdentifierKey will be add
+        #else
+            let peripherals = ((dict[CBCentralManagerRestoredStatePeripheralsKey] as? [CBPeripheral]) ?? []).map { Peripheral(peripheral: $0) }
+            postCentralEvent(Central.CentralManagerWillRestoreState, userInfo: ["peripherals": peripherals])
+        #endif
     }
 
 }
