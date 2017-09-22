@@ -161,7 +161,19 @@ extension Central {
     
     /// The underlying CBCentralManager isScanning value
     public var isScanning: Bool {
-        return self.centralProxy.centralManager.isScanning
+        #if SB_XCODE9
+            if #available(OSX 10.13, *) {
+                return self.centralProxy.centralManager.isScanning
+            } else {
+                return false
+            }
+        #else
+            #if os(OSX)
+                return false
+            #else
+                return self.centralProxy.centralManager.isScanning
+            #endif
+        #endif
     }
     
     /// Attempts to return the periperals from a list of identifier "UUID"s
