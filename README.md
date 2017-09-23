@@ -1,5 +1,5 @@
 # SwiftyBluetooth
-Swift 3, fully featured closures based library for CoreBluetooth on iOS 9+ devices. 
+Swift 3, fully featured closures based library for CoreBluetooth on iOS 9+ and OSX 10.10+ devices. 
 
 For Swift 2 use v0.1.1
 
@@ -190,6 +190,15 @@ use_frameworks!
 pod 'SwiftyBluetooth'
 ```
 
+or
+
+```ruby
+platform :osx, '10.10'
+use_frameworks!
+
+pod 'SwiftyBluetooth'
+```
+
 Then run:
 
 ```bash
@@ -205,6 +214,11 @@ github "tehjord/SwiftyBluetooth"
 
 ## Requirements
 SwiftyBluetooth requires iOS 9.0+
+
+SwiftyBluetooth requires OSX 10.10+:
+- with XCode 8 you simple build project
+- with XCode 9 and building SwiftyBluetooth for OSX < 10.13 and use all new CoreBluetooth API then you need added define 'SB_XCODE9' to project
+![OSX project preferences](https://raw.githubusercontent.com/petroladkin/SwiftyBluetooth/master/imgs/osx_project_sbxcode9.png)
 
 ## License
 SwiftyBluetooth is released under the MIT License.
