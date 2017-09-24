@@ -383,7 +383,7 @@ extension CentralProxy: CBCentralManagerDelegate {
         
         let peripheral = Peripheral(peripheral: peripheral)
         
-        var rssiOptional: Int? = Int(RSSI)
+        var rssiOptional: Int? = Int(truncating: RSSI)
         if let rssi = rssiOptional, rssi == 127 {
             rssiOptional = nil
         }
