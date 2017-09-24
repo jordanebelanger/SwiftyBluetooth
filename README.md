@@ -199,7 +199,7 @@ $ pod install
 Add this to your Cartfile 
 
 ```ogdl
-github "tehjord/SwiftyBluetooth"
+github "jordanebelanger/SwiftyBluetooth"
 ```
 
 ## Requirements
