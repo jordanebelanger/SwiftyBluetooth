@@ -172,7 +172,7 @@ private final class ConnectPeripheralRequest {
             if let error = error {
                 return .failure(error)
             } else {
-                return .success()
+                return .success(())
             }
         }()
         for callback in callbacks {
@@ -192,7 +192,7 @@ extension CentralProxy {
             let uuid = peripheral.identifier
             
             if let cbPeripheral = self.centralManager.retrievePeripherals(withIdentifiers: [uuid]).first , cbPeripheral.state == .connected {
-                callback(.success())
+                callback(.success(()))
                 return
             }
             
@@ -250,7 +250,7 @@ private final class DisconnectPeripheralRequest {
             if let error = error {
                 return .failure(error)
             } else {
-                return .success()
+                return .success(())
             }
         }()
         for callback in callbacks {
@@ -272,7 +272,7 @@ extension CentralProxy {
             
             if let cbPeripheral = self.centralManager.retrievePeripherals(withIdentifiers: [uuid]).first,
                 (cbPeripheral.state == .disconnected || cbPeripheral.state == .disconnecting) {
-                callback(.success())
+                callback(.success(()))
                 return
             }
             

@@ -45,6 +45,6 @@ extension UInt16 {
             return nil
         }
         
-        self = UInt16(truncatingBitPattern: numberValue.intValue)
+        self = UInt16(truncatingIfNeeded: numberValue.intValue)
     }
 }
