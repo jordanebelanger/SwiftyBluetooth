@@ -9,4 +9,5 @@ Pod::Spec.new do |s|
   s.source_files = 'SwiftyBluetooth/Source/*.swift'
   s.requires_arc = true
   s.ios.deployment_target = '9.0'
+  s.osx.deployment_target = '10.10'
 end

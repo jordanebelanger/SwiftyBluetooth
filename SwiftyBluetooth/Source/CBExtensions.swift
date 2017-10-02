@@ -23,6 +23,7 @@
 
 import CoreBluetooth
 
+
 extension CBPeripheral {
     public func serviceWithUUID(_ uuid: CBUUID) -> CBService? {
         guard let services = self.services else {
@@ -52,6 +53,33 @@ extension CBPeripheral {
         return (foundServices: foundServices, missingServicesUUIDs: Array(missingServicesUUIDsSet))
     }
     
+    public var uuidIdentifier: UUID {
+        #if os(OSX)
+            if #available(OSX 10.13, *) {
+                return self.identifier
+            } else {
+                let description: String = self.description
+                //<CBPeripheral: 0x6080000c3fe0 identifier = 7E33A1DD-7E65-4162-89A4-F44A2B4F9D67, Name = "(null)", state = disconnected>
+                
+                guard let range = description.range(of:"identifier = .+?,", options:.regularExpression) else {
+                    return UUID(uuidString: "11111111-1111-1111-1111-111111111111")!
+                }
+                
+                var uuid = description.substring(with: range)
+                //identifier = 7E33A1DD-7E65-4162-89A4-F44A2B4F9D67,
+                
+                uuid = uuid.substring(from: uuid.index(uuid.startIndex, offsetBy: 13))
+                //7E33A1DD-7E65-4162-89A4-F44A2B4F9D67,
+                
+                uuid = uuid.substring(to: uuid.index(before: uuid.endIndex))
+                //7E33A1DD-7E65-4162-89A4-F44A2B4F9D67
+                
+                return UUID(uuidString: uuid)!
+            }
+        #else
+            return self.identifier
+        #endif
+    }
 }
 
 extension CBService {

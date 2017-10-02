@@ -72,7 +72,7 @@ extension Peripheral {
     
     /// The underlying CBPeripheral identifier
     public var identifier: UUID {
-        return self.peripheralProxy.cbPeripheral.identifier
+        return self.peripheralProxy.cbPeripheral.uuidIdentifier
     }
     
     /// The underlying CBPeripheral name

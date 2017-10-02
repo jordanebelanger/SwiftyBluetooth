@@ -1,5 +1,5 @@
 # SwiftyBluetooth
-Fully featured closures based library for CoreBluetooth on iOS 9+ devices.
+Fully featured closures based library for CoreBluetooth on iOS 9+ and OSX 10.10+ devices.
 
 ## Background 
 CoreBluetooth and its delegate based API can be difficult to use at time. Often times you already know the specifications of the peripheral you're about to use and simply want to read or write to predetermined characteristics.  
@@ -189,6 +189,15 @@ use_frameworks!
 pod 'SwiftyBluetooth'
 ```
 
+or
+
+```ruby
+platform :osx, '10.10'
+use_frameworks!
+
+pod 'SwiftyBluetooth'
+```
+
 Then run:
 
 ```bash
@@ -204,6 +213,11 @@ github "jordanebelanger/SwiftyBluetooth"
 
 ## Requirements
 SwiftyBluetooth requires iOS 9.0+
+
+SwiftyBluetooth requires OSX 10.10+:
+- with XCode 8 you simple build project
+- with XCode 9 and building SwiftyBluetooth for OSX < 10.13 and use all new CoreBluetooth API then you need added define 'SB_XCODE9' to project
+![OSX project preferences](/imgs/osx_project_sbxcode9.png)
 
 ## License
 SwiftyBluetooth is released under the MIT License.
