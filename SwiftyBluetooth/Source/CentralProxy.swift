@@ -282,30 +282,20 @@ extension CentralProxy {
                 return
             }
             
-<<<<<<< HEAD
             let uuid = peripheral.uuidIdentifier
-=======
-            let uuid = peripheral.identifier
-            
-            if let cbPeripheral = self.centralManager.retrievePeripherals(withIdentifiers: [uuid]).first,
-                (cbPeripheral.state == .disconnected || cbPeripheral.state == .disconnecting) {
-                callback(.success(()))
-                return
-            }
->>>>>>> 9168340c977c04df522f90f0d455f60768798616
             
             // MARK: in macOS before 10.13, the CBPeripheralState.disconnecting don't exist
             #if SB_XCODE9
                 if #available(OSX 10.13, *) {
                     if let cbPeripheral = self.centralManager.retrievePeripherals(withIdentifiers: [uuid]).first,
                         (cbPeripheral.state == .disconnected || cbPeripheral.state == .disconnecting) {
-                        callback(.success())
+                        callback(.success(()))
                         return
                     }
                 } else {
                     if let cbPeripheral = self.centralManager.retrievePeripherals(withIdentifiers: [uuid]).first,
                         (cbPeripheral.state == .disconnected) {
-                        callback(.success())
+                        callback(.success(()))
                         return
                     }
                 }
@@ -313,13 +303,13 @@ extension CentralProxy {
                 #if os(OSX)
                     if let cbPeripheral = self.centralManager.retrievePeripherals(withIdentifiers: [uuid]).first,
                         (cbPeripheral.state == .disconnected) {
-                        callback(.success())
+                        callback(.success(()))
                         return
                     }
                 #else
                     if let cbPeripheral = self.centralManager.retrievePeripherals(withIdentifiers: [uuid]).first,
                         (cbPeripheral.state == .disconnected || cbPeripheral.state == .disconnecting) {
-                        callback(.success())
+                        callback(.success(()))
                         return
                     }
                 #endif
