@@ -55,17 +55,6 @@ peripheral.connect { result in
     }
 }
 ```
-### Disconnecting from a peripheral
-```swift
-peripheral.disconnect { result in 
-    switch result {
-    case .success:
-        break // You are now disconnected from the peripheral
-    case .failure(let error):
-        break // An error happened during the disconnection
-    }
-}
-```
 ### Reading from a peripheral's service's characteristic
 If you already know the characteristic and service UUIDs you want to read from, once a peripheral has been found you can read from it right away like this: 
 
@@ -95,10 +84,10 @@ peripheral.readValue(ofCharac: charac) { result in
 ### Writing to a Peripheral's service's characteristic
 If you already know the characteristic and service UUID you want to write to, once a peripheral has been found, you can write to that characteristic right away like this: 
 ```swift
-let exampleBinaryData = String(0b1010).dataUsingEncoding(NSUTF8StringEncoding)!
+let data = String(0b1010).dataUsingEncoding(NSUTF8StringEncoding)!
 peripheral.writeValue(ofCharacWithUUID: "1d5bc11d-e28c-4157-a7be-d8b742a013d8", 
                       fromServiceWithUUID: "4011e369-5981-4dae-b686-619dc656c7ba", 
-                      value: exampleBinaryData) { result in
+                      value: data) { result in
     switch result {
     case .success:
         break // The write was succesful.
