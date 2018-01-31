@@ -134,7 +134,12 @@ extension CentralProxy {
     }
     
     func stopScan(error: SBError? = nil) {
-        self.centralManager.stopScan()
+
+        // avoid an API MISUSE warning on the console if bluetooth is powered off or unsupported
+        if self.centralManager.state != .poweredOff, self.centralManager.state != .unsupported {
+            self.centralManager.stopScan()
+        }
+
         if let scanRequest = self.scanRequest {
             self.scanRequest = nil
             scanRequest.callback(.scanStopped(error: error))
