@@ -22,7 +22,7 @@ The Library has 2 important class:
 - The `Central` class, a Singleton wrapper around `CBCentralManager` used to scan for peripherals with a closure callback and restore previous sessions.
 - The `Peripheral` class, a wrapper around `CBPeripheral` used to call `CBPeripheral` functions with closure callbacks. 
 
-Note: The library is currently not thread safe, make sure to run your `Central` and `Peripheral` operations on the main thread. 
+Note: The library is not thread safe, make sure to run your `Central` and `Peripheral` operations on the main thread. 
 
 Below are a couple examples of operations that might be of interest to you.
 
