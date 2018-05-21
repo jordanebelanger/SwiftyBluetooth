@@ -2,7 +2,7 @@
 Fully featured closures based library for CoreBluetooth on iOS 9+ devices.
 
 ## Features
-- Replace the delegate based interface with a closure based interface for every `CBCentralManager` and `CBPeripheral` operation. 
+- Replace the delegate based interface with a closure based interface for every `CBCentralManager` and `CBPeripheral` operation
 - Notification based event for CBCentralManager state changes and state restoration  
 - Notification based event for CBPeripheral name updates, characteristic value updates and services updates
 - Precise errors and guaranteed timeout for every Bluetooth operation
