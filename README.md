@@ -1,17 +1,9 @@
 # SwiftyBluetooth
 Fully featured closures based library for CoreBluetooth on iOS 9+ devices.
 
-## Background 
-CoreBluetooth and its delegate based API can be difficult to use at time. Often times you already know the specifications of the peripheral you're about to use and simply want to read or write to predetermined characteristics.  
-
-SwiftyBluetooth tries to address these concerns by providing a clear, closure based, API for every `CBCentralManager` and `CBPeripheral` calls. Furthermore, all your calls are guaranteed to timeout in case of untraceable errors. If required, SwiftyBluetooth will also take care of connecting to peripherals and discovering the required attributes when executing read or write operations lowering the amount of work you need to do. 
-
 ## Features
-- Supports Swift 4 ~> v1.0.0, for Swift 3 use v0.4.0
-- Synthaxic sugar and helper functions for common CoreBluetooth tasks 
-- Closure based CBCentralManager peripheral scanning with a timeout
+- Replace the delegate based interface with a closure based interface for every `CBCentralManager` and `CBPeripheral` operation. 
 - Notification based event for CBCentralManager state changes and state restoration  
-- Closure based calls for every CBPeripheral operations
 - Notification based event for CBPeripheral name updates, characteristic value updates and services updates
 - Precise errors and guaranteed timeout for every Bluetooth operation
 - [Full documentation for all public interfaces](http://cocoadocs.org/docsets/SwiftyBluetooth/)
@@ -21,8 +13,6 @@ The Library has 2 important class:
 
 - The `Central` class, a Singleton wrapper around `CBCentralManager` used to scan for peripherals with a closure callback and restore previous sessions.
 - The `Peripheral` class, a wrapper around `CBPeripheral` used to call `CBPeripheral` functions with closure callbacks. 
-
-Note: The library is not thread safe, make sure to run your `Central` and `Peripheral` operations on the main thread. 
 
 Below are a couple examples of operations that might be of interest to you.
 
