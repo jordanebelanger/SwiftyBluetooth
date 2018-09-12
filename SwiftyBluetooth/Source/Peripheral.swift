@@ -45,6 +45,9 @@ public typealias ReadDescriptorRequestCallback = (_ result: SwiftyBluetooth.Resu
 public typealias WriteRequestCallback = (_ result: SwiftyBluetooth.Result<Void>) -> Void
 public typealias UpdateNotificationStateCallback = (_ result: SwiftyBluetooth.Result<isNotifying>) -> Void
 
+@available(iOS 11.0, *)
+public typealias L2CAPChannelCallback = (_ result: SwiftyBluetooth.Result<CBL2CAPChannel>) -> Void
+
 /// An interface on top of a CBPeripheral instance used to run CBPeripheral related functions with closures based callbacks instead of the usual CBPeripheralDelegate interface.
 public final class Peripheral {
     fileprivate var peripheralProxy: PeripheralProxy!
@@ -126,6 +129,15 @@ extension Peripheral {
     /// Disconnect the peripheral from our Central sharedInstance
     public func disconnect(completion: @escaping DisconnectPeripheralCallback) {
         self.peripheralProxy.disconnect(completion)
+    }
+    
+    /// Open L2CAP channel
+    ///
+    /// - Parameter PSM: The Protocol/Service Multiplexer of the channel to open
+    /// - Parameter completion : A closures containing the channel object or an error if something went wrong.
+    @available(iOS 11.0, *)
+    public func openL2CAPChannel(withPSM psm: CBL2CAPPSM, completion: @escaping L2CAPChannelCallback) {
+        self.peripheralProxy.openL2CAPChannel(withPSM: psm, completion: completion)
     }
     
     /// Connects to the peripheral and update the Peripheral's RSSI through a 'CBPeripheral' readRSSI() function call

@@ -37,6 +37,9 @@ final class PeripheralProxy: NSObject  {
     fileprivate lazy var writeDescriptorValueRequests: [CBUUIDPath: [WriteDescriptorValueRequest]] = [:]
     fileprivate lazy var updateNotificationStateRequests: [CBUUIDPath: [UpdateNotificationStateRequest]] = [:]
     
+    @available(iOS 11.0, *)
+    fileprivate lazy var l2capChannelRequests: [L2CAPChannelRequest] = []
+    
     fileprivate weak var peripheral: Peripheral?
     let cbPeripheral: CBPeripheral
     
@@ -90,6 +93,30 @@ extension PeripheralProxy {
     
     func disconnect(_ completion: @escaping DisconnectPeripheralCallback) {
         Central.sharedInstance.disconnect(peripheral: self.cbPeripheral, completion: completion)
+    }
+}
+
+// MARK: L2CAP Channel Requests
+@available(iOS 11.0, *)
+private final class L2CAPChannelRequest {
+    let callback: L2CAPChannelCallback
+    
+    init(_ callback: @escaping L2CAPChannelCallback) {
+        self.callback = callback
+    }
+}
+
+extension PeripheralProxy {
+    @available(iOS 11.0, *)
+    func openL2CAPChannel(withPSM psm: CBL2CAPPSM, completion: @escaping L2CAPChannelCallback) {
+        self.cbPeripheral.openL2CAPChannel(psm)
+        
+        self.l2capChannelRequests.removeAll()
+        
+        let request = L2CAPChannelRequest(completion)
+        
+        self.l2capChannelRequests.append(request)
+        
     }
 }
 
@@ -1216,6 +1243,19 @@ extension PeripheralProxy: CBPeripheralDelegate {
             request.callback(.failure(error))
         } else {
             request.callback(.success(()))
+        }
+    }
+    
+    @available(iOS 11.0, *)
+    @objc func peripheral(_ peripheral: CBPeripheral, didOpen channel: CBL2CAPChannel?, error: Error?) {
+        guard let request = self.l2capChannelRequests.first else {
+            return
+        }
+        
+        if let error = error {
+            request.callback(.failure(error))
+        } else if let channel = channel {
+            request.callback(.success(channel))
         }
     }
 }
