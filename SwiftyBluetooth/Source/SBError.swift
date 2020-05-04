@@ -29,6 +29,7 @@ public enum SBError: Error {
         case unsupported
         case unauthorized
         case poweredOff
+        case unknown
     }
     
     public enum SBOperation: String {
@@ -94,6 +95,8 @@ extension SBError.SBBluetoothUnavailbleFailureReason {
             return "Unauthorized to use Bluetooth."
         case .poweredOff:
             return "Bluetooth is disabled, enable bluetooth and try again."
+        case .unknown:
+            return "Bluetooth is currently unavailable (unknown reason)."
         }
     }
 }

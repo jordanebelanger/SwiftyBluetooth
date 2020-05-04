@@ -36,9 +36,6 @@ struct CBUUIDPath: Hashable {
         self.hash = stringPath.hashValue
     }
     
-    var hashValue : Int {
-        return self.hash
-    }
 }
 func ==(lhs: CBUUIDPath, rhs: CBUUIDPath) -> Bool {
     return lhs.hashValue == rhs.hashValue

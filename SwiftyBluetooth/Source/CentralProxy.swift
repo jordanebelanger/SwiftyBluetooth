@@ -69,6 +69,8 @@ extension CentralProxy {
             completion(.poweredOff)
         case .poweredOn:
             completion(.poweredOn)
+        @unknown default:
+            completion(.unknown)
         }
     }
     
@@ -83,6 +85,8 @@ extension CentralProxy {
                 completion(.bluetoothUnavailable(reason: .poweredOff))
             case .poweredOn:
                 completion(nil)
+            case .unknown:
+                completion(.bluetoothUnavailable(reason: .unknown))
             }
         }
     }
@@ -101,6 +105,7 @@ extension CentralProxy {
 // MARK: Scan requests
 private final class PeripheralScanRequest {
     let callback: PeripheralScanCallback
+    var peripherals: [Peripheral] = []
     
     init(callback: @escaping PeripheralScanCallback) {
         self.callback = callback
@@ -111,7 +116,7 @@ extension CentralProxy {
     func scanWithTimeout(_ timeout: TimeInterval, serviceUUIDs: [CBUUID]?, options: [String : Any]?, _ callback: @escaping PeripheralScanCallback) {
         initializeBluetooth { [unowned self] (error) in
             if let error = error {
-                callback(PeripheralScanResult.scanStopped(error: error))
+                callback(PeripheralScanResult.scanStopped(peripherals: [], error: error))
             } else {
                 if self.scanRequest != nil {
                     self.centralManager.stopScan()
@@ -142,7 +147,7 @@ extension CentralProxy {
 
         if let scanRequest = self.scanRequest {
             self.scanRequest = nil
-            scanRequest.callback(.scanStopped(error: error))
+            scanRequest.callback(.scanStopped(peripherals: scanRequest.peripherals, error: error))
         }
     }
     
@@ -173,7 +178,7 @@ private final class ConnectPeripheralRequest {
     }
     
     func invokeCallbacks(error: Error?) {
-        let result: SwiftyBluetooth.Result<Void> = {
+        let result: Result<Void, Error> = {
             if let error = error {
                 return .failure(error)
             } else {
@@ -251,7 +256,7 @@ private final class DisconnectPeripheralRequest {
     }
     
     func invokeCallbacks(error: Error?) {
-        let result: SwiftyBluetooth.Result<Void> = {
+        let result: Result<Void, Error> = {
             if let error = error {
                 return .failure(error)
             } else {
@@ -387,6 +392,7 @@ extension CentralProxy: CBCentralManagerDelegate {
         }
         
         let peripheral = Peripheral(peripheral: peripheral)
+        scanRequest.peripherals.append(peripheral)
         
         var rssiOptional: Int? = Int(truncating: RSSI)
         if let rssi = rssiOptional, rssi == 127 {

@@ -48,3 +48,18 @@ extension UInt16 {
         self = UInt16(truncatingIfNeeded: numberValue.intValue)
     }
 }
+
+extension Result {
+    var value: Success? {
+        return try? self.get()
+    }
+    
+    var error: Error? {
+        do {
+            let _ = try self.get()
+            return nil
+        } catch {
+            return error
+        }
+    }
+}
