@@ -24,10 +24,11 @@
 import CoreBluetooth
 
 struct CBUUIDPath: Hashable {
+
     let hash: Int
-    
+
     init(uuids: CBUUID...) {
-        var stringPath: String = String()
+      var stringPath: String = .init()
         
         for uuid in uuids {
             stringPath.append(uuid.uuidString)
@@ -35,11 +36,12 @@ struct CBUUIDPath: Hashable {
         
         self.hash = stringPath.hashValue
     }
-    
-    var hashValue : Int {
-        return self.hash
+
+    public func hash(into hasher: inout Hasher) {
+      hasher.combine(hash)
     }
 }
+
 func ==(lhs: CBUUIDPath, rhs: CBUUIDPath) -> Bool {
     return lhs.hashValue == rhs.hashValue
 }

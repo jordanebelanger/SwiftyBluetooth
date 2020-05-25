@@ -69,7 +69,9 @@ extension CentralProxy {
             completion(.poweredOff)
         case .poweredOn:
             completion(.poweredOn)
-        }
+        @unknown default:
+          completion(.unsupported)
+      }
     }
     
     func initializeBluetooth(_ completion: @escaping InitializeBluetoothCallback) {
