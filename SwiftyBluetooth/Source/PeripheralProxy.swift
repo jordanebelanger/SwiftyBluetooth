@@ -56,7 +56,7 @@ final class PeripheralProxy: NSObject  {
                                                object: Central.sharedInstance,
                                                queue: nil)
         { [weak self] (notification) in
-            if let state = notification.userInfo?["state"] as? CBCentralManagerState, state == .poweredOff {
+            if let state = notification.userInfo?["state"] as? CBManagerState, state == .poweredOff {
                 self?.valid = false
             }
         }
@@ -105,6 +105,7 @@ private final class ReadRSSIRequest {
 extension PeripheralProxy {
     func readRSSI(_ completion: @escaping ReadRSSIRequestCallback) {
         self.connect { (result) in
+            
             if let error = result.error {
                 completion(.failure(error))
                 return
@@ -962,7 +963,7 @@ extension PeripheralProxy: CBPeripheralDelegate {
         
         self.readRSSIRequests.removeFirst()
         
-        let result: SwiftyBluetooth.Result<Int> = {
+        let result: Result<Int, Error> = {
             if let error = error {
                 return .failure(error)
             } else {

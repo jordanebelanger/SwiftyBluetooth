@@ -23,11 +23,6 @@
 
 import CoreBluetooth
 
-// For iOS9 Support
-#if !swift(>=2.3)
-    public typealias CBManagerState = CBCentralManagerState
-#endif
-
 /**
     The different results returned in the closure of the Central scanWithTimeout(...) function.
 
@@ -39,7 +34,7 @@ import CoreBluetooth
 public enum PeripheralScanResult {
     case scanStarted
     case scanResult(peripheral: Peripheral, advertisementData: [String: Any], RSSI: Int?)
-    case scanStopped(error: SBError?)
+    case scanStopped(peripherals: [Peripheral], error: SBError?)
 }
 
 /**
@@ -56,13 +51,14 @@ public enum AsyncCentralState: Int {
     case unauthorized = 3
     case poweredOff = 4
     case poweredOn = 5
+    case unknown = -1
 }
 
 public typealias AsyncCentralStateCallback = (AsyncCentralState) -> Void
-public typealias BluetoothStateCallback = (CBCentralManagerState) -> Void
+public typealias BluetoothStateCallback = (CBManagerState) -> Void
 public typealias PeripheralScanCallback = (PeripheralScanResult) -> Void
-public typealias ConnectPeripheralCallback = (SwiftyBluetooth.Result<Void>) -> Void
-public typealias DisconnectPeripheralCallback = (SwiftyBluetooth.Result<Void>) -> Void
+public typealias ConnectPeripheralCallback = (Result<Void, Error>) -> Void
+public typealias DisconnectPeripheralCallback = (Result<Void, Error>) -> Void
 
 /// A singleton wrapping a CBCentralManager instance to run CBCentralManager related functions with closures based callbacks instead of the usual CBCentralManagerDelegate interface.
 public final class Central {
@@ -139,7 +135,7 @@ extension Central {
 extension Central {
     
     /// The underlying CBCentralManager CBManagerState
-    public var state: CBCentralManagerState {
+    public var state: CBManagerState {
         switch self.centralProxy.centralManager.state.rawValue {
         case 0:
             return .unknown
