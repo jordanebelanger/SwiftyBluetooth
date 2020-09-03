@@ -1,5 +1,5 @@
 # SwiftyBluetooth
-Fully featured closures based library for CoreBluetooth on iOS 9+ devices.
+Fully featured closures based library for CoreBluetooth on iOS 10+ devices.
 
 ## Features
 - Replace the delegate based interface with a closure based interface for every `CBCentralManager` and `CBPeripheral` operation
@@ -8,6 +8,11 @@ Fully featured closures based library for CoreBluetooth on iOS 9+ devices.
 - Precise errors and guaranteed timeout for every Bluetooth operation
 - Will automatically connect to a CBPeripheral and attempt to discover the required BLE services and characteristics required for a read or write operation if necessary.
 - [Full documentation for all public interfaces](http://cocoadocs.org/docsets/SwiftyBluetooth/)
+
+## Version 2.0 update
+- Upgrade to Swift 5.0
+- Now use the standard `Swift.Result` type
+- Increase minimum deployment version to iOS 10+
 
 ## Usage
 The Library has 2 important class:  
@@ -163,7 +168,7 @@ NotificationCenter.default.addObserver(forName: Central.CentralManagerWillRestor
 Add this to your Podfile:
 
 ```ruby
-platform :ios, '9.0'
+platform :ios, '10.0'
 use_frameworks!
 
 pod 'SwiftyBluetooth'
@@ -183,7 +188,7 @@ github "jordanebelanger/SwiftyBluetooth"
 ```
 
 ## Requirements
-SwiftyBluetooth requires iOS 9.0+
+SwiftyBluetooth requires iOS 10.0+
 
 ## License
 SwiftyBluetooth is released under the MIT License.
