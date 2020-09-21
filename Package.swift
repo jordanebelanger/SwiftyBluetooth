@@ -33,7 +33,7 @@ let package = Package(
         .library(name: "SwiftyBluetooth", targets: ["SwiftyBluetooth"])
     ],
     targets: [
-        .target(name: "SwiftyBluetooth", path: "Source")
+        .target(name: "SwiftyBluetooth", path: "Sources")
     ],
     swiftLanguageVersions: [
         .v5
