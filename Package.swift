@@ -26,14 +26,14 @@ let package = Package(
     name: "SwiftyBluetooth",
     platforms: [
         .iOS(.v10),
-        .macOS(.v10_15),
+        .macOS(.v10_11),
         .tvOS(.v10)
     ],
     products: [
-        .library(name: "SwiftyBluetooth", targets: ["SwiftyBluetooth"]),
+        .library(name: "SwiftyBluetooth", targets: ["SwiftyBluetooth"])
     ],
     targets: [
-        .target(name: "SwiftyBluetooth", path: "Source"),
+        .target(name: "SwiftyBluetooth", path: "Source")
     ],
     swiftLanguageVersions: [
         .v5
