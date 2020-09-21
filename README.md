@@ -163,10 +163,7 @@ NotificationCenter.default.addObserver(forName: Central.CentralManagerWillRestor
 Add this to your Podfile:
 
 ```ruby
-platform :ios, '10.0'
-use_frameworks!
-
-pod 'SwiftyBluetooth'
+pod 'SwiftyBluetooth', '~> 2.0.0'
 ```
 ### Swift Package Manager
 Simply add the library to your xcode project as a "Package Dependency"
