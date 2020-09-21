@@ -168,12 +168,6 @@ use_frameworks!
 
 pod 'SwiftyBluetooth'
 ```
-
-Then run:
-
-```bash
-$ pod install
-```
 ### Swift Package Manager
 Simply add the library to your xcode project as a "Package Dependency"
 
