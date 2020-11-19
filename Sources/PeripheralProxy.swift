@@ -52,6 +52,15 @@ final class PeripheralProxy: NSObject  {
         
         cbPeripheral.delegate = self
         
+        NotificationCenter.default.addObserver(forName: Central.CentralCBPeripheralDisconnected,
+                                               object: Central.sharedInstance,
+                                               queue: nil)
+        { [weak self] (notification) in
+            if let identifier = notification.userInfo?["identifier"] as? UUID, identifier == self?.cbPeripheral.identifier {
+                self?.postPeripheralEvent(Peripheral.PeripheralDisconnected, userInfo: notification.userInfo)
+            }
+        }
+        
         NotificationCenter.default.addObserver(forName: Central.CentralStateChange,
                                                object: Central.sharedInstance,
                                                queue: nil)
@@ -74,7 +83,8 @@ final class PeripheralProxy: NSObject  {
         NotificationCenter.default.post(
             name: event,
             object: peripheral,
-            userInfo: userInfo)
+            userInfo: userInfo
+        )
     }
 }
 
@@ -956,6 +966,7 @@ extension PeripheralProxy {
 
 // MARK: CBPeripheralDelegate
 extension PeripheralProxy: CBPeripheralDelegate {
+    
     @objc func peripheral(_ peripheral: CBPeripheral, didReadRSSI RSSI: NSNumber, error: Error?) {
         guard let readRSSIRequest = self.readRSSIRequests.first else {
             return

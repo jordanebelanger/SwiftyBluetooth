@@ -367,6 +367,12 @@ extension CentralProxy: CBCentralManagerDelegate {
         disconnectRequests[uuid] = nil
         
         request.invokeCallbacks(error: error)
+        
+        var userInfo: [AnyHashable: Any] = ["identifier": peripheral.identifier]
+        if let error = error {
+            userInfo["error"] = error
+        }
+        postCentralEvent(Central.CentralCBPeripheralDisconnected, userInfo: userInfo)
     }
     
     func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
