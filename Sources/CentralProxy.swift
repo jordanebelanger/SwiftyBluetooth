@@ -360,19 +360,20 @@ extension CentralProxy: CBCentralManagerDelegate {
     
     func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
         let uuid = peripheral.identifier
+        
+        var userInfo: [AnyHashable: Any] = ["identifier": uuid]
+        if let error = error {
+            userInfo["error"] = error
+        }
+        
+        postCentralEvent(Central.CentralCBPeripheralDisconnected, userInfo: userInfo)
+        
         guard let request = disconnectRequests[uuid] else {
             return
         }
         
         disconnectRequests[uuid] = nil
-        
         request.invokeCallbacks(error: error)
-        
-        var userInfo: [AnyHashable: Any] = ["identifier": peripheral.identifier]
-        if let error = error {
-            userInfo["error"] = error
-        }
-        postCentralEvent(Central.CentralCBPeripheralDisconnected, userInfo: userInfo)
     }
     
     func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
