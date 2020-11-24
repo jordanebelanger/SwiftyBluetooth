@@ -7,7 +7,6 @@ Fully featured closures based library for CoreBluetooth.
 - Notification based event for CBPeripheral name updates, characteristic value updates and services updates
 - Precise errors and guaranteed timeout for every Bluetooth operation
 - Will automatically connect to a CBPeripheral and attempt to discover the required BLE services and characteristics required for a read or write operation if necessary.
-- [Full documentation for all public interfaces](http://cocoadocs.org/docsets/SwiftyBluetooth/)
 
 ## Usage
 The Library has 2 important class:  
