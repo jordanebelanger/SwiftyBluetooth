@@ -1,5 +1,5 @@
 # SwiftyBluetooth
-Fully featured closures based library for CoreBluetooth.
+Closures APIs for CoreBluetooth.
 
 ## Features
 - Replace the delegate based interface with a closure based interface for every `CBCentralManager` and `CBPeripheral` operation
