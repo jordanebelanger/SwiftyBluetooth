@@ -2,10 +2,10 @@
 Closures APIs for CoreBluetooth.
 
 ## Features
-- Replace the delegate based interface with a closure based interface for every `CBCentralManager` and `CBPeripheral` operation
-- Notification based event for CBCentralManager state changes and state restoration  
-- Notification based event for CBPeripheral name updates, characteristic value updates and services updates
-- Precise errors and guaranteed timeout for every Bluetooth operation
+- Replace the delegate based interface with a closure based interface for every `CBCentralManager` and `CBPeripheral` operation.
+- Notification based event for CBCentralManager state changes and state restoration.
+- Notification based event for CBPeripheral name updates, characteristic value updates and services updates.
+- Precise errors and guaranteed timeout for every Bluetooth operation.
 - Will automatically connect to a CBPeripheral and attempt to discover the required BLE services and characteristics required for a read or write operation if necessary.
 
 ## Usage
