@@ -67,12 +67,12 @@ extension CBService {
 
 extension CBCharacteristic {
     var uuidPath: CBUUIDPath {
-        return characteristicPath(service: self.service, characteristic: self)
+        return characteristicPath(service: self.service!, characteristic: self)
     }
 }
 
 extension CBDescriptor {
     var uuidPath: CBUUIDPath {
-        return descriptorPath(service: self.characteristic.service, characteristic: self.characteristic, descriptor: self)
+        return descriptorPath(service: self.characteristic!.service!, characteristic: self.characteristic!, descriptor: self)
     }
 }
