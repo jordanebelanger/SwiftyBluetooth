@@ -433,7 +433,7 @@ private final class DescriptorRequest {
     init(characteristic: CBCharacteristic, callback: @escaping DescriptorRequestCallback) {
         self.callback = callback
         
-        self.service = characteristic.service
+        self.service = characteristic.service!
         self.characteristic = characteristic
     }
     
@@ -508,7 +508,7 @@ private final class ReadCharacteristicRequest {
     init(characteristic: CBCharacteristic, callback: @escaping ReadCharacRequestCallback) {
         self.callback = callback
         
-        self.service = characteristic.service
+        self.service = characteristic.service!
         self.characteristic = characteristic
     }
     
@@ -598,8 +598,8 @@ private final class ReadDescriptorRequest {
         self.callback = callback
         
         self.descriptor = descriptor
-        self.characteristic = descriptor.characteristic
-        self.service = descriptor.characteristic.service
+        self.characteristic = descriptor.characteristic!
+        self.service = descriptor.characteristic!.service!
     }
     
 }
@@ -690,7 +690,7 @@ private final class WriteCharacteristicValueRequest {
         self.value = value
         self.type = type
         self.characteristic = characteristic
-        self.service = characteristic.service
+        self.service = characteristic.service!
     }
     
 }
@@ -797,8 +797,8 @@ private final class WriteDescriptorValueRequest {
         self.callback = callback
         self.value = value
         self.descriptor = descriptor
-        self.characteristic = descriptor.characteristic
-        self.service = descriptor.characteristic.service
+        self.characteristic = descriptor.characteristic!
+        self.service = descriptor.characteristic!.service!
     }
 }
 
@@ -888,7 +888,7 @@ private final class UpdateNotificationStateRequest {
     init(enabled: Bool, characteristic: CBCharacteristic, callback: @escaping UpdateNotificationStateCallback) {
         self.enabled = enabled
         self.characteristic = characteristic
-        self.service = characteristic.service
+        self.service = characteristic.service!
         self.callback = callback
     }
 }

@@ -213,7 +213,7 @@ extension Peripheral {
                                     completion: @escaping DescriptorRequestCallback)
     {
         self.discoverDescriptors(ofCharacWithUUID: charac,
-                                 fromServiceWithUUID: charac.service,
+                                 fromServiceWithUUID: charac.service!,
                                  completion: completion)
     }
     
@@ -240,7 +240,7 @@ extension Peripheral {
                           completion: @escaping ReadCharacRequestCallback)
     {
         self.readValue(ofCharacWithUUID: charac,
-                       fromServiceWithUUID: charac.service,
+                       fromServiceWithUUID: charac.service!,
                        completion: completion)
     }
     
@@ -272,8 +272,8 @@ extension Peripheral {
                           completion: @escaping ReadDescriptorRequestCallback)
     {
         self.readValue(ofDescriptorWithUUID: descriptor,
-                       fromCharacUUID: descriptor.characteristic,
-                       ofServiceUUID: descriptor.characteristic.service,
+                       fromCharacUUID: descriptor.characteristic!,
+                       ofServiceUUID: descriptor.characteristic!.service!,
                        completion: completion)
     }
     
@@ -310,7 +310,7 @@ extension Peripheral {
                            completion: @escaping WriteRequestCallback)
     {
         self.writeValue(ofCharacWithUUID: charac,
-                        fromServiceWithUUID: charac.service,
+                        fromServiceWithUUID: charac.service!,
                         value: value,
                         type: type,
                         completion: completion)
@@ -347,8 +347,8 @@ extension Peripheral {
                            completion: @escaping WriteRequestCallback)
     {
         self.writeValue(ofDescriptorWithUUID: descriptor,
-                        fromCharacWithUUID: descriptor.characteristic,
-                        ofServiceWithUUID: descriptor.characteristic.service,
+                        fromCharacWithUUID: descriptor.characteristic!,
+                        ofServiceWithUUID: descriptor.characteristic!.service!,
                         value: value,
                         completion: completion)
     }
@@ -385,7 +385,7 @@ extension Peripheral {
     {
         self.setNotifyValue(toEnabled: enabled,
                             forCharacWithUUID: charac,
-                            ofServiceWithUUID: charac.service,
+                            ofServiceWithUUID: charac.service!,
                             completion: completion)
     }
     
