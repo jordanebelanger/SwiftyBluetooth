@@ -12,6 +12,6 @@ let package = Package(
         .library(name: "SwiftyBluetooth", targets: ["SwiftyBluetooth"])
     ],
     targets: [
-        .target(name: "SwiftyBluetooth", path: "Sources")
+        .target(name: "SwiftyBluetooth", path: "Sources", exclude: ["Info.plist"])
     ]
 )
