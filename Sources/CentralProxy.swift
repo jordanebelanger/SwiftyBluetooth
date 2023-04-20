@@ -105,7 +105,7 @@ extension CentralProxy {
 // MARK: Scan requests
 private final class PeripheralScanRequest {
     let callback: PeripheralScanCallback
-    var peripherals: [Peripheral] = []
+    var peripherals: [UUID: Peripheral] = [:]
     
     init(callback: @escaping PeripheralScanCallback) {
         self.callback = callback
@@ -147,7 +147,7 @@ extension CentralProxy {
 
         if let scanRequest = self.scanRequest {
             self.scanRequest = nil
-            scanRequest.callback(.scanStopped(peripherals: scanRequest.peripherals, error: error))
+            scanRequest.callback(.scanStopped(peripherals: scanRequest.peripherals.values.map({$0}), error: error))
         }
     }
     
@@ -398,8 +398,10 @@ extension CentralProxy: CBCentralManagerDelegate {
             return
         }
         
+        guard scanRequest.peripherals[peripheral.identifier] == nil else { return }
+        
         let peripheral = Peripheral(peripheral: peripheral)
-        scanRequest.peripherals.append(peripheral)
+        scanRequest.peripherals[peripheral.identifier] = peripheral
         
         var rssiOptional: Int? = Int(truncating: RSSI)
         if let rssi = rssiOptional, rssi == 127 {
